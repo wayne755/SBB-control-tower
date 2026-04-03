@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SBB Control Tower</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f5f3;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .header h1 { font-size: 22px; font-weight: 500; }
+    .header p { font-size: 13px; color: #666; margin-top: 4px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .badge-live {
+      font-size: 11px; padding: 3px 10px;
+      border-radius: 20px;
+      background: #eaf3de; color: #3b6d11;
+      font-weight: 500;
+    }
+    .refresh-btn {
+      font-size: 12px; padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      color: #555;
+    }
+    .refresh-btn:hover { background: #f0f0f0; }
+
+    .status-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .status-pill {
+      font-size: 12px; padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      color: #666;
+      background: #fff;
+    }
+    .status-pill.active { background: #eaf3de; color: #3b6d11; border-color: transparent; }
+    .status-pill.pending { background: #faeeda; color: #854f0b; border-color: transparent; }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .metric {
+      background: #ebebeb;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .metric-label { font-size: 12px; color: #666; margin-bottom: 6px; }
+    .metric-value { font-size: 22px; font-weight: 500; }
+    .metric-sub { font-size: 11px; color: #999; margin-top: 4px; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 1rem;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    .weather-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .weather-row:last-child { border-bottom: none; }
+    .weather-city { font-size: 14px; font-weight: 500; }
+    .weather-desc { font-size: 12px; color: #888; margin-top: 2px; }
+    .weather-temp { font-size: 20px; font-weight: 500; }
+
+    .alert-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .alert-row:last-child { border-bottom: none; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-ok { background: #1D9E75; }
+    .dot-warn { background: #EF9F27; }
+    .dot-err { background: #E24B4A; }
+    .alert-text { font-size: 13px; flex: 1; }
+    .alert-time { font-size: 11px; color: #aaa; }
+
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .phase-item {
+      text-align: center;
+      padding: 12px 8px;
+      border-radius: 8px;
+    }
+    .phase-item.done { background: #eaf3de; }
+    .phase-item.doing { background: #faeeda; }
+    .phase-item.todo { background: #f0f0f0; }
+    .phase-val { font-size: 16px; font-weight: 500; }
+    .phase-val.done { color: #3b6d11; }
+    .phase-val.doing { color: #854f0b; }
+    .phase-val.todo { color: #888; }
+    .phase-name { font-size: 11px; margin-top: 4px; }
+    .phase-name.done { color: #3b6d11; }
+    .phase-name.doing { color: #854f0b; }
+    .phase-name.todo { color: #aaa; }
+
+    .loading-text { font-size: 13px; color: #aaa; text-align: center; padding: 1rem; }
+
+    .last-updated {
+      font-size: 11px;
+      color: #aaa;
+      text-align: right;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 700px) {
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-2 { grid-template-columns: 1fr; }
+      .phase-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div>
+      <h1>SBB Control Tower</h1>
+      <p>삼성SDI 배터리 물류 통합 대시보드</p>
+    </div>
+    <div class="header-right">
+      <span class="badge-live">LIVE</span>
+      <button class="refresh-btn" onclick="loadWeather()">새로고침</button>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span class="status-pill active">OpenWeather 연결됨</span>
+    <span class="status-pill pending">LandingLens 학습완료</span>
+    <span class="status-pill">DAT iQ 대기중</span>
+    <span class="status-pill">BLE 센서 대기중</span>
+  </div>
+
+  <div class="grid-4">
+    <div class="metric">
+      <div class="metric-label">현재 기온 (서울)</div>
+      <div class="metric-value" id="temp-seoul">--°C</div>
+      <div class="metric-sub" id="desc-seoul">불러오는 중...</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">현재 기온 (부산)</div>
+      <div class="metric-value" id="temp-busan">--°C</div>
+      <div class="metric-sub" id="desc-busan">불러오는 중...</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">AI 불량 판별</div>
+      <div class="metric-value" style="color:#3b6d11;">100%</div>
+      <div class="metric-sub">정확도 (샘플 기준)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">트럭 매칭</div>
+      <div class="metric-value" style="color:#854f0b;">대기중</div>
+      <div class="metric-sub">DAT iQ 연동 후 활성화</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">야드 날씨 현황</div>
+      <div id="weather-list">
+        <p class="loading-text">날씨 데이터 불러오는 중...</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">시스템 알림</div>
+      <div class="alert-row">
+        <div class="dot dot-ok"></div>
+        <span class="alert-text">LandingLens AI 모델 학습 완료</span>
+        <span class="alert-time">오늘</span>
+      </div>
+      <div class="alert-row">
+        <div class="dot dot-ok"></div>
+        <span class="alert-text">OpenWeather API Key 발급 완료</span>
+        <span class="alert-time">오늘</span>
+      </div>
+      <div class="alert-row">
+        <div class="dot dot-warn"></div>
+        <span class="alert-text">API Key 활성화 대기 중 (최대 2시간)</span>
+        <span class="alert-time">진행중</span>
+      </div>
+      <div class="alert-row">
+        <div class="dot dot-err"></div>
+        <span class="alert-text">DAT iQ 계약 미완료</span>
+        <span class="alert-time">예정</span>
+      </div>
+      <div class="alert-row">
+        <div class="dot dot-err"></div>
+        <span class="alert-text">BLE 온습도 센서 미연결</span>
+        <span class="alert-time">예정</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Phase 1 진행 현황</div>
+    <div class="phase-grid">
+      <div class="phase-item done">
+        <div class="phase-val done">완료</div>
+        <div class="phase-name done">OpenWeather</div>
+      </div>
+      <div class="phase-item done">
+        <div class="phase-val done">완료</div>
+        <div class="phase-name done">LandingLens</div>
+      </div>
+      <div class="phase-item doing">
+        <div class="phase-val doing">진행중</div>
+        <div class="phase-name doing">DAT iQ</div>
+      </div>
+      <div class="phase-item todo">
+        <div class="phase-val todo">예정</div>
+        <div class="phase-name todo">BLE 센서</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="last-updated" id="last-updated"></div>
+
+</div>
+
+<script>
+  const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
+  const cities = [
+    { name: '서울', en: 'Seoul', id: 'seoul' },
+    { name: '부산', en: 'Busan', id: 'busan' },
+    { name: '인천', en: 'Incheon', id: null },
+    { name: '대전', en: 'Daejeon', id: null },
+  ];
+
+  async function fetchCity(city) {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.en}&appid=${API_KEY}&units=metric&lang=kr`);
+    return res.json();
+  }
+
+  async function loadWeather() {
+    const list = document.getElementById('weather-list');
+    list.innerHTML = '<p class="loading-text">불러오는 중...</p>';
+
+    try {
+      const results = await Promise.all(cities.map(c => fetchCity(c)));
+      const allOk = results.every(r => r.cod === 200);
+
+      if (!allOk) {
+        list.innerHTML = `
+          <div style="padding:12px; text-align:center;">
+            <p style="font-size:13px; color:#854f0b; margin:0 0 8px;">API Key 활성화 대기 중</p>
+            <p style="font-size:12px; color:#aaa; margin:0;">발급 후 최대 2시간 소요됩니다.<br>활성화되면 실시간 날씨가 자동으로 표시됩니다.</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = results.map((data, i) => {
+        const temp = Math.round(data.main.temp);
+        const desc = data.weather[0].description;
+        const humidity = data.main.humidity;
+        return `
+          <div class="weather-row">
+            <div>
+              <div class="weather-city">${cities[i].name}</div>
+              <div class="weather-desc">${desc} · 습도 ${humidity}%</div>
+            </div>
+            <div class="weather-temp">${temp}°C</div>
+          </div>`;
+      }).join('');
+
+      const s = results[0];
+      const b = results[1];
+      if (s.cod === 200) {
+        document.getElementById('temp-seoul').textContent = Math.round(s.main.temp) + '°C';
+        document.getElementById('desc-seoul').textContent = s.weather[0].description;
+      }
+      if (b.cod === 200) {
+        document.getElementById('temp-busan').textContent = Math.round(b.main.temp) + '°C';
+        document.getElementById('desc-busan').textContent = b.weather[0].description;
+      }
+
+      const now = new Date();
+      document.getElementById('last-updated').textContent =
+        `마지막 업데이트: ${now.toLocaleTimeString('ko-KR')}`;
+
+    } catch(e) {
+      list.innerHTML = '<p class="loading-text">네트워크 오류. 새로고침을 눌러주세요.</p>';
+    }
+  }
+
+  loadWeather();
+  setInterval(loadWeather, 5 * 60 * 1000);
+</script>
+</body>
+</html>
