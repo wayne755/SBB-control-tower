@@ -176,12 +176,12 @@
 
   <div class="grid-4">
     <div class="metric">
-      <div class="metric-label">현재 기온 (서울)</div>
+      <div class="metric-label">현재 기온 (LA)</div>
       <div class="metric-value" id="temp-seoul">--°C</div>
       <div class="metric-sub" id="desc-seoul">불러오는 중...</div>
     </div>
     <div class="metric">
-      <div class="metric-label">현재 기온 (부산)</div>
+      <div class="metric-label">현재 기온 (롱비치)</div>
       <div class="metric-value" id="temp-busan">--°C</div>
       <div class="metric-sub" id="desc-busan">불러오는 중...</div>
     </div>
@@ -263,10 +263,10 @@
 <script>
   const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
   const cities = [
-    { name: '서울', en: 'Seoul', id: 'seoul' },
-    { name: '부산', en: 'Busan', id: 'busan' },
-    { name: '인천', en: 'Incheon', id: null },
-    { name: '대전', en: 'Daejeon', id: null },
+    { name: 'LA 다운타운', en: 'Los Angeles', id: 'seoul' },
+    { name: '롱비치', en: 'Long Beach', id: 'busan' },
+    { name: '어바인', en: 'Irvine', id: null },
+    { name: '샌디에이고', en: 'San Diego', id: null },
   ];
 
   async function fetchCity(city) {
