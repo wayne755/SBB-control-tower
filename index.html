@@ -146,10 +146,73 @@
       margin-top: 1rem;
     }
 
+    .truck-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .truck-card {
+      background: #f9f9f9;
+      border: 1px solid #e5e5e5;
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .truck-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .truck-id { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+    .truck-status {
+      font-size: 11px; padding: 2px 8px;
+      border-radius: 20px; font-weight: 500;
+    }
+    .truck-status.waiting { background: #faeeda; color: #854f0b; }
+    .truck-status.moving { background: #eaf3de; color: #3b6d11; }
+    .truck-status.done { background: #e6f1fb; color: #185fa5; }
+    .truck-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px solid #f0f0f0;
+      color: #555;
+    }
+    .truck-row:last-child { border-bottom: none; }
+    .truck-row span:last-child { color: #1a1a1a; font-weight: 500; }
+    .dummy-badge {
+      font-size: 10px; padding: 2px 8px;
+      border-radius: 20px;
+      background: #f0f0f0; color: #999;
+      margin-left: 8px;
+    }
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .sensor-card {
+      background: #f9f9f9;
+      border: 1px solid #e5e5e5;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .sensor-name { font-size: 11px; color: #888; margin-bottom: 6px; }
+    .sensor-value { font-size: 20px; font-weight: 500; color: #1a1a1a; }
+    .sensor-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+    .sensor-card.warning { border-color: #EF9F27; background: #fffbf0; }
+    .sensor-card.warning .sensor-value { color: #854f0b; }
+
     @media (max-width: 700px) {
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
       .grid-2 { grid-template-columns: 1fr; }
       .phase-grid { grid-template-columns: repeat(2, 1fr); }
+      .truck-grid { grid-template-columns: 1fr; }
+      .sensor-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -170,7 +233,7 @@
   <div class="status-bar">
     <span class="status-pill active">OpenWeather 연결됨</span>
     <span class="status-pill pending" onclick="window.open('https://app.landing.ai/','_blank')" style="cursor:pointer;">LandingLens 학습완료 ↗</span>
-    <span class="status-pill">DAT iQ 대기중</span>
+    <span class="status-pill pending" onclick="window.open('https://www.trulos.com/load-board','_blank')" style="cursor:pointer;">트럭 매칭 (Trulos) ↗</span>
     <span class="status-pill">BLE 센서 대기중</span>
   </div>
 
@@ -222,14 +285,85 @@
         <span class="alert-time">진행중</span>
       </div>
       <div class="alert-row">
-        <div class="dot dot-err"></div>
-        <span class="alert-text">DAT iQ 계약 미완료</span>
-        <span class="alert-time">예정</span>
+        <div class="dot dot-warn"></div>
+        <span class="alert-text">트럭 매칭 — Trulos 무료 사용 중</span>
+        <span class="alert-time">진행중</span>
       </div>
       <div class="alert-row">
         <div class="dot dot-err"></div>
         <span class="alert-text">BLE 온습도 센서 미연결</span>
         <span class="alert-time">예정</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      빈 트럭 매칭 현황
+      <span class="dummy-badge">더미 데이터 — Trulos 연동 예정</span>
+    </div>
+    <div class="truck-grid">
+      <div class="truck-card">
+        <div class="truck-card-header">
+          <span class="truck-id">TRK-2025-001</span>
+          <span class="truck-status waiting">대기중</span>
+        </div>
+        <div class="truck-row"><span>출발지</span><span>LA 항구</span></div>
+        <div class="truck-row"><span>도착지</span><span>토렌스 SDI</span></div>
+        <div class="truck-row"><span>적재 가능</span><span>18톤</span></div>
+        <div class="truck-row"><span>예상 출발</span><span>2025-05-10</span></div>
+        <div class="truck-row"><span>온습도</span><span style="color:#3b6d11;">정상</span></div>
+      </div>
+      <div class="truck-card">
+        <div class="truck-card-header">
+          <span class="truck-id">TRK-2025-002</span>
+          <span class="truck-status moving">운송중</span>
+        </div>
+        <div class="truck-row"><span>출발지</span><span>LA 항구</span></div>
+        <div class="truck-row"><span>도착지</span><span>토렌스 SDI</span></div>
+        <div class="truck-row"><span>적재 가능</span><span>15톤</span></div>
+        <div class="truck-row"><span>예상 도착</span><span>2025-05-15</span></div>
+        <div class="truck-row"><span>온습도</span><span style="color:#854f0b;">경고</span></div>
+      </div>
+      <div class="truck-card">
+        <div class="truck-card-header">
+          <span class="truck-id">TRK-2025-003</span>
+          <span class="truck-status done">완료</span>
+        </div>
+        <div class="truck-row"><span>출발지</span><span>롱비치 항구</span></div>
+        <div class="truck-row"><span>도착지</span><span>어바인 SDI</span></div>
+        <div class="truck-row"><span>적재 가능</span><span>20톤</span></div>
+        <div class="truck-row"><span>도착 완료</span><span>2025-05-08</span></div>
+        <div class="truck-row"><span>온습도</span><span style="color:#3b6d11;">정상</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      BLE 온습도 센서 현황
+      <span class="dummy-badge">더미 데이터 — 센서 설치 후 활성화</span>
+    </div>
+    <div class="sensor-grid">
+      <div class="sensor-card">
+        <div class="sensor-name">게이트 1</div>
+        <div class="sensor-value">23°C</div>
+        <div class="sensor-sub">습도 45%</div>
+      </div>
+      <div class="sensor-card warning">
+        <div class="sensor-name">게이트 2</div>
+        <div class="sensor-value">31°C</div>
+        <div class="sensor-sub">습도 78% ⚠️</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-name">게이트 3</div>
+        <div class="sensor-value">22°C</div>
+        <div class="sensor-sub">습도 42%</div>
+      </div>
+      <div class="sensor-card">
+        <div class="sensor-name">게이트 4</div>
+        <div class="sensor-value">24°C</div>
+        <div class="sensor-sub">습도 50%</div>
       </div>
     </div>
   </div>
@@ -247,7 +381,7 @@
       </div>
       <div class="phase-item doing">
         <div class="phase-val doing">진행중</div>
-        <div class="phase-name doing">DAT iQ</div>
+        <div class="phase-name doing">Trulos</div>
       </div>
       <div class="phase-item todo">
         <div class="phase-val todo">예정</div>
