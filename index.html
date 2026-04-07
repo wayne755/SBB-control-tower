@@ -549,20 +549,38 @@
       const data = await response.json();
       console.log('API 전체 응답:', JSON.stringify(data));
 
-      // backbonepredictions에서 damage 여부 확인
+      // backbonepredictions 처리 (배열 또는 객체 모두 처리)
       let hasDamage = false;
       let finalScore = 0;
 
-      if (data && Array.isArray(data.backbonepredictions) && data.backbonepredictions.length > 0) {
-        hasDamage = data.backbonepredictions.some(p => (p.labelName || '').toLowerCase() === 'damage');
-        finalScore = data.backbonepredictions[0].score || 0;
+      if (data && data.backbonepredictions) {
+        const bp = data.backbonepredictions;
+        
+        if (Array.isArray(bp)) {
+          // 배열인 경우
+          hasDamage = bp.some(p => (p.labelName || '').toLowerCase() === 'damage');
+          if (bp.length > 0) finalScore = bp[0].score || 0;
+        } else if (typeof bp === 'object') {
+          // 객체인 경우 → 값들을 순회
+          const values = Object.values(bp);
+          hasDamage = values.some(p => (p.labelName || '').toLowerCase() === 'damage');
+          if (values.length > 0) finalScore = values[0].score || 0;
+        }
       }
 
-      // predictions에서 NG 여부 확인
-      if (data && Array.isArray(data.predictions) && data.predictions.length > 0) {
-        const p = data.predictions[0];
-        if ((p.labelName || '').toLowerCase() === 'ng') hasDamage = true;
-        if (!finalScore) finalScore = p.score || 0;
+      // predictions 처리 (배열 또는 객체 모두 처리)
+      if (data && data.predictions) {
+        const preds = data.predictions;
+        
+        if (Array.isArray(preds) && preds.length > 0) {
+          const p = preds[0];
+          if ((p.labelName || '').toLowerCase() === 'ng') hasDamage = true;
+          if (!finalScore) finalScore = p.score || 0;
+        } else if (typeof preds === 'object') {
+          const values = Object.values(preds);
+          if (values.some(p => (p.labelName || '').toLowerCase() === 'ng')) hasDamage = true;
+          if (!finalScore && values.length > 0) finalScore = values[0].score || 0;
+        }
       }
 
       // 최종 판별 표시
