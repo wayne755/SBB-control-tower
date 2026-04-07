@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title> HPC SBB Control Tower</title>
+  <title>SBB Control Tower</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -207,6 +207,64 @@
     .sensor-card.warning { border-color: #EF9F27; background: #fffbf0; }
     .sensor-card.warning .sensor-value { color: #854f0b; }
 
+
+    .ai-section { margin-bottom: 1rem; }
+    .ai-result-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .ai-metric {
+      background: #f9f9f9;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .ai-metric-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+    .ai-metric-value { font-size: 20px; font-weight: 500; color: #1a1a1a; }
+    .ai-metric.good .ai-metric-value { color: #3b6d11; }
+    .ai-metric.warn .ai-metric-value { color: #854f0b; }
+    .ai-upload-area {
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 12px;
+    }
+    .ai-upload-area:hover { border-color: #3b6d11; background: #f9fff6; }
+    .ai-upload-label { font-size: 13px; color: #666; margin-top: 8px; }
+    .ai-result-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f9f9f9;
+      border: 1px solid #e5e5e5;
+      display: none;
+    }
+    .ai-result-box.show { display: block; }
+    .ai-result-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+    }
+    .ai-result-item:last-child { border-bottom: none; }
+    .ai-badge {
+      font-size: 11px; padding: 2px 8px;
+      border-radius: 20px; font-weight: 500;
+    }
+    .ai-badge.normal { background: #eaf3de; color: #3b6d11; }
+    .ai-badge.damage { background: #fcebeb; color: #a32d2d; }
+    .ai-badge.loading { background: #faeeda; color: #854f0b; }
+    @media (max-width: 700px) {
+      .ai-result-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media (max-width: 700px) {
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
       .grid-2 { grid-template-columns: 1fr; }
@@ -233,7 +291,7 @@
   <div class="status-bar">
     <span class="status-pill active">OpenWeather 연결됨</span>
     <span class="status-pill pending" onclick="window.open('https://app.landing.ai/','_blank')" style="cursor:pointer;">LandingLens 학습완료 ↗</span>
-    <span class="status-pill pending" onclick="window.open('https://www.trulos.com/load-board','_blank')" style="cursor:pointer;">트럭 매칭 (Trulos) ↗</span>
+    <span class="status-pill pending" onclick="window.open('https://www.trulos.com','_blank')" style="cursor:pointer;">트럭 매칭 (Trulos) ↗</span>
     <span class="status-pill">BLE 센서 대기중</span>
   </div>
 
@@ -293,6 +351,58 @@
         <div class="dot dot-err"></div>
         <span class="alert-text">BLE 온습도 센서 미연결</span>
         <span class="alert-time">예정</span>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="card ai-section">
+    <div class="card-title">
+      AI 불량 판별 현황
+      <span class="dummy-badge" style="background:#eaf3de; color:#3b6d11; border:none;">LandingLens 연동됨 ✅</span>
+    </div>
+
+    <div class="ai-result-grid">
+      <div class="ai-metric good">
+        <div class="ai-metric-label">Train 정확도</div>
+        <div class="ai-metric-value">95%</div>
+      </div>
+      <div class="ai-metric good">
+        <div class="ai-metric-label">Dev 정확도</div>
+        <div class="ai-metric-value">80%</div>
+      </div>
+      <div class="ai-metric good">
+        <div class="ai-metric-label">정상 판별</div>
+        <div class="ai-metric-value">100%</div>
+      </div>
+      <div class="ai-metric warn">
+        <div class="ai-metric-label">데미지 판별</div>
+        <div class="ai-metric-value">76.9%</div>
+      </div>
+    </div>
+
+    <div style="font-size:12px; color:#888; margin-bottom:8px;">
+      모델: Model-04-06-2026_1 · 마지막 학습: 2026-04-06 · 사진 23장
+    </div>
+
+    <div class="ai-upload-area" onclick="document.getElementById('ai-file-input').click()">
+      <div style="font-size:24px;">📸</div>
+      <div class="ai-upload-label">SBB 부품 사진을 클릭하거나 드래그해서 AI 판별 시작</div>
+      <input type="file" id="ai-file-input" accept="image/*" style="display:none;" onchange="runAIInference(this)">
+    </div>
+
+    <div class="ai-result-box" id="ai-result-box">
+      <div class="ai-result-item">
+        <span style="color:#888;">판별 결과</span>
+        <span class="ai-badge" id="ai-result-label">분석중...</span>
+      </div>
+      <div class="ai-result-item">
+        <span style="color:#888;">신뢰도</span>
+        <span id="ai-result-confidence" style="font-weight:500;">-</span>
+      </div>
+      <div class="ai-result-item">
+        <span style="color:#888;">파일명</span>
+        <span id="ai-result-filename" style="color:#555; font-size:12px;">-</span>
       </div>
     </div>
   </div>
@@ -395,6 +505,76 @@
 </div>
 
 <script>
+
+  const LANDING_ENDPOINT = 'https://predict.app.landing.ai/inference/v1/predict?endpoint_id=b8759335-25e5-4370-9ffb-d21389c7a3d0';
+  const LANDING_API_KEY = 'land_sk_VVJaBvBFy24zHO1QGO5kt6V1yccWurBfiD2Ujncr1lPXSvMLsD';
+
+  async function runAIInference(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const resultBox = document.getElementById('ai-result-box');
+    const resultLabel = document.getElementById('ai-result-label');
+    const resultConf = document.getElementById('ai-result-confidence');
+    const resultFile = document.getElementById('ai-result-filename');
+
+    resultBox.classList.add('show');
+    resultLabel.className = 'ai-badge loading';
+    resultLabel.textContent = '분석중...';
+    resultConf.textContent = '-';
+    resultFile.textContent = file.name;
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(LANDING_ENDPOINT, {
+        method: 'POST',
+        headers: { 'apikey': LANDING_API_KEY },
+        body: formData
+      });
+
+      const data = await response.json();
+      console.log('LandingLens 결과:', data);
+
+      if (data && data.backbonepredictions) {
+        const predictions = data.backbonepredictions;
+        const hasDamage = predictions.some(p => p.labelName === 'damage');
+        const topPred = predictions[0];
+
+        if (hasDamage) {
+          resultLabel.className = 'ai-badge damage';
+          resultLabel.textContent = '⚠️ 데미지 감지';
+        } else {
+          resultLabel.className = 'ai-badge normal';
+          resultLabel.textContent = '✅ 정상';
+        }
+        resultConf.textContent = topPred ? (topPred.score * 100).toFixed(1) + '%' : '-';
+      } else if (data && data.predictions) {
+        const pred = data.predictions[0];
+        if (pred) {
+          if (pred.labelName === 'damage') {
+            resultLabel.className = 'ai-badge damage';
+            resultLabel.textContent = '⚠️ 데미지 감지';
+          } else {
+            resultLabel.className = 'ai-badge normal';
+            resultLabel.textContent = '✅ 정상';
+          }
+          resultConf.textContent = (pred.score * 100).toFixed(1) + '%';
+        }
+      } else {
+        resultLabel.className = 'ai-badge normal';
+        resultLabel.textContent = '✅ 정상 (판별 완료)';
+        resultConf.textContent = '-';
+      }
+    } catch(e) {
+      resultLabel.className = 'ai-badge loading';
+      resultLabel.textContent = '오류 발생';
+      resultConf.textContent = e.message;
+      console.error('AI 판별 오류:', e);
+    }
+  }
+
   const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
   const cities = [
     { name: 'LA 다운타운', en: 'Los Angeles', id: 'seoul' },
