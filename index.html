@@ -181,41 +181,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- Stats Row -->
-    <div class="grid grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">현재 기온 (LA)</span>
-          <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings:'FILL' 1;">wb_sunny</span>
-        </div>
-        <h3 class="text-3xl font-black font-public-sans" id="temp-seoul">--°C</h3>
-        <p class="text-xs text-stone-400 mt-1" id="desc-seoul">불러오는 중...</p>
-      </div>
-      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">현재 기온 (롱비치)</span>
-          <span class="material-symbols-outlined text-secondary text-lg">cloud</span>
-        </div>
-        <h3 class="text-3xl font-black font-public-sans" id="temp-busan">--°C</h3>
-        <p class="text-xs text-stone-400 mt-1" id="desc-busan">불러오는 중...</p>
-      </div>
-      <div class="bg-white p-5 rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">AI 판별 정확도</span>
-          <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings:'FILL' 1;">check_circle</span>
-        </div>
-        <h3 class="text-3xl font-black font-public-sans text-primary">95%</h3>
-        <p class="text-xs text-primary font-medium mt-1">Train set 기준</p>
-      </div>
-      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
-        <div class="flex justify-between items-start mb-3">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">트럭 매칭</span>
-          <span class="material-symbols-outlined text-secondary text-lg">local_shipping</span>
-        </div>
-        <h3 class="text-3xl font-black font-public-sans text-secondary">3대</h3>
-        <p class="text-xs text-stone-400 mt-1">더미 데이터</p>
-      </div>
-    </div>
+
 
     <!-- Windy + Weather/Alerts -->
     <div class="grid grid-cols-3 gap-6">
@@ -243,20 +209,112 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         </div>
       </div>
       <div class="space-y-4">
+
+        <!-- 포트별 물량 현황 -->
         <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
-          <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">야드 날씨 현황</h3>
-          <div id="weather-list"><p class="text-xs text-stone-400 text-center py-2">불러오는 중...</p></div>
-        </div>
-        <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
-          <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">시스템 알림</h3>
-          <div class="space-y-2.5">
-            <div class="flex items-center gap-2"><div class="dot dot-ok"></div><span class="text-xs flex-1">LandingLens AI 모델 학습 완료</span><span class="text-[10px] text-stone-300">오늘</span></div>
-            <div class="flex items-center gap-2"><div class="dot dot-ok"></div><span class="text-xs flex-1">OpenWeather API Key 발급 완료</span><span class="text-[10px] text-stone-300">오늘</span></div>
-            <div class="flex items-center gap-2"><div class="dot dot-warn"></div><span class="text-xs flex-1">API Key 활성화 대기 중</span><span class="text-[10px] text-stone-300">진행중</span></div>
-            <div class="flex items-center gap-2"><div class="dot dot-err"></div><span class="text-xs flex-1">DAT iQ 계약 미완료</span><span class="text-[10px] text-stone-300">예정</span></div>
-            <div class="flex items-center gap-2"><div class="dot dot-err"></div><span class="text-xs flex-1">BLE 온습도 센서 미연결</span><span class="text-[10px] text-stone-300">예정</span></div>
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400">포트별 물량 현황</h3>
+            <span class="text-[10px] text-stone-300">기준: 오늘</span>
+          </div>
+
+          <!-- 롱비치 -->
+          <div class="mb-4">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
+              <span class="text-xs font-bold text-stone-700">롱비치항 (Long Beach)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="bg-blue-50 rounded-lg p-2.5 text-center">
+                <p class="text-[9px] uppercase tracking-widest text-blue-400 mb-1">입항 대기</p>
+                <p class="text-xl font-black font-public-sans text-blue-600">14</p>
+                <p class="text-[9px] text-blue-400">컨테이너</p>
+              </div>
+              <div class="bg-amber-50 rounded-lg p-2.5 text-center">
+                <p class="text-[9px] uppercase tracking-widest text-amber-500 mb-1">통관 중</p>
+                <p class="text-xl font-black font-public-sans text-amber-600">6</p>
+                <p class="text-[9px] text-amber-400">컨테이너</p>
+              </div>
+              <div class="bg-green-50 rounded-lg p-2.5 text-center">
+                <p class="text-[9px] uppercase tracking-widest text-green-500 mb-1">반출 완료</p>
+                <p class="text-xl font-black font-public-sans text-primary">22</p>
+                <p class="text-[9px] text-green-500">컨테이너</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- LA 항구 -->
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-2 h-2 rounded-full bg-purple-500 shrink-0"></div>
+              <span class="text-xs font-bold text-stone-700">LA 항구 (Port of LA)</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="bg-blue-50 rounded-lg p-2.5 text-center">
+                <p class="text-[9px] uppercase tracking-widest text-blue-400 mb-1">입항 대기</p>
+                <p class="text-xl font-black font-public-sans text-blue-600">9</p>
+                <p class="text-[9px] text-blue-400">컨테이너</p>
+              </div>
+              <div class="bg-amber-50 rounded-lg p-2.5 text-center">
+                <p class="text-[9px] uppercase tracking-widest text-amber-500 mb-1">통관 중</p>
+                <p class="text-xl font-black font-public-sans text-amber-600">3</p>
+                <p class="text-[9px] text-amber-400">컨테이너</p>
+              </div>
+              <div class="bg-green-50 rounded-lg p-2.5 text-center">
+                <p class="text-[9px] uppercase tracking-widest text-green-500 mb-1">반출 완료</p>
+                <p class="text-xl font-black font-public-sans text-primary">17</p>
+                <p class="text-[9px] text-green-500">컨테이너</p>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- 물량 파이프라인 -->
+        <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+          <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">오늘의 물량 파이프라인</h3>
+          <div class="space-y-2.5">
+            <!-- 단계별 흐름 -->
+            <div class="flex items-center gap-2">
+              <div class="flex-shrink-0 w-20 text-[10px] font-bold text-stone-500 text-right">항구 입항</div>
+              <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
+                <div class="absolute inset-y-0 left-0 bg-blue-400 rounded-full" style="width:78%"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white mix-blend-multiply" style="color:#1e40af">23개</span>
+              </div>
+              <div class="text-[10px] font-bold text-blue-600 w-8 text-right">23</div>
+            </div>
+            <div class="flex justify-center text-stone-300 text-xs">↓</div>
+            <div class="flex items-center gap-2">
+              <div class="flex-shrink-0 w-20 text-[10px] font-bold text-stone-500 text-right">통관</div>
+              <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
+                <div class="absolute inset-y-0 left-0 bg-amber-400 rounded-full" style="width:31%"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold" style="color:#92400e">9개</span>
+              </div>
+              <div class="text-[10px] font-bold text-amber-600 w-8 text-right">9</div>
+            </div>
+            <div class="flex justify-center text-stone-300 text-xs">↓</div>
+            <div class="flex items-center gap-2">
+              <div class="flex-shrink-0 w-20 text-[10px] font-bold text-stone-500 text-right">야드 입고</div>
+              <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
+                <div class="absolute inset-y-0 left-0 bg-lime-500 rounded-full" style="width:55%"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold" style="color:#166534">16개</span>
+              </div>
+              <div class="text-[10px] font-bold text-primary w-8 text-right">16</div>
+            </div>
+            <div class="flex justify-center text-stone-300 text-xs">↓</div>
+            <div class="flex items-center gap-2">
+              <div class="flex-shrink-0 w-20 text-[10px] font-bold text-stone-500 text-right">SDI 납품</div>
+              <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
+                <div class="absolute inset-y-0 left-0 bg-primary rounded-full" style="width:100%"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">39개 ✅</span>
+              </div>
+              <div class="text-[10px] font-bold text-primary w-8 text-right">39</div>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-stone-100 flex justify-between text-[10px] text-stone-400">
+            <span>오늘 총 처리량 <b class="text-on-surface">71개</b></span>
+            <span>납품 완료율 <b class="text-primary">54.9%</b></span>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -681,9 +739,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
           <div><p class="text-sm font-semibold">${cities[i].name}</p><p class="text-[11px] text-stone-400">${data.weather[0].description} · 습도 ${data.main.humidity}%</p></div>
           <span class="text-lg font-black font-public-sans">${temp}°C</span></div>`;
       }).join('');
-      const s = results[0], b = results[1];
-      if (s.cod===200) { document.getElementById('temp-seoul').textContent=Math.round(s.main.temp)+'°C'; document.getElementById('desc-seoul').textContent=s.weather[0].description; }
-      if (b.cod===200) { document.getElementById('temp-busan').textContent=Math.round(b.main.temp)+'°C'; document.getElementById('desc-busan').textContent=b.weather[0].description; }
+
       const t = `마지막 업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
       document.getElementById('last-updated').textContent = t;
       document.getElementById('last-updated-top').textContent = t;
