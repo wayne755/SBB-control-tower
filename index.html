@@ -1,929 +1,464 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SBB Control Tower</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f5f5f3;
-      color: #1a1a1a;
-      min-height: 100vh;
-      padding: 2rem;
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SBB Control Tower | 삼성SDI 물류 관제</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        "surface-container-low": "#f4f4f2",
+        "surface-bright": "#f9f9f7",
+        "on-surface-variant": "#42493b",
+        "outline-variant": "#c2c9b7",
+        "surface-container": "#eeeeec",
+        "surface-container-highest": "#e2e3e1",
+        "surface-container-high": "#e8e8e6",
+        "surface-container-lowest": "#ffffff",
+        "on-surface": "#1a1c1b",
+        "primary": "#275300",
+        "primary-container": "#3b6d11",
+        "on-primary": "#ffffff",
+        "primary-fixed": "#b8f389",
+        "on-primary-fixed-variant": "#265100",
+        "secondary": "#88520e",
+        "secondary-container": "#feb56b",
+        "secondary-fixed": "#ffdcbe",
+        "on-secondary-fixed-variant": "#693c00",
+        "error": "#ba1a1a",
+        "error-container": "#ffdad6",
+        "surface": "#f9f9f7",
+      },
+      fontFamily: {
+        "headline": ["Public Sans"],
+        "body": ["Inter"],
+      }
     }
-    .container { max-width: 1100px; margin: 0 auto; }
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-    }
-    .header h1 { font-size: 22px; font-weight: 500; }
-    .header p { font-size: 13px; color: #666; margin-top: 4px; }
-    .header-right { display: flex; align-items: center; gap: 10px; }
-    .badge-live {
-      font-size: 11px; padding: 3px 10px;
-      border-radius: 20px;
-      background: #eaf3de; color: #3b6d11;
-      font-weight: 500;
-    }
-    .refresh-btn {
-      font-size: 12px; padding: 6px 14px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      background: #fff;
-      cursor: pointer;
-      color: #555;
-    }
-    .refresh-btn:hover { background: #f0f0f0; }
-
-    .status-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
-    .status-pill {
-      font-size: 12px; padding: 4px 12px;
-      border-radius: 20px;
-      border: 1px solid #ddd;
-      color: #666;
-      background: #fff;
-    }
-    .status-pill.active { background: #eaf3de; color: #3b6d11; border-color: transparent; }
-    .status-pill.pending { background: #faeeda; color: #854f0b; border-color: transparent; }
-
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 1.5rem;
-    }
-    .metric {
-      background: #ebebeb;
-      border-radius: 8px;
-      padding: 1rem;
-    }
-    .metric-label { font-size: 12px; color: #666; margin-bottom: 6px; }
-    .metric-value { font-size: 22px; font-weight: 500; }
-    .metric-sub { font-size: 11px; color: #999; margin-top: 4px; }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-bottom: 1rem;
-    }
-    .card {
-      background: #fff;
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1rem;
-    }
-    .card-title {
-      font-size: 11px;
-      font-weight: 500;
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 12px;
-    }
-
-    .weather-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .weather-row:last-child { border-bottom: none; }
-    .weather-city { font-size: 14px; font-weight: 500; }
-    .weather-desc { font-size: 12px; color: #888; margin-top: 2px; }
-    .weather-temp { font-size: 20px; font-weight: 500; }
-
-    .alert-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .alert-row:last-child { border-bottom: none; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .dot-ok { background: #1D9E75; }
-    .dot-warn { background: #EF9F27; }
-    .dot-err { background: #E24B4A; }
-    .alert-text { font-size: 13px; flex: 1; }
-    .alert-time { font-size: 11px; color: #aaa; }
-
-    .phase-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-    .phase-item {
-      text-align: center;
-      padding: 12px 8px;
-      border-radius: 8px;
-    }
-    .phase-item.done { background: #eaf3de; }
-    .phase-item.doing { background: #faeeda; }
-    .phase-item.todo { background: #f0f0f0; }
-    .phase-val { font-size: 16px; font-weight: 500; }
-    .phase-val.done { color: #3b6d11; }
-    .phase-val.doing { color: #854f0b; }
-    .phase-val.todo { color: #888; }
-    .phase-name { font-size: 11px; margin-top: 4px; }
-    .phase-name.done { color: #3b6d11; }
-    .phase-name.doing { color: #854f0b; }
-    .phase-name.todo { color: #aaa; }
-
-    .loading-text { font-size: 13px; color: #aaa; text-align: center; padding: 1rem; }
-
-    .last-updated {
-      font-size: 11px;
-      color: #aaa;
-      text-align: right;
-      margin-top: 1rem;
-    }
-
-    .truck-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 4px;
-    }
-    .truck-card {
-      background: #f9f9f9;
-      border: 1px solid #e5e5e5;
-      border-radius: 10px;
-      padding: 14px;
-    }
-    .truck-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .truck-id { font-size: 13px; font-weight: 500; color: #1a1a1a; }
-    .truck-status {
-      font-size: 11px; padding: 2px 8px;
-      border-radius: 20px; font-weight: 500;
-    }
-    .truck-status.waiting { background: #faeeda; color: #854f0b; }
-    .truck-status.moving { background: #eaf3de; color: #3b6d11; }
-    .truck-status.done { background: #e6f1fb; color: #185fa5; }
-    .truck-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      padding: 4px 0;
-      border-bottom: 1px solid #f0f0f0;
-      color: #555;
-    }
-    .truck-row:last-child { border-bottom: none; }
-    .truck-row span:last-child { color: #1a1a1a; font-weight: 500; }
-    .dummy-badge {
-      font-size: 10px; padding: 2px 8px;
-      border-radius: 20px;
-      background: #f0f0f0; color: #999;
-      margin-left: 8px;
-    }
-    .sensor-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-top: 4px;
-    }
-    .sensor-card {
-      background: #f9f9f9;
-      border: 1px solid #e5e5e5;
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
-    }
-    .sensor-name { font-size: 11px; color: #888; margin-bottom: 6px; }
-    .sensor-value { font-size: 20px; font-weight: 500; color: #1a1a1a; }
-    .sensor-sub { font-size: 11px; color: #aaa; margin-top: 4px; }
-    .sensor-card.warning { border-color: #EF9F27; background: #fffbf0; }
-    .sensor-card.warning .sensor-value { color: #854f0b; }
-
-
-    .ai-section { margin-bottom: 1rem; }
-    .ai-result-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .ai-metric {
-      background: #f9f9f9;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-    }
-    .ai-metric-label { font-size: 11px; color: #888; margin-bottom: 4px; }
-    .ai-metric-value { font-size: 20px; font-weight: 500; color: #1a1a1a; }
-    .ai-metric.good .ai-metric-value { color: #3b6d11; }
-    .ai-metric.warn .ai-metric-value { color: #854f0b; }
-    .ai-upload-area {
-      border: 2px dashed #ddd;
-      border-radius: 10px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 12px;
-    }
-    .ai-upload-area:hover { border-color: #3b6d11; background: #f9fff6; }
-    .ai-upload-label { font-size: 13px; color: #666; margin-top: 8px; }
-    .ai-result-box {
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #f9f9f9;
-      border: 1px solid #e5e5e5;
-      display: none;
-    }
-    .ai-result-box.show { display: block; }
-    .ai-result-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid #f0f0f0;
-      font-size: 13px;
-    }
-    .ai-result-item:last-child { border-bottom: none; }
-    .ai-badge {
-      font-size: 11px; padding: 2px 8px;
-      border-radius: 20px; font-weight: 500;
-    }
-    .ai-badge.normal { background: #eaf3de; color: #3b6d11; }
-    .ai-badge.damage { background: #fcebeb; color: #a32d2d; }
-    .ai-badge.loading { background: #faeeda; color: #854f0b; }
-
-    .windy-section { margin-bottom: 1rem; }
-    .windy-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .windy-tab {
-      font-size: 12px; padding: 5px 14px;
-      border-radius: 20px;
-      border: 1px solid #ddd;
-      background: #fff;
-      cursor: pointer;
-      color: #555;
-      transition: all 0.2s;
-    }
-    .windy-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-    .windy-tab:hover:not(.active) { background: #f0f0f0; }
-    .windy-map-container {
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid #e5e5e5;
-      height: 400px;
-    }
-    .windy-map-container iframe { width: 100%; height: 100%; border: none; }
-    .windy-legend {
-      display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap;
-    }
-    .windy-legend-item {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 12px; color: #666;
-    }
-    .windy-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-    }
-
-    @media (max-width: 700px) {
-      .ai-result-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-
-    .windy-section { margin-bottom: 1rem; }
-    .windy-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .windy-tab {
-      font-size: 12px; padding: 5px 14px;
-      border-radius: 20px;
-      border: 1px solid #ddd;
-      background: #fff;
-      cursor: pointer;
-      color: #555;
-      transition: all 0.2s;
-    }
-    .windy-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-    .windy-tab:hover:not(.active) { background: #f0f0f0; }
-    .windy-map-container {
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid #e5e5e5;
-      height: 400px;
-    }
-    .windy-map-container iframe { width: 100%; height: 100%; border: none; }
-    .windy-legend {
-      display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap;
-    }
-    .windy-legend-item {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 12px; color: #666;
-    }
-    .windy-dot {
-      width: 10px; height: 10px; border-radius: 50%;
-    }
-
-
-    .batch-upload-area {
-      border: 2px dashed #ddd;
-      border-radius: 10px;
-      padding: 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 12px;
-    }
-    .batch-upload-area:hover { border-color: #3b6d11; background: #f9fff6; }
-    .batch-upload-area.dragover { border-color: #3b6d11; background: #f9fff6; }
-    .batch-summary {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .batch-stat {
-      background: #f9f9f9;
-      border: 1px solid #e5e5e5;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-    }
-    .batch-stat-label { font-size: 11px; color: #888; margin-bottom: 4px; }
-    .batch-stat-value { font-size: 20px; font-weight: 500; }
-    .batch-stat.total .batch-stat-value { color: #1a1a1a; }
-    .batch-stat.normal .batch-stat-value { color: #3b6d11; }
-    .batch-stat.damage .batch-stat-value { color: #e24b4a; }
-    .batch-stat.rate .batch-stat-value { color: #854f0b; }
-    .batch-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
-    .batch-table th {
-      background: #f5f5f3;
-      padding: 8px 12px;
-      text-align: left;
-      font-weight: 500;
-      color: #555;
-      border-bottom: 1px solid #e5e5e5;
-    }
-    .batch-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid #f0f0f0;
-      color: #1a1a1a;
-    }
-    .batch-table tr:last-child td { border-bottom: none; }
-    .batch-table tr:hover td { background: #fafafa; }
-    .batch-progress {
-      background: #f0f0f0;
-      border-radius: 20px;
-      height: 6px;
-      margin: 8px 0;
-      overflow: hidden;
-      display: none;
-    }
-    .batch-progress-bar {
-      background: #3b6d11;
-      height: 100%;
-      border-radius: 20px;
-      transition: width 0.3s;
-      width: 0%;
-    }
-    .batch-status { font-size: 12px; color: #888; margin-bottom: 8px; display: none; }
-    .export-btn {
-      font-size: 12px; padding: 6px 14px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      background: #fff;
-      cursor: pointer;
-      color: #555;
-      margin-top: 8px;
-    }
-    .export-btn:hover { background: #f0f0f0; }
-    @media (max-width: 700px) {
-      .batch-summary { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 700px) {
-      .grid-4 { grid-template-columns: repeat(2, 1fr); }
-      .grid-2 { grid-template-columns: 1fr; }
-      .phase-grid { grid-template-columns: repeat(2, 1fr); }
-      .truck-grid { grid-template-columns: 1fr; }
-      .sensor-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
+  }
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c1b; }
+.font-public-sans { font-family: 'Public Sans', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+.cta-gradient { background: linear-gradient(135deg, #275300 0%, #3b6d11 100%); }
+.ai-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.ai-badge.normal { background: #b8f389; color: #265100; }
+.ai-badge.damage { background: #ffdad6; color: #93000a; }
+.ai-badge.loading { background: #ffdcbe; color: #693c00; }
+.batch-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.batch-table th { background: #f4f4f2; padding: 8px 12px; text-align: left; font-weight: 600; color: #42493b; border-bottom: 1px solid #e2e3e1; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.batch-table td { padding: 8px 12px; border-bottom: 1px solid #eeeeec; }
+.batch-table tr:hover td { background: #f4f4f2; }
+.windy-tab { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #c2c9b7; background: #fff; cursor: pointer; color: #42493b; transition: all 0.2s; }
+.windy-tab.active { background: #275300; color: #fff; border-color: #275300; font-weight: 600; }
+.windy-tab:hover:not(.active) { background: #f4f4f2; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+.dot-ok { background: #386a0e; }
+.dot-warn { background: #88520e; }
+.dot-err { background: #ba1a1a; }
+</style>
 </head>
-<body>
-<div class="container">
+<body class="bg-surface text-on-surface">
+<div class="flex min-h-screen">
 
-  <div class="header">
-    <div>
-      <h1>SBB Control Tower</h1>
-      <p>삼성SDI 배터리 물류 통합 대시보드</p>
-    </div>
-    <div class="header-right">
-      <span class="badge-live">LIVE</span>
-      <button class="refresh-btn" onclick="loadWeather()">새로고침</button>
-    </div>
-  </div>
-
-  <div class="status-bar">
-    <span class="status-pill active">OpenWeather 연결됨</span>
-    <span class="status-pill pending" onclick="window.open('https://app.landing.ai/','_blank')" style="cursor:pointer;">LandingLens 학습완료 ↗</span>
-    <span class="status-pill pending" onclick="window.open('https://www.trulos.com','_blank')" style="cursor:pointer;">트럭 매칭 (Trulos) ↗</span>
-    <span class="status-pill">BLE 센서 대기중</span>
-  </div>
-
-  <div class="grid-4">
-    <div class="metric">
-      <div class="metric-label">현재 기온 (LA)</div>
-      <div class="metric-value" id="temp-seoul">--°C</div>
-      <div class="metric-sub" id="desc-seoul">불러오는 중...</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">현재 기온 (롱비치)</div>
-      <div class="metric-value" id="temp-busan">--°C</div>
-      <div class="metric-sub" id="desc-busan">불러오는 중...</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">AI 불량 판별</div>
-      <div class="metric-value" style="color:#3b6d11;">100%</div>
-      <div class="metric-sub">정확도 (샘플 기준)</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">트럭 매칭</div>
-      <div class="metric-value" style="color:#854f0b;">대기중</div>
-      <div class="metric-sub">DAT iQ 연동 후 활성화</div>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">야드 날씨 현황</div>
-      <div id="weather-list">
-        <p class="loading-text">날씨 데이터 불러오는 중...</p>
+<!-- Sidebar -->
+<aside class="flex flex-col h-screen sticky top-0 w-56 bg-stone-100 border-r border-stone-200 z-50 shrink-0">
+  <div class="p-5">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl cta-gradient flex items-center justify-center text-white">
+        <span class="material-symbols-outlined text-lg">rocket_launch</span>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-title">시스템 알림</div>
-      <div class="alert-row">
-        <div class="dot dot-ok"></div>
-        <span class="alert-text">LandingLens AI 모델 학습 완료</span>
-        <span class="alert-time">오늘</span>
-      </div>
-      <div class="alert-row">
-        <div class="dot dot-ok"></div>
-        <span class="alert-text">OpenWeather API Key 발급 완료</span>
-        <span class="alert-time">오늘</span>
-      </div>
-      <div class="alert-row">
-        <div class="dot dot-warn"></div>
-        <span class="alert-text">API Key 활성화 대기 중 (최대 2시간)</span>
-        <span class="alert-time">진행중</span>
-      </div>
-      <div class="alert-row">
-        <div class="dot dot-warn"></div>
-        <span class="alert-text">트럭 매칭 — Trulos 무료 사용 중</span>
-        <span class="alert-time">진행중</span>
-      </div>
-      <div class="alert-row">
-        <div class="dot dot-err"></div>
-        <span class="alert-text">BLE 온습도 센서 미연결</span>
-        <span class="alert-time">예정</span>
+      <div>
+        <h1 class="text-base font-black text-lime-950 font-public-sans tracking-tight">SBB Control</h1>
+        <p class="text-[9px] uppercase tracking-widest text-stone-400 font-bold">삼성SDI 물류 관제</p>
       </div>
     </div>
   </div>
-
-
-  <div class="card ai-section">
-    <div class="card-title">
-      AI 불량 판별 현황
-      <span class="dummy-badge" style="background:#eaf3de; color:#3b6d11; border:none;">LandingLens 연동됨 ✅</span>
+  <nav class="flex-1 px-3 py-2 space-y-1">
+    <a class="flex items-center gap-3 px-3 py-2.5 text-lime-900 font-semibold border-r-4 border-lime-800 bg-stone-200 rounded-l-lg font-public-sans" href="#">
+      <span class="material-symbols-outlined text-lg">dashboard</span>
+      <span class="text-sm">대시보드</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 hover:text-stone-900 hover:bg-stone-200 rounded-lg transition-colors" href="#">
+      <span class="material-symbols-outlined text-lg">local_shipping</span>
+      <span class="text-sm">트럭 매칭</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 hover:text-stone-900 hover:bg-stone-200 rounded-lg transition-colors" href="#">
+      <span class="material-symbols-outlined text-lg">search</span>
+      <span class="text-sm">AI 불량 판별</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 hover:text-stone-900 hover:bg-stone-200 rounded-lg transition-colors" href="#">
+      <span class="material-symbols-outlined text-lg">thermostat</span>
+      <span class="text-sm">센서 현황</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 hover:text-stone-900 hover:bg-stone-200 rounded-lg transition-colors" href="#">
+      <span class="material-symbols-outlined text-lg">monitoring</span>
+      <span class="text-sm">분석</span>
+    </a>
+    <a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 hover:text-stone-900 hover:bg-stone-200 rounded-lg transition-colors" href="#">
+      <span class="material-symbols-outlined text-lg">settings</span>
+      <span class="text-sm">설정</span>
+    </a>
+  </nav>
+  <div class="px-4 py-5 space-y-3">
+    <button class="w-full cta-gradient text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow hover:opacity-90 transition-opacity font-public-sans">
+      <span class="material-symbols-outlined text-lg">add_circle</span>새 검수 시작
+    </button>
+    <div class="pt-3 border-t border-stone-200 space-y-1">
+      <a class="flex items-center gap-2 px-3 py-1.5 text-stone-400 hover:text-stone-700 text-xs transition-colors rounded-lg hover:bg-stone-200" href="https://app.landing.ai/" target="_blank">
+        <span class="material-symbols-outlined text-sm">open_in_new</span>LandingLens
+      </a>
+      <a class="flex items-center gap-2 px-3 py-1.5 text-stone-400 hover:text-stone-700 text-xs transition-colors rounded-lg hover:bg-stone-200" href="https://www.trulos.com" target="_blank">
+        <span class="material-symbols-outlined text-sm">open_in_new</span>Trulos
+      </a>
     </div>
+  </div>
+</aside>
 
-    <div class="ai-result-grid">
-      <div class="ai-metric good">
-        <div class="ai-metric-label">Train 정확도</div>
-        <div class="ai-metric-value">95%</div>
+<!-- Main -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+  <!-- Top Nav -->
+  <header class="flex justify-between items-center px-8 h-14 sticky top-0 z-40 bg-stone-50 border-b border-stone-200">
+    <div class="flex items-center gap-3">
+      <span class="flex h-2 w-2 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+      </span>
+      <span class="text-xs font-bold uppercase tracking-widest text-lime-800">LIVE</span>
+      <span class="text-stone-300 mx-1">|</span>
+      <span class="text-xs text-stone-400" id="last-updated-top">업데이트 중...</span>
+    </div>
+    <div class="flex items-center gap-4 text-stone-400">
+      <button class="hover:text-lime-800 transition-colors" onclick="loadWeather()">
+        <span class="material-symbols-outlined">refresh</span>
+      </button>
+      <button class="hover:text-lime-800 transition-colors">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <div class="flex items-center gap-2 pl-3 border-l border-stone-200">
+        <div class="w-7 h-7 rounded-full cta-gradient flex items-center justify-center text-white text-xs font-bold">L</div>
+        <span class="text-xs font-medium text-stone-600">LEE SEONGEUN</span>
       </div>
-      <div class="ai-metric good">
-        <div class="ai-metric-label">Dev 정확도</div>
-        <div class="ai-metric-value">80%</div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+
+    <!-- Title + Status Pills -->
+    <div class="flex items-start justify-between">
+      <div>
+        <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">운송 루트 관제</h2>
+        <p class="text-sm text-stone-400 mt-0.5">인디애나 → 유타 / 콜로라도 / 캘리포니아</p>
       </div>
-      <div class="ai-metric good">
-        <div class="ai-metric-label">정상 판별</div>
-        <div class="ai-metric-value">100%</div>
-      </div>
-      <div class="ai-metric warn">
-        <div class="ai-metric-label">데미지 판별</div>
-        <div class="ai-metric-value">76.9%</div>
+      <div class="flex flex-wrap gap-2 justify-end">
+        <span class="text-[11px] px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-semibold">OpenWeather 연결됨</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-semibold cursor-pointer" onclick="window.open('https://app.landing.ai/','_blank')">LandingLens ↗</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-500 font-semibold cursor-pointer" onclick="window.open('https://www.trulos.com','_blank')">Trulos ↗</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-400 font-semibold">BLE 센서 대기중</span>
       </div>
     </div>
 
-    <div style="font-size:12px; color:#888; margin-bottom:8px;">
-      모델: Model-04-06-2026_1 · 마지막 학습: 2026-04-06 · 사진 23장
-    </div>
-
-    <div class="batch-upload-area"
-      id="batch-drop-zone"
-      onclick="document.getElementById('batch-file-input').click()"
-      ondragover="event.preventDefault(); this.classList.add('dragover');"
-      ondragleave="this.classList.remove('dragover');"
-      ondrop="event.preventDefault(); this.classList.remove('dragover'); handleBatchDrop(event);">
-      <div style="font-size:28px;">📸</div>
-      <div style="font-size:14px; font-weight:500; margin:8px 0 4px;">여러 장 동시 업로드 가능</div>
-      <div style="font-size:12px; color:#999;">클릭하거나 드래그해서 SBB 부품 사진 업로드 (여러 장 선택 가능)</div>
-      <input type="file" id="batch-file-input" accept="image/*" multiple style="display:none;" onchange="runBatchInference(this.files)">
-    </div>
-
-    <div class="batch-progress" id="batch-progress">
-      <div class="batch-progress-bar" id="batch-progress-bar"></div>
-    </div>
-    <div class="batch-status" id="batch-status"></div>
-
-    <div id="batch-results" style="display:none;">
-      <div class="batch-summary">
-        <div class="batch-stat total">
-          <div class="batch-stat-label">총 검수</div>
-          <div class="batch-stat-value" id="stat-total">0</div>
+    <!-- Stats Row -->
+    <div class="grid grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">현재 기온 (LA)</span>
+          <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings:'FILL' 1;">wb_sunny</span>
         </div>
-        <div class="batch-stat normal">
-          <div class="batch-stat-label">✅ 정상</div>
-          <div class="batch-stat-value" id="stat-normal">0</div>
+        <h3 class="text-3xl font-black font-public-sans" id="temp-seoul">--°C</h3>
+        <p class="text-xs text-stone-400 mt-1" id="desc-seoul">불러오는 중...</p>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">현재 기온 (롱비치)</span>
+          <span class="material-symbols-outlined text-secondary text-lg">cloud</span>
         </div>
-        <div class="batch-stat damage">
-          <div class="batch-stat-label">⚠️ 데미지</div>
-          <div class="batch-stat-value" id="stat-damage">0</div>
+        <h3 class="text-3xl font-black font-public-sans" id="temp-busan">--°C</h3>
+        <p class="text-xs text-stone-400 mt-1" id="desc-busan">불러오는 중...</p>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">AI 판별 정확도</span>
+          <span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings:'FILL' 1;">check_circle</span>
         </div>
-        <div class="batch-stat rate">
-          <div class="batch-stat-label">불량률</div>
-          <div class="batch-stat-value" id="stat-rate">0%</div>
+        <h3 class="text-3xl font-black font-public-sans text-primary">95%</h3>
+        <p class="text-xs text-primary font-medium mt-1">Train set 기준</p>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
+        <div class="flex justify-between items-start mb-3">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">트럭 매칭</span>
+          <span class="material-symbols-outlined text-secondary text-lg">local_shipping</span>
+        </div>
+        <h3 class="text-3xl font-black font-public-sans text-secondary">3대</h3>
+        <p class="text-xs text-stone-400 mt-1">더미 데이터</p>
+      </div>
+    </div>
+
+    <!-- Windy + Weather/Alerts -->
+    <div class="grid grid-cols-3 gap-6">
+      <div class="col-span-2 bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">운송 루트 날씨 현황</h3>
+          <div class="flex gap-2 flex-wrap">
+            <button class="windy-tab active" onclick="changeWindyView('route', this)">전체 루트</button>
+            <button class="windy-tab" onclick="changeWindyView('indiana', this)">인디애나</button>
+            <button class="windy-tab" onclick="changeWindyView('utah', this)">유타</button>
+            <button class="windy-tab" onclick="changeWindyView('colorado', this)">콜로라도</button>
+            <button class="windy-tab" onclick="changeWindyView('california', this)">캘리포니아</button>
+          </div>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-stone-100 h-80">
+          <iframe id="windy-iframe" width="100%" height="100%"
+            src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=5&overlay=wind&product=ecmwf&level=surface&lat=38&lon=-104&detail=false&pressure=false&message=false"
+            frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div class="flex gap-5 mt-3">
+          <div class="flex items-center gap-1.5"><div class="dot dot-err"></div><span class="text-xs text-stone-400">인디애나폴리스</span></div>
+          <div class="flex items-center gap-1.5"><div class="dot dot-warn"></div><span class="text-xs text-stone-400">솔트레이크시티</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></div><span class="text-xs text-stone-400">덴버</span></div>
+          <div class="flex items-center gap-1.5"><div class="dot dot-ok"></div><span class="text-xs text-stone-400">LA</span></div>
         </div>
       </div>
-
-      <table class="batch-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>파일명</th>
-            <th>판별 결과</th>
-            <th>신뢰도</th>
-            <th>검수 시간</th>
-          </tr>
-        </thead>
-        <tbody id="batch-table-body"></tbody>
-      </table>
-
-      <button class="export-btn" onclick="exportCSV()">📥 CSV 다운로드</button>
+      <div class="space-y-4">
+        <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+          <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">야드 날씨 현황</h3>
+          <div id="weather-list"><p class="text-xs text-stone-400 text-center py-2">불러오는 중...</p></div>
+        </div>
+        <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+          <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-3">시스템 알림</h3>
+          <div class="space-y-2.5">
+            <div class="flex items-center gap-2"><div class="dot dot-ok"></div><span class="text-xs flex-1">LandingLens AI 모델 학습 완료</span><span class="text-[10px] text-stone-300">오늘</span></div>
+            <div class="flex items-center gap-2"><div class="dot dot-ok"></div><span class="text-xs flex-1">OpenWeather API Key 발급 완료</span><span class="text-[10px] text-stone-300">오늘</span></div>
+            <div class="flex items-center gap-2"><div class="dot dot-warn"></div><span class="text-xs flex-1">API Key 활성화 대기 중</span><span class="text-[10px] text-stone-300">진행중</span></div>
+            <div class="flex items-center gap-2"><div class="dot dot-err"></div><span class="text-xs flex-1">DAT iQ 계약 미완료</span><span class="text-[10px] text-stone-300">예정</span></div>
+            <div class="flex items-center gap-2"><div class="dot dot-err"></div><span class="text-xs flex-1">BLE 온습도 센서 미연결</span><span class="text-[10px] text-stone-300">예정</span></div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- AI Inspection -->
+    <div class="bg-white rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-stone-100 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary">search</span>
+          <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">AI 불량 판별 시스템</h3>
+          <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold">LandingLens 연동됨</span>
+        </div>
+        <span class="text-xs text-stone-400">Model-04-06-2026_1 · 2026-04-06 · 23장</span>
+      </div>
+      <div class="grid grid-cols-4 divide-x divide-stone-100">
+        <div class="p-4 text-center"><p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Train 정확도</p><p class="text-2xl font-black font-public-sans text-primary">95%</p></div>
+        <div class="p-4 text-center"><p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Dev 정확도</p><p class="text-2xl font-black font-public-sans text-primary">80%</p></div>
+        <div class="p-4 text-center"><p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">정상 판별</p><p class="text-2xl font-black font-public-sans text-primary">100%</p></div>
+        <div class="p-4 text-center"><p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">데미지 판별</p><p class="text-2xl font-black font-public-sans text-secondary">76.9%</p></div>
+      </div>
+      <div class="p-5 space-y-4">
+        <div id="batch-drop-zone"
+          class="border-2 border-dashed border-stone-200 rounded-xl p-8 text-center cursor-pointer hover:border-primary hover:bg-green-50 transition-all"
+          onclick="document.getElementById('batch-file-input').click()"
+          ondragover="event.preventDefault(); this.classList.add('border-primary','bg-green-50');"
+          ondragleave="this.classList.remove('border-primary','bg-green-50');"
+          ondrop="event.preventDefault(); this.classList.remove('border-primary','bg-green-50'); handleBatchDrop(event);">
+          <span class="material-symbols-outlined text-5xl text-stone-200 block mb-2">photo_camera</span>
+          <p class="text-sm font-semibold text-stone-500">SBB 부품 사진을 클릭하거나 드래그</p>
+          <p class="text-xs text-stone-300 mt-1">여러 장 동시 업로드 가능</p>
+          <input type="file" id="batch-file-input" accept="image/*" multiple style="display:none;" onchange="runBatchInference(this.files)">
+        </div>
+        <div id="batch-progress" class="hidden">
+          <div class="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
+            <div class="bg-primary h-full rounded-full transition-all" id="batch-progress-bar" style="width:0%"></div>
+          </div>
+          <p class="text-xs text-stone-400 mt-1" id="batch-status"></p>
+        </div>
+        <div id="batch-results" class="hidden space-y-4">
+          <div class="grid grid-cols-4 gap-3">
+            <div class="bg-stone-50 rounded-lg p-3 text-center border border-stone-100">
+              <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-1">총 검수</p>
+              <p class="text-xl font-black font-public-sans" id="stat-total">0</p>
+            </div>
+            <div class="bg-green-50 rounded-lg p-3 text-center border border-green-100">
+              <p class="text-[10px] uppercase tracking-widest text-green-600 mb-1">✅ 정상</p>
+              <p class="text-xl font-black font-public-sans text-primary" id="stat-normal">0</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-3 text-center border border-red-100">
+              <p class="text-[10px] uppercase tracking-widest text-red-500 mb-1">⚠️ 데미지</p>
+              <p class="text-xl font-black font-public-sans text-error" id="stat-damage">0</p>
+            </div>
+            <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-100">
+              <p class="text-[10px] uppercase tracking-widest text-amber-600 mb-1">불량률</p>
+              <p class="text-xl font-black font-public-sans text-secondary" id="stat-rate">0%</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto rounded-lg border border-stone-100">
+            <table class="batch-table"><thead><tr><th>#</th><th>파일명</th><th>판별 결과</th><th>신뢰도</th><th>검수 시간</th></tr></thead>
+            <tbody id="batch-table-body"></tbody></table>
+          </div>
+          <button onclick="exportCSV()" class="text-xs font-semibold text-primary flex items-center gap-1 hover:underline">
+            <span class="material-symbols-outlined text-sm">download</span> CSV 다운로드
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trucks + Sensors -->
+    <div class="grid grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-stone-100 flex justify-between items-center">
+          <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">빈 트럭 매칭</h3>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-400 font-bold cursor-pointer" onclick="window.open('https://www.trulos.com','_blank')">Trulos 열기 ↗</span>
+        </div>
+        <div class="divide-y divide-stone-50">
+          <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
+            <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-001</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-bold">대기중</span></div><p class="text-xs text-stone-400">LA 항구 → 토렌스 SDI · 18톤</p></div>
+            <div class="text-right"><p class="text-xs font-medium">2025-05-10</p><p class="text-[10px] text-green-600 font-semibold">온습도 정상</p></div>
+          </div>
+          <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
+            <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-002</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold">운송중</span></div><p class="text-xs text-stone-400">롱비치 → 토렌스 SDI · 15톤</p></div>
+            <div class="text-right"><p class="text-xs font-medium">2025-05-15</p><p class="text-[10px] text-amber-600 font-semibold">⚠️ 온습도 경고</p></div>
+          </div>
+          <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
+            <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-003</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-200 text-stone-500 font-bold">완료</span></div><p class="text-xs text-stone-400">롱비치 → 어바인 SDI · 20톤</p></div>
+            <div class="text-right"><p class="text-xs font-medium">2025-05-08</p><p class="text-[10px] text-green-600 font-semibold">온습도 정상</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-stone-100"><h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">BLE 온습도 센서</h3></div>
+        <div class="grid grid-cols-2 gap-4 p-5">
+          <div class="bg-stone-50 rounded-xl p-4 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 1</p><p class="text-2xl font-black font-public-sans">23°C</p><p class="text-xs text-stone-400 mt-1">습도 45%</p></div>
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center"><p class="text-[10px] uppercase tracking-widest text-amber-500 mb-2">게이트 2 ⚠️</p><p class="text-2xl font-black font-public-sans text-amber-600">31°C</p><p class="text-xs text-amber-500 mt-1">습도 78%</p></div>
+          <div class="bg-stone-50 rounded-xl p-4 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 3</p><p class="text-2xl font-black font-public-sans">22°C</p><p class="text-xs text-stone-400 mt-1">습도 42%</p></div>
+          <div class="bg-stone-50 rounded-xl p-4 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 4</p><p class="text-2xl font-black font-public-sans">24°C</p><p class="text-xs text-stone-400 mt-1">습도 50%</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase -->
+    <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+      <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans mb-4">Phase 1 진행 현황</h3>
+      <div class="grid grid-cols-4 gap-4">
+        <div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center"><p class="text-lg font-black font-public-sans text-primary">완료</p><p class="text-xs text-on-primary-fixed-variant mt-1 font-semibold">OpenWeather</p></div>
+        <div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center"><p class="text-lg font-black font-public-sans text-primary">완료</p><p class="text-xs text-on-primary-fixed-variant mt-1 font-semibold">LandingLens</p></div>
+        <div class="bg-amber-50 border border-amber-100 rounded-xl p-4 text-center"><p class="text-lg font-black font-public-sans text-secondary">진행중</p><p class="text-xs text-on-secondary-fixed-variant mt-1 font-semibold">Trulos</p></div>
+        <div class="bg-stone-50 border border-stone-100 rounded-xl p-4 text-center"><p class="text-lg font-black font-public-sans text-stone-400">예정</p><p class="text-xs text-stone-400 mt-1 font-semibold">BLE 센서</p></div>
+      </div>
+    </div>
+
+    <p class="text-right text-xs text-stone-300" id="last-updated"></p>
   </div>
-
-  <div class="card">
-    <div class="card-title">
-      빈 트럭 매칭 현황
-      <span class="dummy-badge">더미 데이터 — Trulos 연동 예정</span>
-    </div>
-    <div class="truck-grid">
-      <div class="truck-card">
-        <div class="truck-card-header">
-          <span class="truck-id">TRK-2025-001</span>
-          <span class="truck-status waiting">대기중</span>
-        </div>
-        <div class="truck-row"><span>출발지</span><span>LA 항구</span></div>
-        <div class="truck-row"><span>도착지</span><span>토렌스 SDI</span></div>
-        <div class="truck-row"><span>적재 가능</span><span>18톤</span></div>
-        <div class="truck-row"><span>예상 출발</span><span>2025-05-10</span></div>
-        <div class="truck-row"><span>온습도</span><span style="color:#3b6d11;">정상</span></div>
-      </div>
-      <div class="truck-card">
-        <div class="truck-card-header">
-          <span class="truck-id">TRK-2025-002</span>
-          <span class="truck-status moving">운송중</span>
-        </div>
-        <div class="truck-row"><span>출발지</span><span>LA 항구</span></div>
-        <div class="truck-row"><span>도착지</span><span>토렌스 SDI</span></div>
-        <div class="truck-row"><span>적재 가능</span><span>15톤</span></div>
-        <div class="truck-row"><span>예상 도착</span><span>2025-05-15</span></div>
-        <div class="truck-row"><span>온습도</span><span style="color:#854f0b;">경고</span></div>
-      </div>
-      <div class="truck-card">
-        <div class="truck-card-header">
-          <span class="truck-id">TRK-2025-003</span>
-          <span class="truck-status done">완료</span>
-        </div>
-        <div class="truck-row"><span>출발지</span><span>롱비치 항구</span></div>
-        <div class="truck-row"><span>도착지</span><span>어바인 SDI</span></div>
-        <div class="truck-row"><span>적재 가능</span><span>20톤</span></div>
-        <div class="truck-row"><span>도착 완료</span><span>2025-05-08</span></div>
-        <div class="truck-row"><span>온습도</span><span style="color:#3b6d11;">정상</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">
-      BLE 온습도 센서 현황
-      <span class="dummy-badge">더미 데이터 — 센서 설치 후 활성화</span>
-    </div>
-    <div class="sensor-grid">
-      <div class="sensor-card">
-        <div class="sensor-name">게이트 1</div>
-        <div class="sensor-value">23°C</div>
-        <div class="sensor-sub">습도 45%</div>
-      </div>
-      <div class="sensor-card warning">
-        <div class="sensor-name">게이트 2</div>
-        <div class="sensor-value">31°C</div>
-        <div class="sensor-sub">습도 78% ⚠️</div>
-      </div>
-      <div class="sensor-card">
-        <div class="sensor-name">게이트 3</div>
-        <div class="sensor-value">22°C</div>
-        <div class="sensor-sub">습도 42%</div>
-      </div>
-      <div class="sensor-card">
-        <div class="sensor-name">게이트 4</div>
-        <div class="sensor-value">24°C</div>
-        <div class="sensor-sub">습도 50%</div>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="card windy-section">
-    <div class="card-title">운송 루트 날씨 현황 (실시간)</div>
-    <div class="windy-tabs">
-      <button class="windy-tab active" onclick="changeWindyView('route')">전체 루트</button>
-      <button class="windy-tab" onclick="changeWindyView('indiana')">인디애나 (출발)</button>
-      <button class="windy-tab" onclick="changeWindyView('utah')">유타</button>
-      <button class="windy-tab" onclick="changeWindyView('colorado')">콜로라도</button>
-      <button class="windy-tab" onclick="changeWindyView('california')">캘리포니아</button>
-    </div>
-    <div class="windy-map-container">
-      <iframe id="windy-iframe"
-        src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=5&overlay=wind&product=ecmwf&level=surface&lat=38&lon=-104&detailLat=39.77&detailLon=-86.16&detail=false&pressure=false&message=false"
-        frameborder="0" allowfullscreen>
-      </iframe>
-    </div>
-    <div class="windy-legend">
-      <div class="windy-legend-item">
-        <div class="windy-dot" style="background:#e24b4a;"></div>
-        <span>인디애나폴리스 (출발지)</span>
-      </div>
-      <div class="windy-legend-item">
-        <div class="windy-dot" style="background:#EF9F27;"></div>
-        <span>솔트레이크시티 (유타)</span>
-      </div>
-      <div class="windy-legend-item">
-        <div class="windy-dot" style="background:#185fa5;"></div>
-        <span>덴버 (콜로라도)</span>
-      </div>
-      <div class="windy-legend-item">
-        <div class="windy-dot" style="background:#1D9E75;"></div>
-        <span>LA (캘리포니아)</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Phase 1 진행 현황</div>
-    <div class="phase-grid">
-      <div class="phase-item done">
-        <div class="phase-val done">완료</div>
-        <div class="phase-name done">OpenWeather</div>
-      </div>
-      <div class="phase-item done">
-        <div class="phase-val done">완료</div>
-        <div class="phase-name done">LandingLens</div>
-      </div>
-      <div class="phase-item doing">
-        <div class="phase-val doing">진행중</div>
-        <div class="phase-name doing">Trulos</div>
-      </div>
-      <div class="phase-item todo">
-        <div class="phase-val todo">예정</div>
-        <div class="phase-name todo">BLE 센서</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="last-updated" id="last-updated"></div>
-
+</main>
 </div>
 
 <script>
-
+  const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
   const LANDING_ENDPOINT = 'https://predict.app.landing.ai/inference/v1/predict?endpoint_id=b8759335-25e5-4370-9ffb-d21389c7a3d0';
   const LANDING_API_KEY = 'land_sk_VVJaBvBFy24zHO1QGO5kt6V1yccWurBfiD2Ujncr1lPXSvMLsD';
-
-  function handleBatchDrop(event) {
-    const files = event.dataTransfer.files;
-    if (files.length > 0) runBatchInference(files);
-  }
-
-  async function analyzeImage(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    const response = await fetch(LANDING_ENDPOINT, {
-      method: 'POST',
-      headers: { 'apikey': LANDING_API_KEY },
-      body: formData
-    });
-    const data = await response.json();
-
-    let hasDamage = false;
-    let finalScore = 0;
-
-    if (data && data.backbonepredictions) {
-      const bp = data.backbonepredictions;
-      if (Array.isArray(bp)) {
-        hasDamage = bp.some(p => (p.labelName || '').toLowerCase() === 'damage');
-        if (bp.length > 0) finalScore = bp[0].score || 0;
-      } else if (typeof bp === 'object') {
-        const values = Object.values(bp);
-        hasDamage = values.some(p => (p.labelName || '').toLowerCase() === 'damage');
-        if (values.length > 0) finalScore = values[0].score || 0;
-      }
-    }
-    if (data && data.predictions) {
-      const preds = data.predictions;
-      if (Array.isArray(preds) && preds.length > 0) {
-        if ((preds[0].labelName || '').toLowerCase() === 'ng') hasDamage = true;
-        if (!finalScore) finalScore = preds[0].score || 0;
-      } else if (typeof preds === 'object') {
-        const values = Object.values(preds);
-        if (values.some(p => (p.labelName || '').toLowerCase() === 'ng')) hasDamage = true;
-        if (!finalScore && values.length > 0) finalScore = values[0].score || 0;
-      }
-    }
-    return { hasDamage, finalScore };
-  }
-
-  let batchResults = [];
-
-  async function runBatchInference(files) {
-    const fileArray = Array.from(files);
-    if (fileArray.length === 0) return;
-
-    batchResults = [];
-    const tbody = document.getElementById('batch-table-body');
-    tbody.innerHTML = '';
-    document.getElementById('batch-results').style.display = 'none';
-
-    const progress = document.getElementById('batch-progress');
-    const progressBar = document.getElementById('batch-progress-bar');
-    const status = document.getElementById('batch-status');
-    progress.style.display = 'block';
-    status.style.display = 'block';
-
-    let normalCount = 0;
-    let damageCount = 0;
-
-    for (let i = 0; i < fileArray.length; i++) {
-      const file = fileArray[i];
-      const pct = Math.round(((i) / fileArray.length) * 100);
-      progressBar.style.width = pct + '%';
-      status.textContent = `분석 중... ${i + 1} / ${fileArray.length} (${file.name})`;
-
-      const now = new Date().toLocaleTimeString('ko-KR');
-      let result = { hasDamage: false, finalScore: 0 };
-
-      try {
-        result = await analyzeImage(file);
-      } catch(e) {
-        console.error('오류:', e);
-      }
-
-      if (result.hasDamage) damageCount++;
-      else normalCount++;
-
-      batchResults.push({
-        index: i + 1,
-        filename: file.name,
-        hasDamage: result.hasDamage,
-        score: result.finalScore,
-        time: now
-      });
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="color:#888;">${i + 1}</td>
-        <td style="font-size:12px; color:#555;">${file.name}</td>
-        <td><span class="ai-badge ${result.hasDamage ? 'damage' : 'normal'}">${result.hasDamage ? '⚠️ 데미지' : '✅ 정상'}</span></td>
-        <td>${result.finalScore ? (result.finalScore * 100).toFixed(1) + '%' : '-'}</td>
-        <td style="color:#aaa; font-size:12px;">${now}</td>
-      `;
-      tbody.appendChild(tr);
-
-      document.getElementById('stat-total').textContent = i + 1;
-      document.getElementById('stat-normal').textContent = normalCount;
-      document.getElementById('stat-damage').textContent = damageCount;
-      document.getElementById('stat-rate').textContent = Math.round((damageCount / (i + 1)) * 100) + '%';
-      document.getElementById('batch-results').style.display = 'block';
-    }
-
-    progressBar.style.width = '100%';
-    status.textContent = `✅ 분석 완료! 총 ${fileArray.length}개 검수`;
-  }
-
-  function exportCSV() {
-    const date = new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/ /g, '-');
-    let csv = '번호,파일명,판별결과,신뢰도,검수시간\n';
-    batchResults.forEach(r => {
-      csv += `${r.index},"${r.filename}",${r.hasDamage ? '데미지' : '정상'},${r.score ? (r.score * 100).toFixed(1) + '%' : '-'},${r.time}\n`;
-    });
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `SBB검수결과_${date}.csv`;
-    a.click();
-  }
-
-  const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
   const cities = [
     { name: 'LA 다운타운', en: 'Los Angeles', id: 'seoul' },
     { name: '롱비치', en: 'Long Beach', id: 'busan' },
     { name: '어바인', en: 'Irvine', id: null },
     { name: '샌디에이고', en: 'San Diego', id: null },
   ];
-
-  async function fetchCity(city) {
-    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.en}&appid=${API_KEY}&units=metric&lang=kr`);
-    return res.json();
-  }
-
-  async function loadWeather() {
-    const list = document.getElementById('weather-list');
-    list.innerHTML = '<p class="loading-text">불러오는 중...</p>';
-
-    try {
-      const results = await Promise.all(cities.map(c => fetchCity(c)));
-      const allOk = results.every(r => r.cod === 200);
-
-      if (!allOk) {
-        list.innerHTML = `
-          <div style="padding:12px; text-align:center;">
-            <p style="font-size:13px; color:#854f0b; margin:0 0 8px;">API Key 활성화 대기 중</p>
-            <p style="font-size:12px; color:#aaa; margin:0;">발급 후 최대 2시간 소요됩니다.<br>활성화되면 실시간 날씨가 자동으로 표시됩니다.</p>
-          </div>`;
-        return;
-      }
-
-      list.innerHTML = results.map((data, i) => {
-        const temp = Math.round(data.main.temp);
-        const desc = data.weather[0].description;
-        const humidity = data.main.humidity;
-        return `
-          <div class="weather-row">
-            <div>
-              <div class="weather-city">${cities[i].name}</div>
-              <div class="weather-desc">${desc} · 습도 ${humidity}%</div>
-            </div>
-            <div class="weather-temp">${temp}°C</div>
-          </div>`;
-      }).join('');
-
-      const s = results[0];
-      const b = results[1];
-      if (s.cod === 200) {
-        document.getElementById('temp-seoul').textContent = Math.round(s.main.temp) + '°C';
-        document.getElementById('desc-seoul').textContent = s.weather[0].description;
-      }
-      if (b.cod === 200) {
-        document.getElementById('temp-busan').textContent = Math.round(b.main.temp) + '°C';
-        document.getElementById('desc-busan').textContent = b.weather[0].description;
-      }
-
-      const now = new Date();
-      document.getElementById('last-updated').textContent =
-        `마지막 업데이트: ${now.toLocaleTimeString('ko-KR')}`;
-
-    } catch(e) {
-      list.innerHTML = '<p class="loading-text">네트워크 오류. 새로고침을 눌러주세요.</p>';
-    }
-  }
-
-
   const windyViews = {
-    route:      { lat: 38,     lon: -104,  zoom: 5 },
-    indiana:    { lat: 39.77,  lon: -86.16, zoom: 7 },
+    route:      { lat: 38,     lon: -104,    zoom: 5 },
+    indiana:    { lat: 39.77,  lon: -86.16,  zoom: 7 },
     utah:       { lat: 40.76,  lon: -111.89, zoom: 7 },
     colorado:   { lat: 39.74,  lon: -104.98, zoom: 7 },
     california: { lat: 34.05,  lon: -118.24, zoom: 7 },
   };
-
-  function changeWindyView(view) {
+  function changeWindyView(view, el) {
     const v = windyViews[view];
-    const iframe = document.getElementById('windy-iframe');
-    iframe.src = `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=${v.zoom}&overlay=wind&product=ecmwf&level=surface&lat=${v.lat}&lon=${v.lon}&detail=false&pressure=false&message=false`;
+    document.getElementById('windy-iframe').src = `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=${v.zoom}&overlay=wind&product=ecmwf&level=surface&lat=${v.lat}&lon=${v.lon}&detail=false&pressure=false&message=false`;
     document.querySelectorAll('.windy-tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
+    el.classList.add('active');
   }
-
+  async function fetchCity(city) {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.en}&appid=${API_KEY}&units=metric&lang=kr`);
+    return res.json();
+  }
+  async function loadWeather() {
+    const list = document.getElementById('weather-list');
+    list.innerHTML = '<p class="text-xs text-stone-400 text-center py-2">불러오는 중...</p>';
+    try {
+      const results = await Promise.all(cities.map(c => fetchCity(c)));
+      const allOk = results.every(r => r.cod === 200);
+      if (!allOk) { list.innerHTML = '<p class="text-xs text-amber-500 text-center py-2">API Key 활성화 대기 중</p>'; return; }
+      list.innerHTML = results.map((data, i) => {
+        const temp = Math.round(data.main.temp);
+        return `<div class="flex items-center justify-between py-2 border-b border-stone-50 last:border-0">
+          <div><p class="text-sm font-semibold">${cities[i].name}</p><p class="text-[11px] text-stone-400">${data.weather[0].description} · 습도 ${data.main.humidity}%</p></div>
+          <span class="text-lg font-black font-public-sans">${temp}°C</span></div>`;
+      }).join('');
+      const s = results[0], b = results[1];
+      if (s.cod===200) { document.getElementById('temp-seoul').textContent=Math.round(s.main.temp)+'°C'; document.getElementById('desc-seoul').textContent=s.weather[0].description; }
+      if (b.cod===200) { document.getElementById('temp-busan').textContent=Math.round(b.main.temp)+'°C'; document.getElementById('desc-busan').textContent=b.weather[0].description; }
+      const t = `마지막 업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
+      document.getElementById('last-updated').textContent = t;
+      document.getElementById('last-updated-top').textContent = t;
+    } catch(e) { list.innerHTML = '<p class="text-xs text-red-400 text-center py-2">네트워크 오류</p>'; }
+  }
+  function handleBatchDrop(event) { const files = event.dataTransfer.files; if (files.length>0) runBatchInference(files); }
+  async function analyzeImage(file) {
+    const formData = new FormData(); formData.append('file', file);
+    const data = await (await fetch(LANDING_ENDPOINT, { method:'POST', headers:{'apikey':LANDING_API_KEY}, body:formData })).json();
+    let hasDamage=false, finalScore=0;
+    if (data && data.backbonepredictions) {
+      const bp=data.backbonepredictions;
+      if (Array.isArray(bp)) { hasDamage=bp.some(p=>(p.labelName||'').toLowerCase()==='damage'); if(bp.length>0) finalScore=bp[0].score||0; }
+      else if (typeof bp==='object') { const v=Object.values(bp); hasDamage=v.some(p=>(p.labelName||'').toLowerCase()==='damage'); if(v.length>0) finalScore=v[0].score||0; }
+    }
+    if (data && data.predictions) {
+      const preds=data.predictions;
+      if (Array.isArray(preds)&&preds.length>0) { if((preds[0].labelName||'').toLowerCase()==='ng') hasDamage=true; if(!finalScore) finalScore=preds[0].score||0; }
+      else if (typeof preds==='object') { const v=Object.values(preds); if(v.some(p=>(p.labelName||'').toLowerCase()==='ng')) hasDamage=true; if(!finalScore&&v.length>0) finalScore=v[0].score||0; }
+    }
+    return { hasDamage, finalScore };
+  }
+  let batchResults=[];
+  async function runBatchInference(files) {
+    const fileArray=Array.from(files); if(!fileArray.length) return;
+    batchResults=[]; document.getElementById('batch-table-body').innerHTML='';
+    document.getElementById('batch-results').classList.add('hidden');
+    document.getElementById('batch-progress').classList.remove('hidden');
+    let normalCount=0, damageCount=0;
+    for (let i=0; i<fileArray.length; i++) {
+      const file=fileArray[i];
+      document.getElementById('batch-progress-bar').style.width=Math.round((i/fileArray.length)*100)+'%';
+      document.getElementById('batch-status').textContent=`분석 중... ${i+1} / ${fileArray.length} (${file.name})`;
+      const now=new Date().toLocaleTimeString('ko-KR');
+      let result={hasDamage:false,finalScore:0};
+      try { result=await analyzeImage(file); } catch(e) {}
+      if(result.hasDamage) damageCount++; else normalCount++;
+      batchResults.push({index:i+1,filename:file.name,hasDamage:result.hasDamage,score:result.finalScore,time:now});
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td class="text-stone-400">${i+1}</td><td class="text-xs text-stone-500">${file.name}</td><td><span class="ai-badge ${result.hasDamage?'damage':'normal'}">${result.hasDamage?'⚠️ 데미지':'✅ 정상'}</span></td><td>${result.finalScore?(result.finalScore*100).toFixed(1)+'%':'-'}</td><td class="text-stone-400 text-xs">${now}</td>`;
+      document.getElementById('batch-table-body').appendChild(tr);
+      document.getElementById('stat-total').textContent=i+1;
+      document.getElementById('stat-normal').textContent=normalCount;
+      document.getElementById('stat-damage').textContent=damageCount;
+      document.getElementById('stat-rate').textContent=Math.round((damageCount/(i+1))*100)+'%';
+      document.getElementById('batch-results').classList.remove('hidden');
+    }
+    document.getElementById('batch-progress-bar').style.width='100%';
+    document.getElementById('batch-status').textContent=`✅ 분석 완료! 총 ${fileArray.length}개 검수`;
+  }
+  function exportCSV() {
+    const date=new Date().toLocaleDateString('ko-KR').replace(/\./g,'').replace(/ /g,'-');
+    let csv='번호,파일명,판별결과,신뢰도,검수시간\n';
+    batchResults.forEach(r=>{csv+=`${r.index},"${r.filename}",${r.hasDamage?'데미지':'정상'},${r.score?(r.score*100).toFixed(1)+'%':'-'},${r.time}\n`;});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'})); a.download=`SBB검수결과_${date}.csv`; a.click();
+  }
   loadWeather();
-  setInterval(loadWeather, 5 * 60 * 1000);
+  setInterval(loadWeather, 5*60*1000);
 </script>
 </body>
 </html>
