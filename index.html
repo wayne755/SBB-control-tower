@@ -94,7 +94,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   .mobile-topbar { display: flex !important; }
   .mobile-bottomnav { display: flex !important; }
   /* 상단바 높이만큼 밀어내기 */
-  .page { padding: 12px !important; padding-top: 66px !important; }
+  .page { padding: 12px !important; padding-top: 66px !important; display: none !important; }
+  .page.active { display: block !important; }
   /* 지도 높이 */
   .h-80 { height: 200px !important; }
   /* windy 탭 스크롤 */
@@ -141,11 +142,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
 <!-- 모바일 상단바 -->
 <header class="mobile-topbar fixed top-0 left-0 right-0 z-50 bg-stone-50 border-b border-stone-200 h-14 px-4 items-center justify-between">
-  <div class="flex items-center gap-2">
-    <div class="w-7 h-7 rounded-lg cta-gradient flex items-center justify-center text-white">
-      <span class="material-symbols-outlined text-sm">rocket_launch</span>
-    </div>
-    <span class="text-sm font-black text-lime-950 font-public-sans">SBB Control</span>
+  <div class="flex items-center">
+    <img src="HPC_logo.jpg" alt="HPC Logo" style="height:40px;object-fit:contain;">
   </div>
   <div class="flex items-center gap-1.5">
     <span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span></span>
@@ -185,12 +183,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 <aside class="flex flex-col h-screen sticky top-0 w-56 bg-stone-100 border-r border-stone-200 z-50 shrink-0">
   <div class="p-5">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl cta-gradient flex items-center justify-center text-white">
-        <span class="material-symbols-outlined text-lg">rocket_launch</span>
-      </div>
       <div>
-        <h1 class="text-base font-black text-lime-950 font-public-sans tracking-tight">SBB Control</h1>
-        <p class="text-[9px] uppercase tracking-widest text-stone-400 font-bold">삼성SDI 물류 관제</p>
+        <img src="HPC_logo.jpg" alt="HPC Logo" style="height:72px;object-fit:contain;">
       </div>
     </div>
   </div>
@@ -270,8 +264,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
     <div class="page-header flex items-start justify-between">
       <div>
-        <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">운송 루트 관제</h2>
-        <p class="text-sm text-stone-400 mt-0.5">인디애나 → 유타 / 콜로라도 / 캘리포니아</p>
+        <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">CONTROL TOWER</h2>
       </div>
       <div class="status-pills flex flex-wrap gap-2 justify-end">
         <span class="text-[11px] px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-semibold whitespace-nowrap">OpenWeather 연결됨</span>
@@ -284,8 +277,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
 
     <!-- Windy + Weather/Alerts -->
-    <div class="md-grid-3 grid grid-cols-3 gap-6">
-      <div class="md-col-span-2 col-span-2 bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+    <div class="grid grid-cols-1 gap-6">
+      <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
         <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
           <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">운송 루트 날씨 현황</h3>
           <div class="windy-tabs-row flex gap-2">
@@ -296,7 +289,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
             <button class="windy-tab" onclick="changeWindyView('california', this)">캘리포니아</button>
           </div>
         </div>
-        <div class="rounded-xl overflow-hidden border border-stone-100 h-80">
+        <div class="rounded-xl overflow-hidden border border-stone-100" style="height:480px;">
           <iframe id="windy-iframe" width="100%" height="100%"
             src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=5&overlay=wind&product=ecmwf&level=surface&lat=38&lon=-104&detail=false&pressure=false&message=false"
             frameborder="0" allowfullscreen></iframe>
@@ -308,9 +301,13 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
           <div class="flex items-center gap-1.5"><div class="dot dot-ok"></div><span class="text-xs text-stone-400">LA</span></div>
         </div>
       </div>
-      <div class="space-y-4">
+    </div>
 
-        <!-- 포트별 물량 현황 -->
+    <!-- 포트별 물량 + BL 트래킹 -->
+    <div class="grid grid-cols-2 gap-6">
+
+      <!-- 포트별 물량 현황 + 파이프라인 -->
+      <div class="space-y-4">
         <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400">포트별 물량 현황</h3>
@@ -411,43 +408,92 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
             <span>납품 완료율 <b class="text-primary">54.9%</b></span>
           </div>
         </div>
-
       </div>
+
+      <!-- BL 트래킹 검색 -->
+      <div class="bg-white rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-stone-100 flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary">travel_explore</span>
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">BL / 컨테이너 트래킹</h3>
+            <p class="text-[11px] text-stone-400 mt-0.5">BL 번호 입력 → 선사 트래킹 페이지 이동</p>
+          </div>
+        </div>
+        <div class="p-5 space-y-4">
+          <!-- 선사 선택 -->
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">선사 선택</p>
+            <div class="grid grid-cols-4 gap-2" id="carrier-grid">
+              <button onclick="selectCarrier('maersk',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
+                <p class="text-[10px] font-bold text-stone-700">Maersk</p>
+                <p class="text-[9px] text-stone-400">MAEU</p>
+              </button>
+              <button onclick="selectCarrier('msc',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
+                <p class="text-[10px] font-bold text-stone-700">MSC</p>
+                <p class="text-[9px] text-stone-400">MSCU</p>
+              </button>
+              <button onclick="selectCarrier('cosco',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
+                <p class="text-[10px] font-bold text-stone-700">COSCO</p>
+                <p class="text-[9px] text-stone-400">COSU</p>
+              </button>
+              <button onclick="selectCarrier('hapag',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
+                <p class="text-[10px] font-bold text-stone-700">Hapag</p>
+                <p class="text-[9px] text-stone-400">HLCU</p>
+              </button>
+              <button onclick="selectCarrier('evergreen',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
+                <p class="text-[10px] font-bold text-stone-700">Evergreen</p>
+                <p class="text-[9px] text-stone-400">EGLV</p>
+              </button>
+              <button onclick="selectCarrier('hmm',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
+                <p class="text-[10px] font-bold text-stone-700">HMM</p>
+                <p class="text-[9px] text-stone-400">HDMU</p>
+              </button>
+              <button onclick="selectCarrier('one',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
+                <p class="text-[10px] font-bold text-stone-700">ONE</p>
+                <p class="text-[9px] text-stone-400">ONEY</p>
+              </button>
+              <button onclick="selectCarrier('yangming',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
+                <p class="text-[10px] font-bold text-stone-700">Yang Ming</p>
+                <p class="text-[9px] text-stone-400">YMLU</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- BL 입력 -->
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">BL / 컨테이너 번호</p>
+            <div class="flex gap-2">
+              <input id="bl-input" type="text" placeholder="예) MAEU123456789"
+                class="flex-1 border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors font-mono"
+                onkeydown="if(event.key==='Enter') trackBL()"
+                oninput="autoDetectCarrier(this.value)">
+              <button onclick="trackBL()" class="cta-gradient text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">search</span> 조회
+              </button>
+            </div>
+            <p class="text-[10px] text-stone-400 mt-1.5" id="bl-hint">선사를 선택하거나 BL 번호를 입력하면 자동 감지돼요</p>
+          </div>
+
+          <!-- 선택된 선사 표시 -->
+          <div id="selected-carrier-info" class="hidden bg-green-50 border border-green-100 rounded-xl p-3 flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+            <div>
+              <p class="text-xs font-bold text-primary" id="selected-carrier-name"></p>
+              <p class="text-[10px] text-stone-400" id="selected-carrier-url"></p>
+            </div>
+          </div>
+
+          <!-- 최근 조회 -->
+          <div id="recent-track-wrap">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">최근 조회</p>
+            <div id="recent-track-list" class="space-y-1.5">
+              <p class="text-xs text-stone-300 text-center py-2">아직 조회 기록이 없어요</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
-
-    <!-- Trucks + Sensors (대시보드 요약) -->
-    <div class="md-grid-2 grid grid-cols-2 gap-6">
-      <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-stone-100 flex justify-between items-center">
-          <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">빈 트럭 매칭</h3>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-400 font-bold cursor-pointer" onclick="window.open('https://www.trulos.com','_blank')">Trulos 열기 ↗</span>
-        </div>
-        <div class="divide-y divide-stone-50">
-          <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
-            <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-001</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-bold">대기중</span></div><p class="text-xs text-stone-400">LA 항구 → 토렌스 SDI · 18톤</p></div>
-            <div class="text-right"><p class="text-xs font-medium">2025-05-10</p><p class="text-[10px] text-green-600 font-semibold">온습도 정상</p></div>
-          </div>
-          <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
-            <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-002</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold">운송중</span></div><p class="text-xs text-stone-400">롱비치 → 토렌스 SDI · 15톤</p></div>
-            <div class="text-right"><p class="text-xs font-medium">2025-05-15</p><p class="text-[10px] text-amber-600 font-semibold">⚠️ 온습도 경고</p></div>
-          </div>
-          <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
-            <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-003</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-200 text-stone-500 font-bold">완료</span></div><p class="text-xs text-stone-400">롱비치 → 어바인 SDI · 20톤</p></div>
-            <div class="text-right"><p class="text-xs font-medium">2025-05-08</p><p class="text-[10px] text-green-600 font-semibold">온습도 정상</p></div>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-stone-100"><h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">BLE 온습도 센서</h3></div>
-        <div class="grid grid-cols-2 gap-4 p-5">
-          <div class="bg-stone-50 rounded-xl p-4 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 1</p><p class="text-2xl font-black font-public-sans">23°C</p><p class="text-xs text-stone-400 mt-1">습도 45%</p></div>
-          <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center"><p class="text-[10px] uppercase tracking-widest text-amber-500 mb-2">게이트 2 ⚠️</p><p class="text-2xl font-black font-public-sans text-amber-600">31°C</p><p class="text-xs text-amber-500 mt-1">습도 78%</p></div>
-          <div class="bg-stone-50 rounded-xl p-4 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 3</p><p class="text-2xl font-black font-public-sans">22°C</p><p class="text-xs text-stone-400 mt-1">습도 42%</p></div>
-          <div class="bg-stone-50 rounded-xl p-4 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 4</p><p class="text-2xl font-black font-public-sans">24°C</p><p class="text-xs text-stone-400 mt-1">습도 50%</p></div>
-        </div>
-      </div>
-    </div>
-
 
     <p class="text-right text-xs text-stone-300" id="last-updated"></p>
   </div><!-- /page-dashboard -->
@@ -645,7 +691,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     </div>
     <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-stone-100"><h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">BLE 온습도 센서</h3></div>
-      <div class="sensor-grid grid grid-cols-4 gap-4 p-5"><p class="text-3xl font-black font-public-sans">23°C</p><p class="text-sm text-stone-400 mt-1">습도 45%</p></div>
+      <div class="sensor-grid grid grid-cols-4 gap-4 p-5">
+        <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 1</p><p class="text-3xl font-black font-public-sans">23°C</p><p class="text-sm text-stone-400 mt-1">습도 45%</p></div>
         <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-amber-500 mb-2">게이트 2 ⚠️</p><p class="text-3xl font-black font-public-sans text-amber-600">31°C</p><p class="text-sm text-amber-500 mt-1">습도 78%</p></div>
         <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 3</p><p class="text-3xl font-black font-public-sans">22°C</p><p class="text-sm text-stone-400 mt-1">습도 42%</p></div>
         <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 4</p><p class="text-3xl font-black font-public-sans">24°C</p><p class="text-sm text-stone-400 mt-1">습도 50%</p></div>
@@ -670,13 +717,20 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">검수 분석</h2>
         <p class="text-sm text-stone-400 mt-0.5">AI 불량 판별 세션 이력 · 누적 통계</p>
       </div>
-      <button onclick="clearHistory()" class="flex items-center gap-1.5 text-xs text-stone-400 hover:text-error transition-colors border border-stone-200 rounded-lg px-3 py-1.5 hover:border-red-200">
-        <span class="material-symbols-outlined text-sm">delete_outline</span> 이력 초기화
-      </button>
+      <div class="flex items-center gap-2">
+        <button onclick="exportAllCSV()" class="flex items-center gap-1.5 text-xs text-stone-500 hover:text-primary transition-colors border border-stone-200 rounded-lg px-3 py-1.5 hover:border-primary">
+          <span class="material-symbols-outlined text-sm">download</span> 전체 내보내기
+        </button>
+        <button onclick="clearHistory()" class="flex items-center gap-1.5 text-xs text-stone-400 hover:text-error transition-colors border border-stone-200 rounded-lg px-3 py-1.5 hover:border-red-200">
+          <span class="material-symbols-outlined text-sm">delete_outline</span> 이력 초기화
+        </button>
+      </div>
     </div>
 
     <!-- 누적 요약 카드 -->
     <div class="ana-summary-grid grid grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">총 검수 세션</p>
         <p class="text-3xl font-black font-public-sans" id="ana-sessions">0</p>
         <p class="text-xs text-stone-400 mt-1">누적 실행 횟수</p>
       </div>
@@ -708,22 +762,27 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     </div>
 
     <!-- 세션 이력 테이블 -->
-    <div id="ana-table-wrap" class="hidden bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-stone-100 flex items-center gap-3">
-        <span class="material-symbols-outlined text-primary">history</span>
-        <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">세션별 검수 이력</h3>
+    <div id="ana-table-wrap" class="hidden bg-white rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-stone-100 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary">history</span>
+          <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">세션별 검수 이력</h3>
+          <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold" id="ana-session-count">0건</span>
+        </div>
+        <p class="text-[10px] text-stone-300">클릭하면 세션별 상세 내역을 볼 수 있어요</p>
       </div>
       <div class="overflow-x-auto">
         <table class="batch-table">
           <thead>
             <tr>
               <th>세션 #</th>
-              <th>날짜 / 시간</th>
+              <th>날짜</th>
+              <th>시간</th>
               <th>검수 수량</th>
               <th>✅ 정상</th>
               <th>⚠️ 데미지</th>
               <th>불량률</th>
-              <th>상세 보기</th>
+              <th>상세</th>
             </tr>
           </thead>
           <tbody id="ana-tbody"></tbody>
@@ -731,17 +790,25 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- 세션 상세 드로어 -->
+    <!-- 세션 상세 -->
     <div id="ana-detail-wrap" class="hidden bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-stone-100 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <span class="material-symbols-outlined text-stone-400">list_alt</span>
           <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans" id="ana-detail-title">세션 상세</h3>
         </div>
-        <button onclick="closeDetail()" class="text-stone-400 hover:text-stone-700">
-          <span class="material-symbols-outlined">close</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="exportSessionCSV()" class="flex items-center gap-1 text-xs text-primary hover:underline">
+            <span class="material-symbols-outlined text-sm">download</span> CSV
+          </button>
+          <button onclick="closeDetail()" class="text-stone-400 hover:text-stone-700 ml-2">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
       </div>
+      <!-- 세션 요약 -->
+      <div class="grid grid-cols-4 divide-x divide-stone-100 border-b border-stone-100" id="ana-detail-summary"></div>
+      <!-- 상세 테이블 -->
       <div class="overflow-x-auto">
         <table class="batch-table">
           <thead><tr><th>#</th><th>파일명</th><th>판별 결과</th><th>신뢰도</th><th>검수 날짜 / 시간</th></tr></thead>
@@ -948,6 +1015,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   }
 
   /* ─── 분석 페이지 ─────────────────────────────────── */
+  let currentDetailSession = null;
+
   function renderAnalytics() {
     const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
     const total = hist.reduce((s,h) => s+h.total, 0);
@@ -962,19 +1031,27 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
     const empty = document.getElementById('ana-empty');
     const wrap  = document.getElementById('ana-table-wrap');
-    if (!hist.length) { empty.classList.remove('hidden'); wrap.classList.add('hidden'); return; }
+    if (!hist.length) { empty.classList.remove('hidden'); wrap.classList.add('hidden'); closeDetail(); return; }
     empty.classList.add('hidden'); wrap.classList.remove('hidden');
+
+    const cnt = document.getElementById('ana-session-count');
+    if (cnt) cnt.textContent = hist.length + '건';
 
     document.getElementById('ana-tbody').innerHTML = hist.map((s, i) => {
       const rateColor = s.rate === 0 ? 'text-primary' : s.rate < 20 ? 'text-secondary' : 'text-error';
-      return `<tr>
-        <td class="font-bold font-public-sans">#${hist.length - i}</td>
-        <td class="text-xs whitespace-nowrap">${s.datetime}</td>
-        <td class="text-center font-bold">${s.total}</td>
+      const rateBg    = s.rate === 0 ? 'bg-green-50' : s.rate < 20 ? 'bg-amber-50' : 'bg-red-50';
+      const dt = s.datetime || '-';
+      const datePart = dt.split(' ')[0] || dt;
+      const timePart = dt.split(' ').slice(1).join(' ') || '';
+      return `<tr class="hover:bg-stone-50 cursor-pointer" onclick="openDetail(${s.id})">
+        <td class="font-bold font-public-sans text-stone-500">#${hist.length - i}</td>
+        <td class="font-medium whitespace-nowrap">${datePart}</td>
+        <td class="text-stone-400 text-xs whitespace-nowrap">${timePart}</td>
+        <td class="text-center font-bold text-lg">${s.total}</td>
         <td class="text-center font-semibold text-primary">${s.normal}</td>
         <td class="text-center font-semibold text-error">${s.damage}</td>
-        <td class="text-center font-bold ${rateColor}">${s.rate}%</td>
-        <td><button onclick="openDetail(${s.id})" class="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5">
+        <td class="text-center"><span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold ${rateBg} ${rateColor}">${s.rate}%</span></td>
+        <td><button class="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5">
           <span class="material-symbols-outlined text-sm">chevron_right</span>상세
         </button></td>
       </tr>`;
@@ -985,11 +1062,22 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
     const session = hist.find(h => h.id === id);
     if (!session) return;
-    document.getElementById('ana-detail-title').textContent = `세션 상세 — ${session.datetime} (총 ${session.total}건)`;
+    currentDetailSession = session;
+    const num = hist.length - hist.indexOf(session);
+    document.getElementById('ana-detail-title').textContent = `세션 #${num} 상세 — ${session.datetime}`;
+
+    // 세션 요약 바
+    const rateColor = session.rate === 0 ? '#275300' : session.rate < 20 ? '#88520e' : '#ba1a1a';
+    document.getElementById('ana-detail-summary').innerHTML = `
+      <div class="p-4 text-center"><p class="text-[9px] uppercase tracking-widest text-stone-400 mb-1">총 검수</p><p class="text-2xl font-black font-public-sans">${session.total}</p></div>
+      <div class="p-4 text-center bg-green-50"><p class="text-[9px] uppercase tracking-widest text-green-500 mb-1">✅ 정상</p><p class="text-2xl font-black font-public-sans text-primary">${session.normal}</p></div>
+      <div class="p-4 text-center bg-red-50"><p class="text-[9px] uppercase tracking-widest text-red-400 mb-1">⚠️ 데미지</p><p class="text-2xl font-black font-public-sans text-error">${session.damage}</p></div>
+      <div class="p-4 text-center"><p class="text-[9px] uppercase tracking-widest text-stone-400 mb-1">불량률</p><p class="text-2xl font-black font-public-sans" style="color:${rateColor}">${session.rate}%</p></div>`;
+
     document.getElementById('ana-detail-tbody').innerHTML = session.items.map((item, i) => `
       <tr>
         <td class="text-stone-400">${i+1}</td>
-        <td class="text-xs text-stone-500 max-w-xs truncate">${item.filename}</td>
+        <td class="text-xs text-stone-600 max-w-xs truncate font-medium">${item.filename}</td>
         <td><span class="ai-badge ${item.hasDamage?'damage':'normal'}">${item.hasDamage?'⚠️ 데미지':'✅ 정상'}</span></td>
         <td class="font-medium">${item.score?(item.score*100).toFixed(1)+'%':'-'}</td>
         <td class="text-stone-400 text-xs whitespace-nowrap">${item.datetime}</td>
@@ -1000,6 +1088,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
   function closeDetail() {
     document.getElementById('ana-detail-wrap').classList.add('hidden');
+    currentDetailSession = null;
   }
 
   function clearHistory() {
@@ -1007,6 +1096,35 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     localStorage.removeItem('sbb_history');
     closeDetail();
     renderAnalytics();
+  }
+
+  function exportAllCSV() {
+    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+    if (!hist.length) { alert('내보낼 이력이 없습니다'); return; }
+    let csv = '세션#,세션날짜시간,파일명,판별결과,신뢰도,검수날짜시간\n';
+    hist.forEach((s, si) => {
+      s.items.forEach(item => {
+        csv += `${hist.length-si},"${s.datetime}","${item.filename}",${item.hasDamage?'데미지':'정상'},${item.score?(item.score*100).toFixed(1)+'%':'-'},"${item.datetime}"\n`;
+      });
+    });
+    const date = new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.','');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
+    a.download = `SBB_전체검수이력_${date}.csv`;
+    a.click();
+  }
+
+  function exportSessionCSV() {
+    if (!currentDetailSession) return;
+    const s = currentDetailSession;
+    let csv = '파일명,판별결과,신뢰도,검수날짜시간\n';
+    s.items.forEach(item => {
+      csv += `"${item.filename}",${item.hasDamage?'데미지':'정상'},${item.score?(item.score*100).toFixed(1)+'%':'-'},"${item.datetime}"\n`;
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
+    a.download = `SBB_세션검수_${s.datetime.replace(/[: ]/g,'-')}.csv`;
+    a.click();
   }
 
   /* ─── Load Board ──────────────────────────────────── */
@@ -1063,6 +1181,82 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   }
 
   /* ─── 초기 실행 ───────────────────────────────────── */
+  // ─── BL 트래킹 ────────────────────────────────────────
+  const CARRIERS = {
+    maersk:   { name:'Maersk',     prefix:['MAEU','MSKU','MRKU'], url:'https://www.maersk.com/tracking/#tracking/' },
+    msc:      { name:'MSC',        prefix:['MSCU','MEDU'],        url:'https://www.msc.com/en/track-a-shipment?agencyPath=mwi&bl=' },
+    cosco:    { name:'COSCO',      prefix:['COSU','CBHU'],        url:'https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=BL&number=' },
+    hapag:    { name:'Hapag-Lloyd',prefix:['HLCU','HLXU'],        url:'https://www.hapag-lloyd.com/en/online-business/tracing/tracing-by-booking.html?blno=' },
+    evergreen:{ name:'Evergreen',  prefix:['EGLV','EGHU'],        url:'https://ct.shipmentlink.com/servlet/TDB1_CargoTracking.do?bl_no=' },
+    hmm:      { name:'HMM',        prefix:['HDMU','HMMU'],        url:'https://www.hmm21.com/cms/business/ebiz/trackTrace/trackTrace/index.jsp?blNo=' },
+    one:      { name:'ONE',        prefix:['ONEY','ONEU'],        url:'https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking?trakNoParam=' },
+    yangming: { name:'Yang Ming',  prefix:['YMLU','YMLUW'],       url:'https://www.yangming.com/e-service/Track_Trace/track_trace_cargo_tracking.aspx?bl_no=' },
+  };
+  let selectedCarrier = null;
+  let recentTracks = JSON.parse(localStorage.getItem('bl_recent') || '[]');
+
+  function selectCarrier(key, el) {
+    selectedCarrier = key;
+    document.querySelectorAll('.carrier-btn').forEach(b => {
+      b.classList.remove('border-primary','bg-green-50','font-bold');
+    });
+    el.classList.add('border-primary','bg-green-50');
+    const c = CARRIERS[key];
+    document.getElementById('selected-carrier-info').classList.remove('hidden');
+    document.getElementById('selected-carrier-name').textContent = c.name + ' 선택됨';
+    document.getElementById('selected-carrier-url').textContent = c.url.split('?')[0];
+    document.getElementById('bl-hint').textContent = c.name + ' 트래킹 페이지로 이동합니다';
+  }
+
+  function autoDetectCarrier(val) {
+    val = val.toUpperCase().trim();
+    for (const [key, c] of Object.entries(CARRIERS)) {
+      if (c.prefix.some(p => val.startsWith(p))) {
+        const btn = document.querySelector(`.carrier-btn[onclick*="'${key}'"]`);
+        if (btn) selectCarrier(key, btn);
+        return;
+      }
+    }
+  }
+
+  function trackBL() {
+    const bl = document.getElementById('bl-input').value.trim();
+    if (!bl) { alert('BL 번호를 입력해주세요'); return; }
+    if (!selectedCarrier) { alert('선사를 선택해주세요'); return; }
+    const url = CARRIERS[selectedCarrier].url + bl;
+    // 최근 조회 저장
+    recentTracks = recentTracks.filter(r => r.bl !== bl);
+    recentTracks.unshift({ bl, carrier: selectedCarrier, time: new Date().toLocaleTimeString('ko-KR') });
+    if (recentTracks.length > 5) recentTracks = recentTracks.slice(0, 5);
+    localStorage.setItem('bl_recent', JSON.stringify(recentTracks));
+    renderRecentTracks();
+    window.open(url, '_blank');
+  }
+
+  function renderRecentTracks() {
+    const list = document.getElementById('recent-track-list');
+    if (!recentTracks.length) {
+      list.innerHTML = '<p class="text-xs text-stone-300 text-center py-2">아직 조회 기록이 없어요</p>';
+      return;
+    }
+    list.innerHTML = recentTracks.map(r => `
+      <div class="flex items-center justify-between py-1.5 px-3 bg-stone-50 rounded-lg hover:bg-green-50 cursor-pointer transition-colors" onclick="quickTrack('${r.bl}','${r.carrier}')">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-stone-300 text-sm">history</span>
+          <span class="text-xs font-mono font-bold text-stone-700">${r.bl}</span>
+          <span class="text-[10px] text-stone-400">${CARRIERS[r.carrier]?.name || r.carrier}</span>
+        </div>
+        <span class="text-[10px] text-stone-300">${r.time}</span>
+      </div>`).join('');
+  }
+
+  function quickTrack(bl, carrier) {
+    const url = CARRIERS[carrier]?.url + bl;
+    if (url) window.open(url, '_blank');
+  }
+
+  renderRecentTracks();
+
   loadWeather();
   setInterval(loadWeather, 5 * 60 * 1000);
   refreshLoadboard();
