@@ -76,9 +76,77 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 /* 페이지 전환 */
 .page { display: none; }
 .page.active { display: block; }
+
+/* ── 모바일 반응형 ── */
+.mobile-topbar { display: none; }
+.mobile-bottomnav { display: none; }
+
+@media (max-width: 768px) {
+  aside { display: none !important; }
+  .mobile-topbar { display: flex !important; }
+  .mobile-bottomnav { display: flex !important; }
+  .page { padding: 12px !important; }
+  /* 지도 높이 */
+  .h-80 { height: 200px !important; }
+  /* windy 탭 스크롤 */
+  .windy-tabs-row { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 2px; }
+  /* 헤더 패딩 */
+  .desktop-header { display: none !important; }
+  /* 그리드 1열 */
+  .md-grid-3 { grid-template-columns: 1fr !important; }
+  .md-grid-2 { grid-template-columns: 1fr !important; }
+  .md-col-span-2 { grid-column: span 1 !important; }
+  /* 포트 현황 3열은 유지 */
+  .port-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  /* 본문 하단 탭바 여백 */
+  main { padding-bottom: 68px; }
+  /* 텍스트 */
+  .md-text-2xl { font-size: 1.15rem !important; }
+}
 </style>
 </head>
 <body class="bg-surface text-on-surface">
+
+<!-- 모바일 상단바 -->
+<header class="mobile-topbar fixed top-0 left-0 right-0 z-50 bg-stone-50 border-b border-stone-200 h-14 px-4 items-center justify-between">
+  <div class="flex items-center gap-2">
+    <div class="w-7 h-7 rounded-lg cta-gradient flex items-center justify-center text-white">
+      <span class="material-symbols-outlined text-sm">rocket_launch</span>
+    </div>
+    <span class="text-sm font-black text-lime-950 font-public-sans">SBB Control</span>
+  </div>
+  <div class="flex items-center gap-1.5">
+    <span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span></span>
+    <span class="text-[10px] font-bold uppercase tracking-widest text-lime-800">LIVE</span>
+  </div>
+</header>
+
+<!-- 모바일 하단 탭바 -->
+<nav class="mobile-bottomnav fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-200 h-16 items-center justify-around px-2">
+  <a onclick="showPage('dashboard')" class="mob-tab flex flex-col items-center gap-0.5 text-lime-800 cursor-pointer py-2 px-3">
+    <span class="material-symbols-outlined text-xl" id="mob-icon-dashboard" style="font-variation-settings:'FILL' 1;">dashboard</span>
+    <span class="text-[10px] font-semibold">대시보드</span>
+  </a>
+  <a onclick="showPage('trucks')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
+    <span class="material-symbols-outlined text-xl" id="mob-icon-trucks">local_shipping</span>
+    <span class="text-[10px]">트럭</span>
+  </a>
+  <a onclick="showPage('ai')" class="mob-tab flex flex-col items-center gap-0.5 cursor-pointer -mt-4">
+    <div class="w-12 h-12 rounded-full cta-gradient flex items-center justify-center shadow-lg">
+      <span class="material-symbols-outlined text-white text-xl">search</span>
+    </div>
+    <span class="text-[10px] text-lime-800 font-semibold mt-0.5">AI 판별</span>
+  </a>
+  <a onclick="showPage('analytics')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
+    <span class="material-symbols-outlined text-xl" id="mob-icon-analytics">monitoring</span>
+    <span class="text-[10px]">분석</span>
+  </a>
+  <a onclick="showPage('sensors')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
+    <span class="material-symbols-outlined text-xl" id="mob-icon-sensors">thermostat</span>
+    <span class="text-[10px]">센서</span>
+  </a>
+</nav>
+
 <div class="flex min-h-screen">
 
 <!-- Sidebar -->
@@ -138,8 +206,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 <!-- Main -->
 <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-  <!-- Top Nav -->
-  <header class="flex justify-between items-center px-8 h-14 sticky top-0 z-40 bg-stone-50 border-b border-stone-200">
+  <!-- Top Nav (데스크탑) -->
+  <header class="desktop-header flex justify-between items-center px-8 h-14 sticky top-0 z-40 bg-stone-50 border-b border-stone-200">
     <div class="flex items-center gap-3">
       <span class="flex h-2 w-2 relative">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -166,7 +234,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   <!-- ══════════════════════════════════════════════ -->
   <!-- PAGE: 대시보드                                  -->
   <!-- ══════════════════════════════════════════════ -->
-  <div id="page-dashboard" class="page active p-6 space-y-6 flex-1 overflow-y-auto">
+  <div id="page-dashboard" class="page active p-6 space-y-6 flex-1 overflow-y-auto pt-14 md:pt-6">
 
     <div class="flex items-start justify-between">
       <div>
@@ -184,11 +252,11 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
 
     <!-- Windy + Weather/Alerts -->
-    <div class="grid grid-cols-3 gap-6">
-      <div class="col-span-2 bg-white rounded-xl border border-stone-100 shadow-sm p-5">
-        <div class="flex items-center justify-between mb-3">
+    <div class="md-grid-3 grid grid-cols-3 gap-6">
+      <div class="md-col-span-2 col-span-2 bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
           <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">운송 루트 날씨 현황</h3>
-          <div class="flex gap-2 flex-wrap">
+          <div class="windy-tabs-row flex gap-2">
             <button class="windy-tab active" onclick="changeWindyView('route', this)">전체 루트</button>
             <button class="windy-tab" onclick="changeWindyView('indiana', this)">인디애나</button>
             <button class="windy-tab" onclick="changeWindyView('utah', this)">유타</button>
@@ -216,7 +284,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
             <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400">포트별 물량 현황</h3>
             <span class="text-[10px] text-stone-300">기준: 오늘</span>
           </div>
-
           <!-- 롱비치 -->
           <div class="mb-4">
             <div class="flex items-center gap-2 mb-2">
@@ -241,7 +308,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
               </div>
             </div>
           </div>
-
           <!-- LA 항구 -->
           <div>
             <div class="flex items-center gap-2 mb-2">
@@ -272,41 +338,40 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
           <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">오늘의 물량 파이프라인</h3>
           <div class="space-y-2.5">
-            <!-- 단계별 흐름 -->
             <div class="flex items-center gap-2">
-              <div class="flex-shrink-0 w-20 text-[10px] font-bold text-stone-500 text-right">항구 입항</div>
+              <div class="flex-shrink-0 w-16 text-[10px] font-bold text-stone-500 text-right">항구 입항</div>
               <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
                 <div class="absolute inset-y-0 left-0 bg-blue-400 rounded-full" style="width:78%"></div>
-                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white mix-blend-multiply" style="color:#1e40af">23개</span>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">23개</span>
               </div>
-              <div class="text-[10px] font-bold text-blue-600 w-8 text-right">23</div>
+              <div class="text-[10px] font-bold text-blue-600 w-6 text-right">23</div>
             </div>
             <div class="flex justify-center text-stone-300 text-xs">↓</div>
             <div class="flex items-center gap-2">
-              <div class="flex-shrink-0 w-20 text-[10px] font-bold text-stone-500 text-right">통관</div>
+              <div class="flex-shrink-0 w-16 text-[10px] font-bold text-stone-500 text-right">통관</div>
               <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
                 <div class="absolute inset-y-0 left-0 bg-amber-400 rounded-full" style="width:31%"></div>
                 <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold" style="color:#92400e">9개</span>
               </div>
-              <div class="text-[10px] font-bold text-amber-600 w-8 text-right">9</div>
+              <div class="text-[10px] font-bold text-amber-600 w-6 text-right">9</div>
             </div>
             <div class="flex justify-center text-stone-300 text-xs">↓</div>
             <div class="flex items-center gap-2">
-              <div class="flex-shrink-0 w-20 text-[10px] font-bold text-stone-500 text-right">야드 입고</div>
+              <div class="flex-shrink-0 w-16 text-[10px] font-bold text-stone-500 text-right">야드 입고</div>
               <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
                 <div class="absolute inset-y-0 left-0 bg-lime-500 rounded-full" style="width:55%"></div>
                 <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold" style="color:#166534">16개</span>
               </div>
-              <div class="text-[10px] font-bold text-primary w-8 text-right">16</div>
+              <div class="text-[10px] font-bold text-primary w-6 text-right">16</div>
             </div>
             <div class="flex justify-center text-stone-300 text-xs">↓</div>
             <div class="flex items-center gap-2">
-              <div class="flex-shrink-0 w-20 text-[10px] font-bold text-stone-500 text-right">SDI 납품</div>
+              <div class="flex-shrink-0 w-16 text-[10px] font-bold text-stone-500 text-right">SDI 납품</div>
               <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
                 <div class="absolute inset-y-0 left-0 bg-primary rounded-full" style="width:100%"></div>
                 <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">39개 ✅</span>
               </div>
-              <div class="text-[10px] font-bold text-primary w-8 text-right">39</div>
+              <div class="text-[10px] font-bold text-primary w-6 text-right">39</div>
             </div>
           </div>
           <div class="mt-3 pt-3 border-t border-stone-100 flex justify-between text-[10px] text-stone-400">
@@ -319,7 +384,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     </div>
 
     <!-- Trucks + Sensors (대시보드 요약) -->
-    <div class="grid grid-cols-2 gap-6">
+    <div class="md-grid-2 grid grid-cols-2 gap-6">
       <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
         <div class="p-5 border-b border-stone-100 flex justify-between items-center">
           <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">빈 트럭 매칭</h3>
@@ -351,16 +416,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- Phase -->
-    <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
-      <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans mb-4">Phase 1 진행 현황</h3>
-      <div class="grid grid-cols-4 gap-4">
-        <div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center"><p class="text-lg font-black font-public-sans text-primary">완료</p><p class="text-xs text-on-primary-fixed-variant mt-1 font-semibold">OpenWeather</p></div>
-        <div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center"><p class="text-lg font-black font-public-sans text-primary">완료</p><p class="text-xs text-on-primary-fixed-variant mt-1 font-semibold">LandingLens</p></div>
-        <div class="bg-amber-50 border border-amber-100 rounded-xl p-4 text-center"><p class="text-lg font-black font-public-sans text-secondary">진행중</p><p class="text-xs text-on-secondary-fixed-variant mt-1 font-semibold">Trulos</p></div>
-        <div class="bg-stone-50 border border-stone-100 rounded-xl p-4 text-center"><p class="text-lg font-black font-public-sans text-stone-400">예정</p><p class="text-xs text-stone-400 mt-1 font-semibold">BLE 센서</p></div>
-      </div>
-    </div>
+
     <p class="text-right text-xs text-stone-300" id="last-updated"></p>
   </div><!-- /page-dashboard -->
 
@@ -713,6 +769,18 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     const map = { dashboard:0, trucks:1, ai:2, sensors:3, analytics:4, settings:5 };
     if (links[map[name]]) links[map[name]].classList.add('active');
     if (name === 'analytics') renderAnalytics();
+    // 모바일 탭바 하이라이트
+    document.querySelectorAll('.mob-tab').forEach(t => {
+      t.querySelectorAll('span.material-symbols-outlined').forEach(ic => {
+        ic.style.color = '#a8a29e';
+      });
+      t.querySelectorAll('span.text-\\[10px\\]').forEach(txt => txt.style.color = '#a8a29e');
+    });
+    const mobIconMap = { dashboard:'mob-icon-dashboard', trucks:'mob-icon-trucks', analytics:'mob-icon-analytics', sensors:'mob-icon-sensors' };
+    if (mobIconMap[name]) {
+      const ic = document.getElementById(mobIconMap[name]);
+      if (ic) ic.style.color = '#275300';
+    }
   }
 
   /* ─── 날씨 ────────────────────────────────────────── */
