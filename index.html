@@ -105,12 +105,35 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   .md-grid-3 { grid-template-columns: 1fr !important; }
   .md-grid-2 { grid-template-columns: 1fr !important; }
   .md-col-span-2 { grid-column: span 1 !important; }
-  /* 포트 현황 3열은 유지 */
-  .port-grid { grid-template-columns: repeat(3, 1fr) !important; }
   /* 본문 하단 탭바 여백 */
   main { padding-bottom: 68px; }
-  /* 텍스트 */
-  .md-text-2xl { font-size: 1.15rem !important; }
+
+  /* 타이틀 줄바꿈 방지 */
+  h2.font-public-sans { font-size: 1.25rem !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+
+  /* 상태 pill 줄바꿈 방지 - 가로 스크롤 */
+  .status-pills { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 4px; }
+
+  /* 헤더 영역 세로로 */
+  .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+
+  /* AI 판별 페이지 헤더 */
+  .ai-page-header { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+  .ai-page-header span.text-xs { display: block; margin-top: 2px; }
+
+  /* 분석 카드 4열 → 2열 */
+  .ana-summary-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* 테이블 폰트 작게 */
+  .batch-table { font-size: 11px !important; }
+  .batch-table th { padding: 6px 8px !important; font-size: 9px !important; }
+  .batch-table td { padding: 6px 8px !important; }
+
+  /* 로드보드 테이블 */
+  #lb-tbody td { font-size: 11px !important; }
+
+  /* 센서 4열 → 2열 */
+  .sensor-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
 </style>
 </head>
@@ -245,16 +268,16 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   <!-- ══════════════════════════════════════════════ -->
   <div id="page-dashboard" class="page active p-6 space-y-6 flex-1 overflow-y-auto pt-14 md:pt-6">
 
-    <div class="flex items-start justify-between">
+    <div class="page-header flex items-start justify-between">
       <div>
         <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">운송 루트 관제</h2>
         <p class="text-sm text-stone-400 mt-0.5">인디애나 → 유타 / 콜로라도 / 캘리포니아</p>
       </div>
-      <div class="flex flex-wrap gap-2 justify-end">
-        <span class="text-[11px] px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-semibold">OpenWeather 연결됨</span>
-        <span class="text-[11px] px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-semibold cursor-pointer" onclick="window.open('https://app.landing.ai/','_blank')">LandingLens ↗</span>
-        <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-500 font-semibold cursor-pointer" onclick="window.open('https://www.trulos.com','_blank')">Trulos ↗</span>
-        <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-400 font-semibold">BLE 센서 대기중</span>
+      <div class="status-pills flex flex-wrap gap-2 justify-end">
+        <span class="text-[11px] px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-semibold whitespace-nowrap">OpenWeather 연결됨</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-semibold cursor-pointer whitespace-nowrap" onclick="window.open('https://app.landing.ai/','_blank')">LandingLens ↗</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-500 font-semibold cursor-pointer whitespace-nowrap" onclick="window.open('https://www.trulos.com','_blank')">Trulos ↗</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-400 font-semibold whitespace-nowrap">BLE 센서 대기중</span>
       </div>
     </div>
 
@@ -528,12 +551,12 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   <!-- PAGE: AI 불량 판별                              -->
   <!-- ══════════════════════════════════════════════ -->
   <div id="page-ai" class="page p-6 space-y-6 flex-1 overflow-y-auto">
-    <div class="flex items-center justify-between">
+    <div class="ai-page-header flex items-center justify-between">
       <div>
         <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">AI 불량 판별</h2>
         <p class="text-sm text-stone-400 mt-0.5">LandingLens 연동 · SBB 부품 이미지 검수</p>
       </div>
-      <span class="text-xs text-stone-400">Model-04-06-2026_1 · 2026-04-06 · 23장</span>
+      <span class="text-xs text-stone-400 whitespace-nowrap">Model-04-06-2026_1 · 2026-04-06 · 23장</span>
     </div>
 
     <!-- 모델 성능 요약 -->
@@ -622,8 +645,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     </div>
     <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-stone-100"><h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">BLE 온습도 센서</h3></div>
-      <div class="grid grid-cols-4 gap-4 p-5">
-        <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 1</p><p class="text-3xl font-black font-public-sans">23°C</p><p class="text-sm text-stone-400 mt-1">습도 45%</p></div>
+      <div class="sensor-grid grid grid-cols-4 gap-4 p-5"><p class="text-3xl font-black font-public-sans">23°C</p><p class="text-sm text-stone-400 mt-1">습도 45%</p></div>
         <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-amber-500 mb-2">게이트 2 ⚠️</p><p class="text-3xl font-black font-public-sans text-amber-600">31°C</p><p class="text-sm text-amber-500 mt-1">습도 78%</p></div>
         <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 3</p><p class="text-3xl font-black font-public-sans">22°C</p><p class="text-sm text-stone-400 mt-1">습도 42%</p></div>
         <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 4</p><p class="text-3xl font-black font-public-sans">24°C</p><p class="text-sm text-stone-400 mt-1">습도 50%</p></div>
@@ -654,9 +676,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     </div>
 
     <!-- 누적 요약 카드 -->
-    <div class="grid grid-cols-4 gap-4">
-      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
-        <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">총 검수 세션</p>
+    <div class="ana-summary-grid grid grid-cols-4 gap-4">
         <p class="text-3xl font-black font-public-sans" id="ana-sessions">0</p>
         <p class="text-xs text-stone-400 mt-1">누적 실행 횟수</p>
       </div>
