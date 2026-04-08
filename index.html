@@ -261,8 +261,72 @@
     .ai-badge.normal { background: #eaf3de; color: #3b6d11; }
     .ai-badge.damage { background: #fcebeb; color: #a32d2d; }
     .ai-badge.loading { background: #faeeda; color: #854f0b; }
+
+    .windy-section { margin-bottom: 1rem; }
+    .windy-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .windy-tab {
+      font-size: 12px; padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      color: #555;
+      transition: all 0.2s;
+    }
+    .windy-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .windy-tab:hover:not(.active) { background: #f0f0f0; }
+    .windy-map-container {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #e5e5e5;
+      height: 400px;
+    }
+    .windy-map-container iframe { width: 100%; height: 100%; border: none; }
+    .windy-legend {
+      display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap;
+    }
+    .windy-legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #666;
+    }
+    .windy-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+
     @media (max-width: 700px) {
       .ai-result-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+
+    .windy-section { margin-bottom: 1rem; }
+    .windy-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .windy-tab {
+      font-size: 12px; padding: 5px 14px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      color: #555;
+      transition: all 0.2s;
+    }
+    .windy-tab.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .windy-tab:hover:not(.active) { background: #f0f0f0; }
+    .windy-map-container {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #e5e5e5;
+      height: 400px;
+    }
+    .windy-map-container iframe { width: 100%; height: 100%; border: none; }
+    .windy-legend {
+      display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap;
+    }
+    .windy-legend-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: #666;
+    }
+    .windy-dot {
+      width: 10px; height: 10px; border-radius: 50%;
     }
 
     @media (max-width: 700px) {
@@ -483,6 +547,42 @@
     </div>
   </div>
 
+
+  <div class="card windy-section">
+    <div class="card-title">운송 루트 날씨 현황 (실시간)</div>
+    <div class="windy-tabs">
+      <button class="windy-tab active" onclick="changeWindyView('route')">전체 루트</button>
+      <button class="windy-tab" onclick="changeWindyView('indiana')">인디애나 (출발)</button>
+      <button class="windy-tab" onclick="changeWindyView('utah')">유타</button>
+      <button class="windy-tab" onclick="changeWindyView('colorado')">콜로라도</button>
+      <button class="windy-tab" onclick="changeWindyView('california')">캘리포니아</button>
+    </div>
+    <div class="windy-map-container">
+      <iframe id="windy-iframe"
+        src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=5&overlay=wind&product=ecmwf&level=surface&lat=38&lon=-104&detailLat=39.77&detailLon=-86.16&detail=false&pressure=false&message=false"
+        frameborder="0" allowfullscreen>
+      </iframe>
+    </div>
+    <div class="windy-legend">
+      <div class="windy-legend-item">
+        <div class="windy-dot" style="background:#e24b4a;"></div>
+        <span>인디애나폴리스 (출발지)</span>
+      </div>
+      <div class="windy-legend-item">
+        <div class="windy-dot" style="background:#EF9F27;"></div>
+        <span>솔트레이크시티 (유타)</span>
+      </div>
+      <div class="windy-legend-item">
+        <div class="windy-dot" style="background:#185fa5;"></div>
+        <span>덴버 (콜로라도)</span>
+      </div>
+      <div class="windy-legend-item">
+        <div class="windy-dot" style="background:#1D9E75;"></div>
+        <span>LA (캘리포니아)</span>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">Phase 1 진행 현황</div>
     <div class="phase-grid">
@@ -664,6 +764,23 @@
     } catch(e) {
       list.innerHTML = '<p class="loading-text">네트워크 오류. 새로고침을 눌러주세요.</p>';
     }
+  }
+
+
+  const windyViews = {
+    route:      { lat: 38,     lon: -104,  zoom: 5 },
+    indiana:    { lat: 39.77,  lon: -86.16, zoom: 7 },
+    utah:       { lat: 40.76,  lon: -111.89, zoom: 7 },
+    colorado:   { lat: 39.74,  lon: -104.98, zoom: 7 },
+    california: { lat: 34.05,  lon: -118.24, zoom: 7 },
+  };
+
+  function changeWindyView(view) {
+    const v = windyViews[view];
+    const iframe = document.getElementById('windy-iframe');
+    iframe.src = `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=${v.zoom}&overlay=wind&product=ecmwf&level=surface&lat=${v.lat}&lon=${v.lon}&detail=false&pressure=false&message=false`;
+    document.querySelectorAll('.windy-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
   }
 
   loadWeather();
