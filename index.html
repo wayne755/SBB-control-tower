@@ -93,7 +93,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   aside { display: none !important; }
   .mobile-topbar { display: flex !important; }
   .mobile-bottomnav { display: flex !important; }
-  .page { padding: 12px !important; }
+  /* 상단바 높이만큼 밀어내기 */
+  .page { padding: 12px !important; padding-top: 66px !important; }
   /* 지도 높이 */
   .h-80 { height: 200px !important; }
   /* windy 탭 스크롤 */
@@ -132,26 +133,26 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 <!-- 모바일 하단 탭바 -->
 <nav class="mobile-bottomnav fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-200 h-16 items-center justify-around px-2">
   <a onclick="showPage('dashboard')" class="mob-tab flex flex-col items-center gap-0.5 text-lime-800 cursor-pointer py-2 px-3">
-    <span class="material-symbols-outlined text-xl" id="mob-icon-dashboard" style="font-variation-settings:'FILL' 1;">dashboard</span>
-    <span class="text-[10px] font-semibold">대시보드</span>
+    <span class="material-symbols-outlined" id="mob-icon-dashboard" style="font-size:22px;font-variation-settings:'FILL' 1;">dashboard</span>
+    <span style="font-size:10px;font-family:Inter,sans-serif;">대시보드</span>
   </a>
   <a onclick="showPage('trucks')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
-    <span class="material-symbols-outlined text-xl" id="mob-icon-trucks">local_shipping</span>
-    <span class="text-[10px]">트럭</span>
+    <span class="material-symbols-outlined" id="mob-icon-trucks" style="font-size:22px;">local_shipping</span>
+    <span style="font-size:10px;font-family:Inter,sans-serif;">트럭</span>
   </a>
-  <a onclick="showPage('ai')" class="mob-tab flex flex-col items-center gap-0.5 cursor-pointer -mt-4">
+  <a onclick="showPage('ai')" class="mob-tab flex flex-col items-center gap-0.5 cursor-pointer" style="margin-top:-20px;">
     <div class="w-12 h-12 rounded-full cta-gradient flex items-center justify-center shadow-lg">
-      <span class="material-symbols-outlined text-white text-xl">search</span>
+      <span class="material-symbols-outlined text-white" style="font-size:22px;">search</span>
     </div>
-    <span class="text-[10px] text-lime-800 font-semibold mt-0.5">AI 판별</span>
+    <span style="font-size:10px;color:#275300;font-weight:600;font-family:Inter,sans-serif;">AI 판별</span>
   </a>
   <a onclick="showPage('analytics')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
-    <span class="material-symbols-outlined text-xl" id="mob-icon-analytics">monitoring</span>
-    <span class="text-[10px]">분석</span>
+    <span class="material-symbols-outlined" id="mob-icon-analytics" style="font-size:22px;">monitoring</span>
+    <span style="font-size:10px;font-family:Inter,sans-serif;">분석</span>
   </a>
   <a onclick="showPage('sensors')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
-    <span class="material-symbols-outlined text-xl" id="mob-icon-sensors">thermostat</span>
-    <span class="text-[10px]">센서</span>
+    <span class="material-symbols-outlined" id="mob-icon-sensors" style="font-size:22px;">thermostat</span>
+    <span style="font-size:10px;font-family:Inter,sans-serif;">센서</span>
   </a>
 </nav>
 
