@@ -329,6 +329,83 @@
       width: 10px; height: 10px; border-radius: 50%;
     }
 
+
+    .batch-upload-area {
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+    .batch-upload-area:hover { border-color: #3b6d11; background: #f9fff6; }
+    .batch-upload-area.dragover { border-color: #3b6d11; background: #f9fff6; }
+    .batch-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .batch-stat {
+      background: #f9f9f9;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+    .batch-stat-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+    .batch-stat-value { font-size: 20px; font-weight: 500; }
+    .batch-stat.total .batch-stat-value { color: #1a1a1a; }
+    .batch-stat.normal .batch-stat-value { color: #3b6d11; }
+    .batch-stat.damage .batch-stat-value { color: #e24b4a; }
+    .batch-stat.rate .batch-stat-value { color: #854f0b; }
+    .batch-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+    .batch-table th {
+      background: #f5f5f3;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 500;
+      color: #555;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .batch-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #1a1a1a;
+    }
+    .batch-table tr:last-child td { border-bottom: none; }
+    .batch-table tr:hover td { background: #fafafa; }
+    .batch-progress {
+      background: #f0f0f0;
+      border-radius: 20px;
+      height: 6px;
+      margin: 8px 0;
+      overflow: hidden;
+      display: none;
+    }
+    .batch-progress-bar {
+      background: #3b6d11;
+      height: 100%;
+      border-radius: 20px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+    .batch-status { font-size: 12px; color: #888; margin-bottom: 8px; display: none; }
+    .export-btn {
+      font-size: 12px; padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      background: #fff;
+      cursor: pointer;
+      color: #555;
+      margin-top: 8px;
+    }
+    .export-btn:hover { background: #f0f0f0; }
+    @media (max-width: 700px) {
+      .batch-summary { grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media (max-width: 700px) {
       .grid-4 { grid-template-columns: repeat(2, 1fr); }
       .grid-2 { grid-template-columns: 1fr; }
@@ -449,30 +526,57 @@
       모델: Model-04-06-2026_1 · 마지막 학습: 2026-04-06 · 사진 23장
     </div>
 
-    <div class="ai-upload-area" 
-      id="ai-drop-zone"
-      onclick="document.getElementById('ai-file-input').click()"
-      ondragover="event.preventDefault(); this.style.borderColor='#3b6d11'; this.style.background='#f9fff6';"
-      ondragleave="this.style.borderColor='#ddd'; this.style.background='';"
-      ondrop="event.preventDefault(); this.style.borderColor='#ddd'; this.style.background=''; handleDrop(event);">
-      <div style="font-size:24px;">📸</div>
-      <div class="ai-upload-label">SBB 부품 사진을 클릭하거나 드래그해서 AI 판별 시작</div>
-      <input type="file" id="ai-file-input" accept="image/*" style="display:none;" onchange="runAIInference(this)">
+    <div class="batch-upload-area"
+      id="batch-drop-zone"
+      onclick="document.getElementById('batch-file-input').click()"
+      ondragover="event.preventDefault(); this.classList.add('dragover');"
+      ondragleave="this.classList.remove('dragover');"
+      ondrop="event.preventDefault(); this.classList.remove('dragover'); handleBatchDrop(event);">
+      <div style="font-size:28px;">📸</div>
+      <div style="font-size:14px; font-weight:500; margin:8px 0 4px;">여러 장 동시 업로드 가능</div>
+      <div style="font-size:12px; color:#999;">클릭하거나 드래그해서 SBB 부품 사진 업로드 (여러 장 선택 가능)</div>
+      <input type="file" id="batch-file-input" accept="image/*" multiple style="display:none;" onchange="runBatchInference(this.files)">
     </div>
 
-    <div class="ai-result-box" id="ai-result-box">
-      <div class="ai-result-item">
-        <span style="color:#888;">판별 결과</span>
-        <span class="ai-badge" id="ai-result-label">분석중...</span>
+    <div class="batch-progress" id="batch-progress">
+      <div class="batch-progress-bar" id="batch-progress-bar"></div>
+    </div>
+    <div class="batch-status" id="batch-status"></div>
+
+    <div id="batch-results" style="display:none;">
+      <div class="batch-summary">
+        <div class="batch-stat total">
+          <div class="batch-stat-label">총 검수</div>
+          <div class="batch-stat-value" id="stat-total">0</div>
+        </div>
+        <div class="batch-stat normal">
+          <div class="batch-stat-label">✅ 정상</div>
+          <div class="batch-stat-value" id="stat-normal">0</div>
+        </div>
+        <div class="batch-stat damage">
+          <div class="batch-stat-label">⚠️ 데미지</div>
+          <div class="batch-stat-value" id="stat-damage">0</div>
+        </div>
+        <div class="batch-stat rate">
+          <div class="batch-stat-label">불량률</div>
+          <div class="batch-stat-value" id="stat-rate">0%</div>
+        </div>
       </div>
-      <div class="ai-result-item">
-        <span style="color:#888;">신뢰도</span>
-        <span id="ai-result-confidence" style="font-weight:500;">-</span>
-      </div>
-      <div class="ai-result-item">
-        <span style="color:#888;">파일명</span>
-        <span id="ai-result-filename" style="color:#555; font-size:12px;">-</span>
-      </div>
+
+      <table class="batch-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>파일명</th>
+            <th>판별 결과</th>
+            <th>신뢰도</th>
+            <th>검수 시간</th>
+          </tr>
+        </thead>
+        <tbody id="batch-table-body"></tbody>
+      </table>
+
+      <button class="export-btn" onclick="exportCSV()">📥 CSV 다운로드</button>
     </div>
   </div>
 
@@ -614,92 +718,127 @@
   const LANDING_ENDPOINT = 'https://predict.app.landing.ai/inference/v1/predict?endpoint_id=b8759335-25e5-4370-9ffb-d21389c7a3d0';
   const LANDING_API_KEY = 'land_sk_VVJaBvBFy24zHO1QGO5kt6V1yccWurBfiD2Ujncr1lPXSvMLsD';
 
-  function handleDrop(event) {
-    const file = event.dataTransfer.files[0];
-    if (!file) return;
-    const fakeInput = { files: [file] };
-    runAIInference(fakeInput);
+  function handleBatchDrop(event) {
+    const files = event.dataTransfer.files;
+    if (files.length > 0) runBatchInference(files);
   }
 
-  async function runAIInference(input) {
-    const file = input.files[0];
-    if (!file) return;
+  async function analyzeImage(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch(LANDING_ENDPOINT, {
+      method: 'POST',
+      headers: { 'apikey': LANDING_API_KEY },
+      body: formData
+    });
+    const data = await response.json();
 
-    const resultBox = document.getElementById('ai-result-box');
-    const resultLabel = document.getElementById('ai-result-label');
-    const resultConf = document.getElementById('ai-result-confidence');
-    const resultFile = document.getElementById('ai-result-filename');
+    let hasDamage = false;
+    let finalScore = 0;
 
-    resultBox.classList.add('show');
-    resultLabel.className = 'ai-badge loading';
-    resultLabel.textContent = '분석중...';
-    resultConf.textContent = '-';
-    resultFile.textContent = file.name;
+    if (data && data.backbonepredictions) {
+      const bp = data.backbonepredictions;
+      if (Array.isArray(bp)) {
+        hasDamage = bp.some(p => (p.labelName || '').toLowerCase() === 'damage');
+        if (bp.length > 0) finalScore = bp[0].score || 0;
+      } else if (typeof bp === 'object') {
+        const values = Object.values(bp);
+        hasDamage = values.some(p => (p.labelName || '').toLowerCase() === 'damage');
+        if (values.length > 0) finalScore = values[0].score || 0;
+      }
+    }
+    if (data && data.predictions) {
+      const preds = data.predictions;
+      if (Array.isArray(preds) && preds.length > 0) {
+        if ((preds[0].labelName || '').toLowerCase() === 'ng') hasDamage = true;
+        if (!finalScore) finalScore = preds[0].score || 0;
+      } else if (typeof preds === 'object') {
+        const values = Object.values(preds);
+        if (values.some(p => (p.labelName || '').toLowerCase() === 'ng')) hasDamage = true;
+        if (!finalScore && values.length > 0) finalScore = values[0].score || 0;
+      }
+    }
+    return { hasDamage, finalScore };
+  }
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
+  let batchResults = [];
 
-      const response = await fetch(LANDING_ENDPOINT, {
-        method: 'POST',
-        headers: { 'apikey': LANDING_API_KEY },
-        body: formData
+  async function runBatchInference(files) {
+    const fileArray = Array.from(files);
+    if (fileArray.length === 0) return;
+
+    batchResults = [];
+    const tbody = document.getElementById('batch-table-body');
+    tbody.innerHTML = '';
+    document.getElementById('batch-results').style.display = 'none';
+
+    const progress = document.getElementById('batch-progress');
+    const progressBar = document.getElementById('batch-progress-bar');
+    const status = document.getElementById('batch-status');
+    progress.style.display = 'block';
+    status.style.display = 'block';
+
+    let normalCount = 0;
+    let damageCount = 0;
+
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      const pct = Math.round(((i) / fileArray.length) * 100);
+      progressBar.style.width = pct + '%';
+      status.textContent = `분석 중... ${i + 1} / ${fileArray.length} (${file.name})`;
+
+      const now = new Date().toLocaleTimeString('ko-KR');
+      let result = { hasDamage: false, finalScore: 0 };
+
+      try {
+        result = await analyzeImage(file);
+      } catch(e) {
+        console.error('오류:', e);
+      }
+
+      if (result.hasDamage) damageCount++;
+      else normalCount++;
+
+      batchResults.push({
+        index: i + 1,
+        filename: file.name,
+        hasDamage: result.hasDamage,
+        score: result.finalScore,
+        time: now
       });
 
-      const data = await response.json();
-      console.log('API 전체 응답:', JSON.stringify(data));
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:#888;">${i + 1}</td>
+        <td style="font-size:12px; color:#555;">${file.name}</td>
+        <td><span class="ai-badge ${result.hasDamage ? 'damage' : 'normal'}">${result.hasDamage ? '⚠️ 데미지' : '✅ 정상'}</span></td>
+        <td>${result.finalScore ? (result.finalScore * 100).toFixed(1) + '%' : '-'}</td>
+        <td style="color:#aaa; font-size:12px;">${now}</td>
+      `;
+      tbody.appendChild(tr);
 
-      // backbonepredictions 처리 (배열 또는 객체 모두 처리)
-      let hasDamage = false;
-      let finalScore = 0;
-
-      if (data && data.backbonepredictions) {
-        const bp = data.backbonepredictions;
-        
-        if (Array.isArray(bp)) {
-          // 배열인 경우
-          hasDamage = bp.some(p => (p.labelName || '').toLowerCase() === 'damage');
-          if (bp.length > 0) finalScore = bp[0].score || 0;
-        } else if (typeof bp === 'object') {
-          // 객체인 경우 → 값들을 순회
-          const values = Object.values(bp);
-          hasDamage = values.some(p => (p.labelName || '').toLowerCase() === 'damage');
-          if (values.length > 0) finalScore = values[0].score || 0;
-        }
-      }
-
-      // predictions 처리 (배열 또는 객체 모두 처리)
-      if (data && data.predictions) {
-        const preds = data.predictions;
-        
-        if (Array.isArray(preds) && preds.length > 0) {
-          const p = preds[0];
-          if ((p.labelName || '').toLowerCase() === 'ng') hasDamage = true;
-          if (!finalScore) finalScore = p.score || 0;
-        } else if (typeof preds === 'object') {
-          const values = Object.values(preds);
-          if (values.some(p => (p.labelName || '').toLowerCase() === 'ng')) hasDamage = true;
-          if (!finalScore && values.length > 0) finalScore = values[0].score || 0;
-        }
-      }
-
-      // 최종 판별 표시
-      if (hasDamage) {
-        resultLabel.className = 'ai-badge damage';
-        resultLabel.textContent = '⚠️ 데미지 감지';
-      } else {
-        resultLabel.className = 'ai-badge normal';
-        resultLabel.textContent = '✅ 정상';
-      }
-
-      resultConf.textContent = finalScore ? (finalScore * 100).toFixed(1) + '%' : '-';
-
-    } catch(e) {
-      resultLabel.className = 'ai-badge loading';
-      resultLabel.textContent = '오류 발생';
-      resultConf.textContent = e.message;
-      console.error('AI 판별 오류:', e);
+      document.getElementById('stat-total').textContent = i + 1;
+      document.getElementById('stat-normal').textContent = normalCount;
+      document.getElementById('stat-damage').textContent = damageCount;
+      document.getElementById('stat-rate').textContent = Math.round((damageCount / (i + 1)) * 100) + '%';
+      document.getElementById('batch-results').style.display = 'block';
     }
+
+    progressBar.style.width = '100%';
+    status.textContent = `✅ 분석 완료! 총 ${fileArray.length}개 검수`;
+  }
+
+  function exportCSV() {
+    const date = new Date().toLocaleDateString('ko-KR').replace(/\./g, '').replace(/ /g, '-');
+    let csv = '번호,파일명,판별결과,신뢰도,검수시간\n';
+    batchResults.forEach(r => {
+      csv += `${r.index},"${r.filename}",${r.hasDamage ? '데미지' : '정상'},${r.score ? (r.score * 100).toFixed(1) + '%' : '-'},${r.time}\n`;
+    });
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `SBB검수결과_${date}.csv`;
+    a.click();
   }
 
   const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
