@@ -157,10 +157,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     <span class="material-symbols-outlined" id="mob-icon-dashboard" style="font-size:22px;font-variation-settings:'FILL' 1;">dashboard</span>
     <span style="font-size:10px;font-family:Inter,sans-serif;">대시보드</span>
   </a>
-  <a onclick="showPage('trucks')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
-    <span class="material-symbols-outlined" id="mob-icon-trucks" style="font-size:22px;">local_shipping</span>
-    <span style="font-size:10px;font-family:Inter,sans-serif;">트럭</span>
-  </a>
+
   <a onclick="showPage('ai')" class="mob-tab flex flex-col items-center gap-0.5 cursor-pointer" style="margin-top:-20px;">
     <div class="w-12 h-12 rounded-full cta-gradient flex items-center justify-center shadow-lg">
       <span class="material-symbols-outlined text-white" style="font-size:22px;">search</span>
@@ -193,10 +190,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       <span class="material-symbols-outlined text-lg">dashboard</span>
       <span>대시보드</span>
     </a>
-    <a class="nav-link" onclick="showPage('trucks')">
-      <span class="material-symbols-outlined text-lg">local_shipping</span>
-      <span>트럭 매칭</span>
-    </a>
+
     <a class="nav-link" onclick="showPage('ai')">
       <span class="material-symbols-outlined text-lg">search</span>
       <span>AI 불량 판별</span>
@@ -221,9 +215,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     <div class="pt-3 border-t border-stone-200 space-y-1">
       <a class="flex items-center gap-2 px-3 py-1.5 text-stone-400 hover:text-stone-700 text-xs transition-colors rounded-lg hover:bg-stone-200" href="https://app.landing.ai/" target="_blank">
         <span class="material-symbols-outlined text-sm">open_in_new</span>LandingLens
-      </a>
-      <a class="flex items-center gap-2 px-3 py-1.5 text-stone-400 hover:text-stone-700 text-xs transition-colors rounded-lg hover:bg-stone-200" href="https://www.trulos.com" target="_blank">
-        <span class="material-symbols-outlined text-sm">open_in_new</span>Trulos
       </a>
     </div>
   </div>
@@ -289,9 +280,9 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
             <button class="windy-tab" onclick="changeWindyView('california', this)">캘리포니아</button>
           </div>
         </div>
-        <div class="rounded-xl overflow-hidden border border-stone-100" style="height:480px;">
+        <div class="rounded-xl overflow-hidden border border-stone-100" style="height:680px;">
           <iframe id="windy-iframe" width="100%" height="100%"
-            src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=5&overlay=wind&product=ecmwf&level=surface&lat=38&lon=-104&detail=false&pressure=false&message=false"
+            src="https://embed.windy.com/embed2.html?lat=38&lon=-104&detailLat=38&detailLon=-104&width=650&height=450&zoom=5&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=%C2%B0C&radarRange=-1"
             frameborder="0" allowfullscreen></iframe>
         </div>
         <div class="flex gap-5 mt-3">
@@ -303,294 +294,15 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- 포트별 물량 + BL 트래킹 -->
-    <div class="grid grid-cols-2 gap-6">
 
-      <!-- 포트별 물량 현황 + 파이프라인 -->
-      <div class="space-y-4">
-        <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400">포트별 물량 현황</h3>
-            <span class="text-[10px] text-stone-300">기준: 오늘</span>
-          </div>
-          <!-- 롱비치 -->
-          <div class="mb-4">
-            <div class="flex items-center gap-2 mb-2">
-              <div class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
-              <span class="text-xs font-bold text-stone-700">롱비치항 (Long Beach)</span>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
-              <div class="bg-blue-50 rounded-lg p-2.5 text-center">
-                <p class="text-[9px] uppercase tracking-widest text-blue-400 mb-1">입항 대기</p>
-                <p class="text-xl font-black font-public-sans text-blue-600">14</p>
-                <p class="text-[9px] text-blue-400">컨테이너</p>
-              </div>
-              <div class="bg-amber-50 rounded-lg p-2.5 text-center">
-                <p class="text-[9px] uppercase tracking-widest text-amber-500 mb-1">통관 중</p>
-                <p class="text-xl font-black font-public-sans text-amber-600">6</p>
-                <p class="text-[9px] text-amber-400">컨테이너</p>
-              </div>
-              <div class="bg-green-50 rounded-lg p-2.5 text-center">
-                <p class="text-[9px] uppercase tracking-widest text-green-500 mb-1">반출 완료</p>
-                <p class="text-xl font-black font-public-sans text-primary">22</p>
-                <p class="text-[9px] text-green-500">컨테이너</p>
-              </div>
-            </div>
-          </div>
-          <!-- LA 항구 -->
-          <div>
-            <div class="flex items-center gap-2 mb-2">
-              <div class="w-2 h-2 rounded-full bg-purple-500 shrink-0"></div>
-              <span class="text-xs font-bold text-stone-700">LA 항구 (Port of LA)</span>
-            </div>
-            <div class="grid grid-cols-3 gap-2">
-              <div class="bg-blue-50 rounded-lg p-2.5 text-center">
-                <p class="text-[9px] uppercase tracking-widest text-blue-400 mb-1">입항 대기</p>
-                <p class="text-xl font-black font-public-sans text-blue-600">9</p>
-                <p class="text-[9px] text-blue-400">컨테이너</p>
-              </div>
-              <div class="bg-amber-50 rounded-lg p-2.5 text-center">
-                <p class="text-[9px] uppercase tracking-widest text-amber-500 mb-1">통관 중</p>
-                <p class="text-xl font-black font-public-sans text-amber-600">3</p>
-                <p class="text-[9px] text-amber-400">컨테이너</p>
-              </div>
-              <div class="bg-green-50 rounded-lg p-2.5 text-center">
-                <p class="text-[9px] uppercase tracking-widest text-green-500 mb-1">반출 완료</p>
-                <p class="text-xl font-black font-public-sans text-primary">17</p>
-                <p class="text-[9px] text-green-500">컨테이너</p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- 물량 파이프라인 -->
-        <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
-          <h3 class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-4">오늘의 물량 파이프라인</h3>
-          <div class="space-y-2.5">
-            <div class="flex items-center gap-2">
-              <div class="flex-shrink-0 w-16 text-[10px] font-bold text-stone-500 text-right">항구 입항</div>
-              <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
-                <div class="absolute inset-y-0 left-0 bg-blue-400 rounded-full" style="width:78%"></div>
-                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">23개</span>
-              </div>
-              <div class="text-[10px] font-bold text-blue-600 w-6 text-right">23</div>
-            </div>
-            <div class="flex justify-center text-stone-300 text-xs">↓</div>
-            <div class="flex items-center gap-2">
-              <div class="flex-shrink-0 w-16 text-[10px] font-bold text-stone-500 text-right">통관</div>
-              <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
-                <div class="absolute inset-y-0 left-0 bg-amber-400 rounded-full" style="width:31%"></div>
-                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold" style="color:#92400e">9개</span>
-              </div>
-              <div class="text-[10px] font-bold text-amber-600 w-6 text-right">9</div>
-            </div>
-            <div class="flex justify-center text-stone-300 text-xs">↓</div>
-            <div class="flex items-center gap-2">
-              <div class="flex-shrink-0 w-16 text-[10px] font-bold text-stone-500 text-right">야드 입고</div>
-              <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
-                <div class="absolute inset-y-0 left-0 bg-lime-500 rounded-full" style="width:55%"></div>
-                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold" style="color:#166534">16개</span>
-              </div>
-              <div class="text-[10px] font-bold text-primary w-6 text-right">16</div>
-            </div>
-            <div class="flex justify-center text-stone-300 text-xs">↓</div>
-            <div class="flex items-center gap-2">
-              <div class="flex-shrink-0 w-16 text-[10px] font-bold text-stone-500 text-right">SDI 납품</div>
-              <div class="flex-1 bg-stone-100 rounded-full h-5 overflow-hidden relative">
-                <div class="absolute inset-y-0 left-0 bg-primary rounded-full" style="width:100%"></div>
-                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">39개 ✅</span>
-              </div>
-              <div class="text-[10px] font-bold text-primary w-6 text-right">39</div>
-            </div>
-          </div>
-          <div class="mt-3 pt-3 border-t border-stone-100 flex justify-between text-[10px] text-stone-400">
-            <span>오늘 총 처리량 <b class="text-on-surface">71개</b></span>
-            <span>납품 완료율 <b class="text-primary">54.9%</b></span>
-          </div>
-        </div>
-      </div>
 
-      <!-- BL 트래킹 검색 -->
-      <div class="bg-white rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm overflow-hidden">
-        <div class="p-5 border-b border-stone-100 flex items-center gap-3">
-          <span class="material-symbols-outlined text-primary">travel_explore</span>
-          <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">BL / 컨테이너 트래킹</h3>
-            <p class="text-[11px] text-stone-400 mt-0.5">BL 번호 입력 → 선사 트래킹 페이지 이동</p>
-          </div>
-        </div>
-        <div class="p-5 space-y-4">
-          <!-- 선사 선택 -->
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">선사 선택</p>
-            <div class="grid grid-cols-4 gap-2" id="carrier-grid">
-              <button onclick="selectCarrier('maersk',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
-                <p class="text-[10px] font-bold text-stone-700">Maersk</p>
-                <p class="text-[9px] text-stone-400">MAEU</p>
-              </button>
-              <button onclick="selectCarrier('msc',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
-                <p class="text-[10px] font-bold text-stone-700">MSC</p>
-                <p class="text-[9px] text-stone-400">MSCU</p>
-              </button>
-              <button onclick="selectCarrier('cosco',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
-                <p class="text-[10px] font-bold text-stone-700">COSCO</p>
-                <p class="text-[9px] text-stone-400">COSU</p>
-              </button>
-              <button onclick="selectCarrier('hapag',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
-                <p class="text-[10px] font-bold text-stone-700">Hapag</p>
-                <p class="text-[9px] text-stone-400">HLCU</p>
-              </button>
-              <button onclick="selectCarrier('evergreen',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
-                <p class="text-[10px] font-bold text-stone-700">Evergreen</p>
-                <p class="text-[9px] text-stone-400">EGLV</p>
-              </button>
-              <button onclick="selectCarrier('hmm',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
-                <p class="text-[10px] font-bold text-stone-700">HMM</p>
-                <p class="text-[9px] text-stone-400">HDMU</p>
-              </button>
-              <button onclick="selectCarrier('one',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
-                <p class="text-[10px] font-bold text-stone-700">ONE</p>
-                <p class="text-[9px] text-stone-400">ONEY</p>
-              </button>
-              <button onclick="selectCarrier('yangming',this)" class="carrier-btn border border-stone-200 rounded-lg p-2 text-center hover:border-primary hover:bg-green-50 transition-all">
-                <p class="text-[10px] font-bold text-stone-700">Yang Ming</p>
-                <p class="text-[9px] text-stone-400">YMLU</p>
-              </button>
-            </div>
-          </div>
-
-          <!-- BL 입력 -->
-          <div>
-            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">BL / 컨테이너 번호</p>
-            <div class="flex gap-2">
-              <input id="bl-input" type="text" placeholder="예) MAEU123456789"
-                class="flex-1 border border-stone-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary transition-colors font-mono"
-                onkeydown="if(event.key==='Enter') trackBL()"
-                oninput="autoDetectCarrier(this.value)">
-              <button onclick="trackBL()" class="cta-gradient text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity flex items-center gap-2">
-                <span class="material-symbols-outlined text-sm">search</span> 조회
-              </button>
-            </div>
-            <p class="text-[10px] text-stone-400 mt-1.5" id="bl-hint">선사를 선택하거나 BL 번호를 입력하면 자동 감지돼요</p>
-          </div>
-
-          <!-- 선택된 선사 표시 -->
-          <div id="selected-carrier-info" class="hidden bg-green-50 border border-green-100 rounded-xl p-3 flex items-center gap-3">
-            <span class="material-symbols-outlined text-primary text-lg">check_circle</span>
-            <div>
-              <p class="text-xs font-bold text-primary" id="selected-carrier-name"></p>
-              <p class="text-[10px] text-stone-400" id="selected-carrier-url"></p>
-            </div>
-          </div>
-
-          <!-- 최근 조회 -->
-          <div id="recent-track-wrap">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">최근 조회</p>
-            <div id="recent-track-list" class="space-y-1.5">
-              <p class="text-xs text-stone-300 text-center py-2">아직 조회 기록이 없어요</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
 
     <p class="text-right text-xs text-stone-300" id="last-updated"></p>
   </div><!-- /page-dashboard -->
 
 
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: 트럭 매칭                                 -->
-  <!-- ══════════════════════════════════════════════ -->
-  <div id="page-trucks" class="page p-6 space-y-6 flex-1 overflow-y-auto">
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">트럭 매칭</h2>
-        <p class="text-sm text-stone-400 mt-0.5">빈 트럭 조회 및 Load Board</p>
-      </div>
-      <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-500 font-semibold cursor-pointer" onclick="window.open('https://www.trulos.com','_blank')">Trulos ↗</span>
-    </div>
 
-    <!-- 내 트럭 리스트 -->
-    <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-stone-100">
-        <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">운영 트럭 현황</h3>
-      </div>
-      <div class="divide-y divide-stone-50">
-        <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
-          <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-001</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-bold">대기중</span></div><p class="text-xs text-stone-400">LA 항구 → 토렌스 SDI · 18톤</p></div>
-          <div class="text-right"><p class="text-xs font-medium">2025-05-10</p><p class="text-[10px] text-green-600 font-semibold">온습도 정상</p></div>
-        </div>
-        <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
-          <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-002</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold">운송중</span></div><p class="text-xs text-stone-400">롱비치 → 토렌스 SDI · 15톤</p></div>
-          <div class="text-right"><p class="text-xs font-medium">2025-05-15</p><p class="text-[10px] text-amber-600 font-semibold">⚠️ 온습도 경고</p></div>
-        </div>
-        <div class="p-4 flex items-center justify-between hover:bg-stone-50 transition-colors">
-          <div><div class="flex items-center gap-2 mb-1"><span class="text-sm font-bold font-public-sans">TRK-2025-003</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-200 text-stone-500 font-bold">완료</span></div><p class="text-xs text-stone-400">롱비치 → 어바인 SDI · 20톤</p></div>
-          <div class="text-right"><p class="text-xs font-medium">2025-05-08</p><p class="text-[10px] text-green-600 font-semibold">온습도 정상</p></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Load Board -->
-    <div class="bg-white rounded-xl border border-stone-100 border-t-4 border-t-secondary shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-stone-100 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <span class="material-symbols-outlined text-secondary">table_view</span>
-          <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">Load Board</h3>
-            <p class="text-[11px] text-stone-400 mt-0.5">인디애나 ↔ 캘리포니아 구간 실시간 화물</p>
-          </div>
-          <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-bold ml-1">LIVE</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-[10px] text-stone-400" id="lb-last-updated"></span>
-          <button onclick="refreshLoadboard()" class="flex items-center gap-1 text-xs text-stone-400 hover:text-secondary transition-colors border border-stone-200 rounded-lg px-3 py-1.5 hover:border-secondary">
-            <span class="material-symbols-outlined text-sm">refresh</span> 새로고침
-          </button>
-        </div>
-      </div>
-
-      <!-- 필터 + 요약 -->
-      <div class="px-5 py-3 border-b border-stone-100 flex items-center gap-3 flex-wrap">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-stone-400">필터</span>
-        <button class="lb-filter windy-tab active text-xs" data-filter="all" onclick="applyLbFilter('all', this)">전체</button>
-        <button class="lb-filter windy-tab text-xs" data-filter="in-ca" onclick="applyLbFilter('in-ca', this)">IN → CA</button>
-        <button class="lb-filter windy-tab text-xs" data-filter="ca-in" onclick="applyLbFilter('ca-in', this)">CA → IN</button>
-        <button class="lb-filter windy-tab text-xs" data-filter="available" onclick="applyLbFilter('available', this)">빈 공간 있음</button>
-        <div class="ml-auto flex gap-4 text-[11px] text-stone-500">
-          <span>총 <b id="lb-count" class="text-on-surface">0</b>건</span>
-          <span>빈 공간 <b id="lb-avail-count" class="text-primary">0</b>건</span>
-        </div>
-      </div>
-
-      <!-- 테이블 -->
-      <div class="overflow-x-auto">
-        <table class="batch-table">
-          <thead>
-            <tr>
-              <th>LOAD ID</th>
-              <th>출발지</th>
-              <th>목적지</th>
-              <th>화물 유형</th>
-              <th>총 중량</th>
-              <th>가용 공간</th>
-              <th>픽업일</th>
-              <th>운임 ($/mile)</th>
-              <th>상태</th>
-              <th>액션</th>
-            </tr>
-          </thead>
-          <tbody id="lb-tbody">
-            <tr><td colspan="10" class="text-center py-8 text-stone-400 text-xs">로딩 중...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="px-5 py-3 border-t border-stone-100 text-[10px] text-stone-300">
-        * 더미 데이터 기준 · 실제 연동 시 DAT / Trulos API 대체 예정
-      </div>
-    </div>
-  </div><!-- /page-trucks -->
 
 
   <!-- ══════════════════════════════════════════════ -->
@@ -612,12 +324,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">AI 불량 판별 시스템</h3>
         <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold">LandingLens 연동됨</span>
       </div>
-      <div class="grid grid-cols-4 divide-x divide-stone-100">
-        <div class="p-4 text-center"><p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Train 정확도</p><p class="text-2xl font-black font-public-sans text-primary">95%</p></div>
-        <div class="p-4 text-center"><p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">Dev 정확도</p><p class="text-2xl font-black font-public-sans text-primary">80%</p></div>
-        <div class="p-4 text-center"><p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">정상 판별</p><p class="text-2xl font-black font-public-sans text-primary">100%</p></div>
-        <div class="p-4 text-center"><p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-1">데미지 판별</p><p class="text-2xl font-black font-public-sans text-secondary">76.9%</p></div>
-      </div>
+
       <div class="p-5 space-y-4">
         <!-- 드롭존 -->
         <div id="batch-drop-zone"
@@ -715,7 +422,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     <div class="flex items-center justify-between">
       <div>
         <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">검수 분석</h2>
-        <p class="text-sm text-stone-400 mt-0.5">AI 불량 판별 세션 이력 · 날짜별 기록</p>
+        <p class="text-sm text-stone-400 mt-0.5">AI 불량 판별 세션 이력 · 누적 통계</p>
       </div>
       <div class="flex items-center gap-2">
         <button onclick="exportAllCSV()" class="flex items-center gap-1.5 text-xs text-stone-500 hover:text-primary transition-colors border border-stone-200 rounded-lg px-3 py-1.5 hover:border-primary">
@@ -751,65 +458,53 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- 이력 없을 때 -->
-    <div id="ana-empty" class="bg-white rounded-xl border border-stone-100 shadow-sm p-16 text-center">
-      <span class="material-symbols-outlined text-6xl text-stone-200 block mb-4">inbox</span>
-      <p class="text-base font-bold text-stone-400">아직 검수 기록이 없습니다</p>
-      <p class="text-sm text-stone-300 mt-1">AI 불량 판별 탭에서 검수를 완료하면 자동으로 기록됩니다</p>
-      <button onclick="showPage('ai')" class="mt-5 inline-flex items-center gap-2 cta-gradient text-white text-sm font-bold px-5 py-2.5 rounded-xl shadow hover:opacity-90 transition-opacity">
-        <span class="material-symbols-outlined text-base">search</span> 검수 시작하기
-      </button>
-    </div>
+    <!-- 캘린더 + 날짜별 세션 -->
+    <div class="grid grid-cols-2 gap-6 md-grid-2">
 
-    <!-- 날짜 캘린더 + 이력 -->
-    <div id="ana-main-wrap" class="hidden grid grid-cols-3 gap-6">
-
-      <!-- 왼쪽: 캘린더 -->
-      <div class="bg-white rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm p-5">
+      <!-- 캘린더 -->
+      <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
         <div class="flex items-center justify-between mb-4">
-          <button onclick="calPrev()" class="text-stone-400 hover:text-primary transition-colors">
-            <span class="material-symbols-outlined">chevron_left</span>
+          <button onclick="calPrev()" class="text-stone-400 hover:text-stone-700 transition-colors p-1 rounded-lg hover:bg-stone-100">
+            <span class="material-symbols-outlined text-lg">chevron_left</span>
           </button>
           <h3 class="text-sm font-bold font-public-sans" id="cal-title"></h3>
-          <button onclick="calNext()" class="text-stone-400 hover:text-primary transition-colors">
-            <span class="material-symbols-outlined">chevron_right</span>
+          <button onclick="calNext()" class="text-stone-400 hover:text-stone-700 transition-colors p-1 rounded-lg hover:bg-stone-100">
+            <span class="material-symbols-outlined text-lg">chevron_right</span>
           </button>
         </div>
         <!-- 요일 헤더 -->
         <div class="grid grid-cols-7 mb-1">
-          <div class="text-[10px] text-center font-bold text-red-400">일</div>
-          <div class="text-[10px] text-center font-bold text-stone-400">월</div>
-          <div class="text-[10px] text-center font-bold text-stone-400">화</div>
-          <div class="text-[10px] text-center font-bold text-stone-400">수</div>
-          <div class="text-[10px] text-center font-bold text-stone-400">목</div>
-          <div class="text-[10px] text-center font-bold text-stone-400">금</div>
-          <div class="text-[10px] text-center font-bold text-blue-400">토</div>
+          <div class="text-center text-[10px] font-bold text-red-400 py-1">일</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">월</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">화</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">수</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">목</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">금</div>
+          <div class="text-center text-[10px] font-bold text-blue-400 py-1">토</div>
         </div>
         <!-- 날짜 그리드 -->
-        <div class="grid grid-cols-7 gap-1" id="cal-grid"></div>
+        <div class="grid grid-cols-7 gap-y-1" id="cal-grid"></div>
         <!-- 범례 -->
-        <div class="mt-4 pt-3 border-t border-stone-100 flex items-center gap-3 text-[10px] text-stone-400">
-          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-primary"></div>검수 있음</div>
-          <div class="flex items-center gap-1"><div class="w-3 h-3 rounded-full bg-error"></div>데미지 발생</div>
+        <div class="flex items-center gap-4 mt-4 pt-3 border-t border-stone-100">
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-primary"></div><span class="text-[10px] text-stone-400">정상 있음</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-error"></div><span class="text-[10px] text-stone-400">데미지 있음</span></div>
         </div>
       </div>
 
-      <!-- 오른쪽: 선택된 날짜 이력 -->
-      <div class="col-span-2 space-y-4">
-        <!-- 날짜 미선택 -->
-        <div id="ana-date-empty" class="bg-white rounded-xl border border-stone-100 shadow-sm p-12 text-center">
+      <!-- 날짜별 세션 패널 -->
+      <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+        <div id="cal-panel-empty" class="flex flex-col items-center justify-center h-full py-16 text-center px-6">
           <span class="material-symbols-outlined text-5xl text-stone-200 block mb-3">calendar_today</span>
           <p class="text-sm font-bold text-stone-400">날짜를 선택해주세요</p>
-          <p class="text-xs text-stone-300 mt-1">왼쪽 캘린더에서 검수 기록이 있는 날짜를 클릭하세요</p>
+          <p class="text-xs text-stone-300 mt-1">선택 날짜에 진행된 모든 검수 세션을 볼 수 있어요</p>
         </div>
-        <!-- 날짜 선택 후 세션 목록 -->
-        <div id="ana-date-sessions" class="hidden space-y-3">
-          <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-primary">event</span>
-            <h3 class="text-sm font-bold font-public-sans" id="ana-date-title"></h3>
-            <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold" id="ana-date-count"></span>
+        <div id="cal-panel-content" class="hidden h-full flex flex-col">
+          <div class="p-5 border-b border-stone-100 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg">event</span>
+            <h3 class="text-sm font-bold font-public-sans" id="cal-panel-date"></h3>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold" id="cal-panel-count"></span>
           </div>
-          <div id="ana-date-session-list" class="space-y-3"></div>
+          <div id="cal-panel-sessions" class="divide-y divide-stone-50 overflow-y-auto"></div>
         </div>
       </div>
     </div>
@@ -884,7 +579,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     const pg = document.getElementById('page-' + name);
     if (pg) pg.classList.add('active');
     const links = document.querySelectorAll('.nav-link');
-    const map = { dashboard:0, trucks:1, ai:2, sensors:3, analytics:4, settings:5 };
+    const map = { dashboard:0, ai:1, sensors:2, analytics:3, settings:4 };
     if (links[map[name]]) links[map[name]].classList.add('active');
     if (name === 'analytics') renderAnalytics();
     // 모바일 탭바 하이라이트
@@ -904,7 +599,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   /* ─── 날씨 ────────────────────────────────────────── */
   function changeWindyView(view, el) {
     const v = windyViews[view];
-    document.getElementById('windy-iframe').src = `https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=${v.zoom}&overlay=wind&product=ecmwf&level=surface&lat=${v.lat}&lon=${v.lon}&detail=false&pressure=false&message=false`;
+    document.getElementById('windy-iframe').src = `https://embed.windy.com/embed2.html?lat=${v.lat}&lon=${v.lon}&detailLat=${v.lat}&detailLon=${v.lon}&width=650&height=450&zoom=${v.zoom}&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=%C2%B0C&radarRange=-1`;
     document.querySelectorAll('.windy-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
   }
@@ -1039,12 +734,12 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   /* ─── 분석 페이지 (캘린더) ───────────────────────── */
   let currentDetailSession = null;
   let calYear = new Date().getFullYear();
-  let calMonth = new Date().getMonth(); // 0-based
-  let selectedDate = null;
+  let calMonth = new Date().getMonth(); // 0-indexed
+  let selectedCalDate = null;
 
   function renderAnalytics() {
     const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
-    const total = hist.reduce((s,h) => s+h.total, 0);
+    const total  = hist.reduce((s,h) => s+h.total, 0);
     const normal = hist.reduce((s,h) => s+h.normal, 0);
     const damage = hist.reduce((s,h) => s+h.damage, 0);
     document.getElementById('ana-sessions').textContent = hist.length;
@@ -1053,139 +748,125 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     document.getElementById('ana-damage').textContent = damage;
     document.getElementById('ana-normal-pct').textContent = total ? `전체의 ${Math.round(normal/total*100)}%` : '—';
     document.getElementById('ana-damage-pct').textContent = total ? `전체의 ${Math.round(damage/total*100)}%` : '—';
-
-    const empty = document.getElementById('ana-empty');
-    const mainWrap = document.getElementById('ana-main-wrap');
-    if (!hist.length) {
-      empty.classList.remove('hidden');
-      mainWrap.classList.add('hidden');
-      closeDetail();
-      return;
-    }
-    empty.classList.add('hidden');
-    mainWrap.classList.remove('hidden');
     renderCalendar(hist);
   }
 
-  // 날짜별로 세션 그룹핑
-  function getDateMap(hist) {
-    const map = {};
+  function renderCalendar(histArg) {
+    const hist = histArg || JSON.parse(localStorage.getItem('sbb_history') || '[]');
+    // 날짜별 세션 맵 만들기
+    const dayMap = {};
     hist.forEach(s => {
-      const date = (s.datetime || '').split(' ')[0]; // YYYY-MM-DD
-      if (!date) return;
-      if (!map[date]) map[date] = [];
-      map[date].push(s);
+      const d = (s.datetime || '').split(' ')[0];
+      if (!d) return;
+      if (!dayMap[d]) dayMap[d] = [];
+      dayMap[d].push(s);
     });
-    return map;
-  }
 
-  function renderCalendar(hist) {
-    const dateMap = getDateMap(hist);
-    const year = calYear, month = calMonth;
-    const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-    document.getElementById('cal-title').textContent = `${year}년 ${monthNames[month]}`;
+    const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+    document.getElementById('cal-title').textContent = `${calYear}년 ${months[calMonth]}`;
 
-    const firstDay = new Date(year, month, 1).getDay(); // 0=일
-    const lastDate = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
-    let html = '';
+    let cells = '';
     // 빈 칸
-    for (let i = 0; i < firstDay; i++) html += '<div></div>';
+    for (let i = 0; i < firstDay; i++) cells += `<div></div>`;
     // 날짜
-    for (let d = 1; d <= lastDate; d++) {
-      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const sessions = dateMap[dateStr] || [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const sessions = dayMap[dateStr] || [];
       const hasDamage = sessions.some(s => s.damage > 0);
-      const hasSession = sessions.length > 0;
+      const hasNormal = sessions.length > 0;
       const isToday = dateStr === todayStr;
-      const isSelected = dateStr === selectedDate;
+      const isSelected = dateStr === selectedCalDate;
+      const dow = (firstDay + d - 1) % 7;
+      const dayColor = dow === 0 ? 'text-red-400' : dow === 6 ? 'text-blue-400' : 'text-stone-700';
 
-      let cls = 'relative flex flex-col items-center justify-center rounded-lg p-1 text-xs cursor-pointer transition-all ';
-      if (isSelected) cls += 'bg-primary text-white font-bold ';
-      else if (isToday) cls += 'border-2 border-primary text-primary font-bold ';
-      else if (hasSession) cls += 'hover:bg-green-50 text-stone-700 font-semibold ';
-      else cls += 'text-stone-300 cursor-default ';
-
-      const dot = hasSession
-        ? `<div class="w-1.5 h-1.5 rounded-full mt-0.5 ${hasDamage ? 'bg-error' : 'bg-primary'} ${isSelected ? 'bg-white' : ''}"></div>`
-        : '<div class="w-1.5 h-1.5"></div>';
-
-      const onclick = hasSession ? `onclick="selectDate('${dateStr}')"` : '';
-      html += `<div class="${cls}" ${onclick} title="${hasSession ? dateStr + ' · ' + sessions.length + '세션' : ''}">
-        <span>${d}</span>${dot}
+      cells += `<div class="relative flex flex-col items-center py-1 cursor-pointer rounded-lg transition-all hover:bg-stone-50 ${isSelected ? 'bg-primary-fixed' : ''}"
+        onclick="selectCalDate('${dateStr}')">
+        <span class="text-xs font-medium ${isSelected ? 'font-bold text-primary' : isToday ? 'font-black text-primary' : dayColor}">${d}</span>
+        ${isToday && !isSelected ? '<div class="w-1 h-1 rounded-full bg-primary mt-0.5"></div>' : ''}
+        ${hasNormal && !isToday ? `<div class="flex gap-0.5 mt-0.5">
+          ${hasNormal ? '<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>' : ''}
+          ${hasDamage ? '<div class="w-1.5 h-1.5 rounded-full bg-error"></div>' : ''}
+        </div>` : ''}
       </div>`;
     }
-    document.getElementById('cal-grid').innerHTML = html;
+    document.getElementById('cal-grid').innerHTML = cells;
+
+    // 선택된 날짜 패널 유지
+    if (selectedCalDate) selectCalDate(selectedCalDate, true);
+  }
+
+  function selectCalDate(dateStr, silent) {
+    selectedCalDate = dateStr;
+    if (!silent) renderCalendar();
+    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+    const sessions = hist.filter(s => (s.datetime || '').startsWith(dateStr));
+
+    const empty   = document.getElementById('cal-panel-empty');
+    const content = document.getElementById('cal-panel-content');
+
+    if (!sessions.length) {
+      empty.classList.remove('hidden');
+      content.classList.add('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    content.classList.remove('hidden');
+
+    const [y,m,d] = dateStr.split('-');
+    document.getElementById('cal-panel-date').textContent = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+    document.getElementById('cal-panel-count').textContent = `${sessions.length}세션`;
+
+    document.getElementById('cal-panel-sessions').innerHTML = sessions.map((s,i) => {
+      const timePart = (s.datetime || '').split(' ').slice(1).join(' ');
+      const rateColor = s.rate === 0 ? 'text-primary' : s.rate < 20 ? 'text-secondary' : 'text-error';
+      const pct = s.total ? Math.round(s.normal/s.total*100) : 0;
+      return `<div class="p-4 hover:bg-stone-50 cursor-pointer transition-colors" onclick="openDetail(${s.id})">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black text-stone-500 font-public-sans">세션 ${i+1}</span>
+            <span class="text-[10px] text-stone-300">${timePart}</span>
+          </div>
+          <span class="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5">
+            상세 <span class="material-symbols-outlined text-sm">chevron_right</span>
+          </span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-center mb-2">
+          <div class="bg-stone-50 rounded-lg p-2"><p class="text-[9px] text-stone-400 mb-0.5">검수</p><p class="text-base font-black font-public-sans">${s.total}</p></div>
+          <div class="bg-green-50 rounded-lg p-2"><p class="text-[9px] text-green-500 mb-0.5">정상</p><p class="text-base font-black font-public-sans text-primary">${s.normal}</p></div>
+          <div class="bg-red-50 rounded-lg p-2"><p class="text-[9px] text-red-400 mb-0.5">데미지</p><p class="text-base font-black font-public-sans text-error">${s.damage}</p></div>
+        </div>
+        <div class="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
+          <div class="h-full bg-primary rounded-full" style="width:${pct}%"></div>
+        </div>
+        <div class="flex justify-between mt-1">
+          <span class="text-[10px] text-stone-400">정상률 ${pct}%</span>
+          <span class="text-[10px] font-bold ${rateColor}">불량 ${s.rate}%</span>
+        </div>
+      </div>`;
+    }).join('<div class="border-t border-stone-50"></div>');
   }
 
   function calPrev() {
     calMonth--;
     if (calMonth < 0) { calMonth = 11; calYear--; }
-    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
-    renderCalendar(hist);
+    selectedCalDate = null;
+    document.getElementById('cal-panel-empty').classList.remove('hidden');
+    document.getElementById('cal-panel-content').classList.add('hidden');
+    renderCalendar();
   }
 
   function calNext() {
     calMonth++;
     if (calMonth > 11) { calMonth = 0; calYear++; }
-    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
-    renderCalendar(hist);
-  }
-
-  function selectDate(dateStr) {
-    selectedDate = dateStr;
-    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
-    renderCalendar(hist);
-
-    const dateMap = getDateMap(hist);
-    const sessions = dateMap[dateStr] || [];
-
-    document.getElementById('ana-date-empty').classList.add('hidden');
-    document.getElementById('ana-date-sessions').classList.remove('hidden');
-
-    const [y, m, d] = dateStr.split('-');
-    document.getElementById('ana-date-title').textContent = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일 검수 기록`;
-    document.getElementById('ana-date-count').textContent = `${sessions.length}세션`;
-
-    const totalD = sessions.reduce((s,h)=>s+h.total,0);
-    const normalD = sessions.reduce((s,h)=>s+h.normal,0);
-    const damageD = sessions.reduce((s,h)=>s+h.damage,0);
-
-    document.getElementById('ana-date-session-list').innerHTML = sessions.map((s, i) => {
-      const rateColor = s.rate === 0 ? 'text-primary' : s.rate < 20 ? 'text-secondary' : 'text-error';
-      const timePart = (s.datetime || '').split(' ').slice(1).join(' ');
-      return `<div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onclick="openDetail(${s.id})">
-        <div class="p-4 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-xs font-bold text-stone-500">${sessions.length - i}</div>
-            <div>
-              <p class="text-sm font-bold">${timePart || '시간 정보 없음'}</p>
-              <p class="text-xs text-stone-400">총 ${s.total}개 검수</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-4 text-right">
-            <div><p class="text-[10px] text-green-500 font-bold">✅ 정상</p><p class="text-lg font-black text-primary">${s.normal}</p></div>
-            <div><p class="text-[10px] text-red-400 font-bold">⚠️ 데미지</p><p class="text-lg font-black text-error">${s.damage}</p></div>
-            <div><p class="text-[10px] text-stone-400 font-bold">불량률</p><p class="text-lg font-black ${rateColor}">${s.rate}%</p></div>
-            <span class="material-symbols-outlined text-stone-300">chevron_right</span>
-          </div>
-        </div>
-      </div>`;
-    }).join('') + `
-    <!-- 일별 합계 -->
-    <div class="bg-stone-50 rounded-xl border border-stone-100 p-4 flex justify-between items-center">
-      <p class="text-xs font-bold text-stone-400 uppercase tracking-widest">하루 합계</p>
-      <div class="flex gap-6 text-right">
-        <div><p class="text-[10px] text-stone-400">총 검수</p><p class="text-lg font-black">${totalD}</p></div>
-        <div><p class="text-[10px] text-green-500">✅ 정상</p><p class="text-lg font-black text-primary">${normalD}</p></div>
-        <div><p class="text-[10px] text-red-400">⚠️ 데미지</p><p class="text-lg font-black text-error">${damageD}</p></div>
-        <div><p class="text-[10px] text-stone-400">불량률</p><p class="text-lg font-black ${damageD>0?'text-error':'text-primary'}">${totalD?Math.round(damageD/totalD*100):0}%</p></div>
-      </div>
-    </div>`;
-
-    closeDetail();
+    selectedCalDate = null;
+    document.getElementById('cal-panel-empty').classList.remove('hidden');
+    document.getElementById('cal-panel-content').classList.add('hidden');
+    renderCalendar();
   }
 
   function openDetail(id) {
@@ -1224,6 +905,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   function clearHistory() {
     if (!confirm('모든 검수 이력을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
     localStorage.removeItem('sbb_history');
+    selectedCalDate = null;
     closeDetail();
     renderAnalytics();
   }
