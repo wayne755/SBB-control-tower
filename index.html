@@ -265,8 +265,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-
-
     <!-- Windy + Weather/Alerts -->
     <div class="grid grid-cols-1 gap-6">
       <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
@@ -294,16 +292,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-
-
-
-
     <p class="text-right text-xs text-stone-300" id="last-updated"></p>
   </div><!-- /page-dashboard -->
-
-
-
-
 
   <!-- ══════════════════════════════════════════════ -->
   <!-- PAGE: AI 불량 판별                              -->
@@ -370,7 +360,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
           </div>
           <div class="overflow-x-auto rounded-lg border border-stone-100">
             <table class="batch-table">
-              <thead><tr><th>#</th><th>파일명</th><th>판별 결과</th><th>신뢰도</th><th>검수 날짜 / 시간</th></tr></thead>
+              <thead><tr><th>미리보기</th><th>#</th><th>파일명</th><th>판별 결과</th><th>신뢰도</th><th>검수 날짜 / 시간</th></tr></thead>
               <tbody id="batch-table-body"></tbody>
             </table>
           </div>
@@ -389,7 +379,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
 
   <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: 센서 현황 (기존 그대로)                   -->
+  <!-- PAGE: 센서 현황                                 -->
   <!-- ══════════════════════════════════════════════ -->
   <div id="page-sensors" class="page p-6 space-y-6 flex-1 overflow-y-auto">
     <div>
@@ -416,7 +406,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
 
   <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: 분석 (검수 이력)                          -->
+  <!-- PAGE: 분석 (검수 이력 + 캘린더)                 -->
   <!-- ══════════════════════════════════════════════ -->
   <div id="page-analytics" class="page p-6 space-y-6 flex-1 overflow-y-auto">
     <div class="flex items-center justify-between">
@@ -536,7 +526,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
 
   <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: 설정 (placeholder)                       -->
+  <!-- PAGE: 설정                                     -->
   <!-- ══════════════════════════════════════════════ -->
   <div id="page-settings" class="page p-6 flex-1 overflow-y-auto">
     <div class="mb-6">
@@ -550,6 +540,17 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   </div><!-- /page-settings -->
 
 </main>
+</div>
+
+<!-- 이미지 확대 모달 -->
+<div id="img-modal" class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/70 backdrop-blur-sm" onclick="closeImgModal()">
+  <div class="relative max-w-3xl w-full mx-4" onclick="event.stopPropagation()">
+    <button onclick="closeImgModal()" class="absolute -top-10 right-0 text-white/70 hover:text-white flex items-center gap-1 text-sm">
+      <span class="material-symbols-outlined">close</span> 닫기
+    </button>
+    <img id="img-modal-src" src="" alt="" class="w-full rounded-xl shadow-2xl object-contain max-h-[80vh]">
+    <p id="img-modal-label" class="text-white/80 text-xs text-center mt-3"></p>
+  </div>
 </div>
 
 <script>
@@ -581,14 +582,11 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     const map = { dashboard:0, ai:1, sensors:2, analytics:3, settings:4 };
     if (links[map[name]]) links[map[name]].classList.add('active');
     if (name === 'analytics') renderAnalytics();
-    // 모바일 탭바 하이라이트
     document.querySelectorAll('.mob-tab').forEach(t => {
-      t.querySelectorAll('span.material-symbols-outlined').forEach(ic => {
-        ic.style.color = '#a8a29e';
-      });
+      t.querySelectorAll('span.material-symbols-outlined').forEach(ic => { ic.style.color = '#a8a29e'; });
       t.querySelectorAll('span.text-\\[10px\\]').forEach(txt => txt.style.color = '#a8a29e');
     });
-    const mobIconMap = { dashboard:'mob-icon-dashboard', trucks:'mob-icon-trucks', analytics:'mob-icon-analytics', sensors:'mob-icon-sensors' };
+    const mobIconMap = { dashboard:'mob-icon-dashboard', analytics:'mob-icon-analytics', sensors:'mob-icon-sensors' };
     if (mobIconMap[name]) {
       const ic = document.getElementById(mobIconMap[name]);
       if (ic) ic.style.color = '#275300';
@@ -608,6 +606,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   }
   async function loadWeather() {
     const list = document.getElementById('weather-list');
+    if (!list) return;
     list.innerHTML = '<p class="text-xs text-stone-400 text-center py-2">불러오는 중...</p>';
     try {
       const results = await Promise.all(cities.map(c => fetchCity(c)));
@@ -619,11 +618,12 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
           <div><p class="text-sm font-semibold">${cities[i].name}</p><p class="text-[11px] text-stone-400">${data.weather[0].description} · 습도 ${data.main.humidity}%</p></div>
           <span class="text-lg font-black font-public-sans">${temp}°C</span></div>`;
       }).join('');
-
       const t = `마지막 업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
-      document.getElementById('last-updated').textContent = t;
-      document.getElementById('last-updated-top').textContent = t;
-    } catch(e) { list.innerHTML = '<p class="text-xs text-red-400 text-center py-2">네트워크 오류</p>'; }
+      const lu = document.getElementById('last-updated');
+      const lut = document.getElementById('last-updated-top');
+      if (lu) lu.textContent = t;
+      if (lut) lut.textContent = t;
+    } catch(e) { if (list) list.innerHTML = '<p class="text-xs text-red-400 text-center py-2">네트워크 오류</p>'; }
   }
 
   /* ─── AI 검수 ─────────────────────────────────────── */
@@ -657,6 +657,23 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   }
 
   let batchResults = [];
+  // 이미지 ObjectURL 저장 (썸네일용, 세션 내 유지)
+  const batchImageURLs = {};
+
+  function openImgModal(src, label) {
+    const modal = document.getElementById('img-modal');
+    document.getElementById('img-modal-src').src = src;
+    document.getElementById('img-modal-label').textContent = label;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  function closeImgModal() {
+    const modal = document.getElementById('img-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  // ESC 키로 닫기
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImgModal(); });
 
   async function runBatchInference(files) {
     const fileArray = Array.from(files); if (!fileArray.length) return;
@@ -677,9 +694,18 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       let result = { hasDamage: false, finalScore: 0 };
       try { result = await analyzeImage(file); } catch(e) {}
       if (result.hasDamage) damageCount++; else normalCount++;
+      const imgURL = URL.createObjectURL(file);
+      batchImageURLs[i+1] = { url: imgURL, name: file.name };
       batchResults.push({ index: i+1, filename: file.name, hasDamage: result.hasDamage, score: result.finalScore, datetime });
       const tr = document.createElement('tr');
+      const borderColor = result.hasDamage ? 'border-red-300' : 'border-green-300';
       tr.innerHTML = `
+        <td style="width:64px;">
+          <img src="${imgURL}" alt="${file.name}"
+            class="w-14 h-14 object-cover rounded-lg border-2 ${borderColor} cursor-pointer hover:scale-105 transition-transform shadow-sm"
+            onclick="openImgModal('${imgURL}', '${file.name.replace(/'/g,"\\'")} · ${result.hasDamage?'⚠️ 데미지':'✅ 정상'} · ${result.finalScore?(result.finalScore*100).toFixed(1)+'%':'-'}')"
+          >
+        </td>
         <td class="text-stone-400">${i+1}</td>
         <td class="text-xs text-stone-500 max-w-xs truncate">${file.name}</td>
         <td><span class="ai-badge ${result.hasDamage?'damage':'normal'}">${result.hasDamage?'⚠️ 데미지':'✅ 정상'}</span></td>
@@ -696,7 +722,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     document.getElementById('batch-pct').textContent = '100%';
     document.getElementById('batch-status').textContent = `✅ 분석 완료! 총 ${fileArray.length}개 검수`;
 
-    // 이력 저장
+    // ── 이력 저장 (window.storage 공유 저장소) ──
     const session = {
       id: Date.now(),
       datetime: sessionStart,
@@ -706,12 +732,22 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       rate: Math.round((damageCount / fileArray.length) * 100),
       items: batchResults.map(r => ({ filename: r.filename, hasDamage: r.hasDamage, score: r.score, datetime: r.datetime }))
     };
-    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
-    hist.unshift(session);
-    localStorage.setItem('sbb_history', JSON.stringify(hist));
+    try {
+      const existing = await window.storage.get('sbb_history', true);
+      const hist = existing ? JSON.parse(existing.value) : [];
+      hist.unshift(session);
+      await window.storage.set('sbb_history', JSON.stringify(hist), true);
+    } catch(e) {
+      const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+      hist.unshift(session);
+      localStorage.setItem('sbb_history', JSON.stringify(hist));
+    }
   }
 
   function resetInspection() {
+    // ObjectURL 메모리 해제
+    Object.values(batchImageURLs).forEach(obj => URL.revokeObjectURL(obj.url));
+    Object.keys(batchImageURLs).forEach(k => delete batchImageURLs[k]);
     batchResults = [];
     document.getElementById('batch-table-body').innerHTML = '';
     document.getElementById('batch-results').classList.add('hidden');
@@ -733,11 +769,21 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   /* ─── 분석 페이지 (캘린더) ───────────────────────── */
   let currentDetailSession = null;
   let calYear = new Date().getFullYear();
-  let calMonth = new Date().getMonth(); // 0-indexed
+  let calMonth = new Date().getMonth();
   let selectedCalDate = null;
 
-  function renderAnalytics() {
-    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+  // ── 공통 스토리지 헬퍼 ──
+  async function getHistory() {
+    try {
+      const stored = await window.storage.get('sbb_history', true);
+      return stored ? JSON.parse(stored.value) : [];
+    } catch(e) {
+      return JSON.parse(localStorage.getItem('sbb_history') || '[]');
+    }
+  }
+
+  async function renderAnalytics() {
+    const hist = await getHistory();
     const total  = hist.reduce((s,h) => s+h.total, 0);
     const normal = hist.reduce((s,h) => s+h.normal, 0);
     const damage = hist.reduce((s,h) => s+h.damage, 0);
@@ -750,9 +796,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     renderCalendar(hist);
   }
 
-  function renderCalendar(histArg) {
-    const hist = histArg || JSON.parse(localStorage.getItem('sbb_history') || '[]');
-    // 날짜별 세션 맵 만들기
+  async function renderCalendar(histArg) {
+    const hist = histArg || await getHistory();
     const dayMap = {};
     hist.forEach(s => {
       const d = (s.datetime || '').split(' ')[0];
@@ -770,13 +815,10 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 
     let cells = '';
-    // 빈 칸
     for (let i = 0; i < firstDay; i++) cells += `<div></div>`;
-    // 날짜
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const sessions = dayMap[dateStr] || [];
-      const hasDamage = sessions.some(s => s.damage > 0);
       const hasNormal = sessions.length > 0;
       const isToday = dateStr === todayStr;
       const isSelected = dateStr === selectedCalDate;
@@ -791,15 +833,13 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>`;
     }
     document.getElementById('cal-grid').innerHTML = cells;
-
-    // 선택된 날짜 패널 유지
     if (selectedCalDate) selectCalDate(selectedCalDate, true);
   }
 
-  function selectCalDate(dateStr, silent) {
+  async function selectCalDate(dateStr, silent) {
     selectedCalDate = dateStr;
     if (!silent) renderCalendar();
-    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+    const hist = await getHistory();
     const sessions = hist.filter(s => (s.datetime || '').startsWith(dateStr));
 
     const empty   = document.getElementById('cal-panel-empty');
@@ -865,15 +905,14 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     renderCalendar();
   }
 
-  function openDetail(id) {
-    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+  async function openDetail(id) {
+    const hist = await getHistory();
     const session = hist.find(h => h.id === id);
     if (!session) return;
     currentDetailSession = session;
     const num = hist.length - hist.indexOf(session);
     document.getElementById('ana-detail-title').textContent = `세션 #${num} 상세 — ${session.datetime}`;
 
-    // 세션 요약 바
     const rateColor = session.rate === 0 ? '#275300' : session.rate < 20 ? '#88520e' : '#ba1a1a';
     document.getElementById('ana-detail-summary').innerHTML = `
       <div class="p-4 text-center"><p class="text-[9px] uppercase tracking-widest text-stone-400 mb-1">총 검수</p><p class="text-2xl font-black font-public-sans">${session.total}</p></div>
@@ -898,16 +937,20 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     currentDetailSession = null;
   }
 
-  function clearHistory() {
+  async function clearHistory() {
     if (!confirm('모든 검수 이력을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
-    localStorage.removeItem('sbb_history');
+    try {
+      await window.storage.delete('sbb_history', true);
+    } catch(e) {
+      localStorage.removeItem('sbb_history');
+    }
     selectedCalDate = null;
     closeDetail();
     renderAnalytics();
   }
 
-  function exportAllCSV() {
-    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+  async function exportAllCSV() {
+    const hist = await getHistory();
     if (!hist.length) { alert('내보낼 이력이 없습니다'); return; }
     let csv = '세션#,세션날짜시간,파일명,판별결과,신뢰도,검수날짜시간\n';
     hist.forEach((s, si) => {
@@ -935,139 +978,9 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     a.click();
   }
 
-  /* ─── Load Board ──────────────────────────────────── */
-  const LOADBOARD_DATA = [
-    { id:'LB-2026-0401', origin:'인디애나폴리스, IN', dest:'롱비치, CA', cargo:'배터리 팩 (SDI)', weight:22, space:6, pickup:'2026-04-09', rate:3.20, status:'available' },
-    { id:'LB-2026-0402', origin:'롱비치, CA',         dest:'토렌스 SDI, CA', cargo:'리튬이온 셀', weight:18, space:0, pickup:'2026-04-08', rate:1.85, status:'full' },
-    { id:'LB-2026-0403', origin:'LA 항구, CA',         dest:'인디애나폴리스, IN', cargo:'빈 컨테이너', weight:5, space:15, pickup:'2026-04-10', rate:2.95, status:'available' },
-    { id:'LB-2026-0404', origin:'솔트레이크시티, UT',  dest:'롱비치, CA', cargo:'SBB 부품', weight:12, space:4, pickup:'2026-04-11', rate:2.10, status:'partial' },
-    { id:'LB-2026-0405', origin:'덴버, CO',            dest:'어바인 SDI, CA', cargo:'배터리 모듈', weight:16, space:0, pickup:'2026-04-08', rate:2.65, status:'full' },
-    { id:'LB-2026-0406', origin:'인디애나폴리스, IN',  dest:'솔트레이크시티, UT', cargo:'일반 화물', weight:20, space:8, pickup:'2026-04-12', rate:1.90, status:'available' },
-    { id:'LB-2026-0407', origin:'롱비치, CA',          dest:'덴버, CO', cargo:'SDI 완제품', weight:14, space:3, pickup:'2026-04-09', rate:2.40, status:'partial' },
-    { id:'LB-2026-0408', origin:'어바인 SDI, CA',      dest:'인디애나폴리스, IN', cargo:'반품 배터리', weight:8, space:12, pickup:'2026-04-13', rate:3.05, status:'available' },
-  ];
-
-  let lbFilter = 'all';
-
-  function refreshLoadboard() {
-    document.getElementById('lb-last-updated').textContent = `업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
-    applyLbFilter(lbFilter, document.querySelector(`.lb-filter[data-filter="${lbFilter}"]`));
-  }
-
-  function applyLbFilter(filter, el) {
-    lbFilter = filter;
-    document.querySelectorAll('.lb-filter').forEach(b => b.classList.remove('active'));
-    if (el) el.classList.add('active');
-
-    let data = LOADBOARD_DATA;
-    if (filter === 'in-ca') data = data.filter(d => d.origin.includes('IN') || d.origin.includes('UT') || d.origin.includes('CO'));
-    else if (filter === 'ca-in') data = data.filter(d => d.origin.includes('CA'));
-    else if (filter === 'available') data = data.filter(d => d.status !== 'full');
-
-    document.getElementById('lb-count').textContent = data.length;
-    document.getElementById('lb-avail-count').textContent = data.filter(d => d.status !== 'full').length;
-
-    const statusMap = {
-      available: '<span class="lb-badge lb-available">✅ 공간 있음</span>',
-      partial:   '<span class="lb-badge lb-partial">🔶 일부 가능</span>',
-      full:      '<span class="lb-badge lb-full">🔴 만재</span>',
-    };
-
-    document.getElementById('lb-tbody').innerHTML = data.map(d => `
-      <tr>
-        <td class="font-mono text-xs font-bold text-stone-500">${d.id}</td>
-        <td class="text-sm font-medium">${d.origin}</td>
-        <td class="text-sm">${d.dest}</td>
-        <td class="text-xs text-stone-500">${d.cargo}</td>
-        <td class="text-sm text-center">${d.weight}톤</td>
-        <td class="text-sm text-center font-semibold ${d.space>0?'text-primary':'text-stone-300'}">${d.space>0?d.space+'톤':'—'}</td>
-        <td class="text-xs whitespace-nowrap">${d.pickup}</td>
-        <td class="text-sm font-bold text-secondary">$${d.rate.toFixed(2)}</td>
-        <td>${statusMap[d.status]||d.status}</td>
-        <td><button class="text-[11px] font-semibold text-primary hover:underline whitespace-nowrap ${d.status==='full'?'opacity-30 pointer-events-none':''}">매칭 요청 →</button></td>
-      </tr>`).join('');
-  }
-
   /* ─── 초기 실행 ───────────────────────────────────── */
-  // ─── BL 트래킹 ────────────────────────────────────────
-  const CARRIERS = {
-    maersk:   { name:'Maersk',     prefix:['MAEU','MSKU','MRKU'], url:'https://www.maersk.com/tracking/#tracking/' },
-    msc:      { name:'MSC',        prefix:['MSCU','MEDU'],        url:'https://www.msc.com/en/track-a-shipment?agencyPath=mwi&bl=' },
-    cosco:    { name:'COSCO',      prefix:['COSU','CBHU'],        url:'https://elines.coscoshipping.com/ebusiness/cargoTracking?trackingType=BL&number=' },
-    hapag:    { name:'Hapag-Lloyd',prefix:['HLCU','HLXU'],        url:'https://www.hapag-lloyd.com/en/online-business/tracing/tracing-by-booking.html?blno=' },
-    evergreen:{ name:'Evergreen',  prefix:['EGLV','EGHU'],        url:'https://ct.shipmentlink.com/servlet/TDB1_CargoTracking.do?bl_no=' },
-    hmm:      { name:'HMM',        prefix:['HDMU','HMMU'],        url:'https://www.hmm21.com/cms/business/ebiz/trackTrace/trackTrace/index.jsp?blNo=' },
-    one:      { name:'ONE',        prefix:['ONEY','ONEU'],        url:'https://ecomm.one-line.com/one-ecom/manage-shipment/cargo-tracking?trakNoParam=' },
-    yangming: { name:'Yang Ming',  prefix:['YMLU','YMLUW'],       url:'https://www.yangming.com/e-service/Track_Trace/track_trace_cargo_tracking.aspx?bl_no=' },
-  };
-  let selectedCarrier = null;
-  let recentTracks = JSON.parse(localStorage.getItem('bl_recent') || '[]');
-
-  function selectCarrier(key, el) {
-    selectedCarrier = key;
-    document.querySelectorAll('.carrier-btn').forEach(b => {
-      b.classList.remove('border-primary','bg-green-50','font-bold');
-    });
-    el.classList.add('border-primary','bg-green-50');
-    const c = CARRIERS[key];
-    document.getElementById('selected-carrier-info').classList.remove('hidden');
-    document.getElementById('selected-carrier-name').textContent = c.name + ' 선택됨';
-    document.getElementById('selected-carrier-url').textContent = c.url.split('?')[0];
-    document.getElementById('bl-hint').textContent = c.name + ' 트래킹 페이지로 이동합니다';
-  }
-
-  function autoDetectCarrier(val) {
-    val = val.toUpperCase().trim();
-    for (const [key, c] of Object.entries(CARRIERS)) {
-      if (c.prefix.some(p => val.startsWith(p))) {
-        const btn = document.querySelector(`.carrier-btn[onclick*="'${key}'"]`);
-        if (btn) selectCarrier(key, btn);
-        return;
-      }
-    }
-  }
-
-  function trackBL() {
-    const bl = document.getElementById('bl-input').value.trim();
-    if (!bl) { alert('BL 번호를 입력해주세요'); return; }
-    if (!selectedCarrier) { alert('선사를 선택해주세요'); return; }
-    const url = CARRIERS[selectedCarrier].url + bl;
-    // 최근 조회 저장
-    recentTracks = recentTracks.filter(r => r.bl !== bl);
-    recentTracks.unshift({ bl, carrier: selectedCarrier, time: new Date().toLocaleTimeString('ko-KR') });
-    if (recentTracks.length > 5) recentTracks = recentTracks.slice(0, 5);
-    localStorage.setItem('bl_recent', JSON.stringify(recentTracks));
-    renderRecentTracks();
-    window.open(url, '_blank');
-  }
-
-  function renderRecentTracks() {
-    const list = document.getElementById('recent-track-list');
-    if (!recentTracks.length) {
-      list.innerHTML = '<p class="text-xs text-stone-300 text-center py-2">아직 조회 기록이 없어요</p>';
-      return;
-    }
-    list.innerHTML = recentTracks.map(r => `
-      <div class="flex items-center justify-between py-1.5 px-3 bg-stone-50 rounded-lg hover:bg-green-50 cursor-pointer transition-colors" onclick="quickTrack('${r.bl}','${r.carrier}')">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-stone-300 text-sm">history</span>
-          <span class="text-xs font-mono font-bold text-stone-700">${r.bl}</span>
-          <span class="text-[10px] text-stone-400">${CARRIERS[r.carrier]?.name || r.carrier}</span>
-        </div>
-        <span class="text-[10px] text-stone-300">${r.time}</span>
-      </div>`).join('');
-  }
-
-  function quickTrack(bl, carrier) {
-    const url = CARRIERS[carrier]?.url + bl;
-    if (url) window.open(url, '_blank');
-  }
-
-  renderRecentTracks();
-
   loadWeather();
   setInterval(loadWeather, 5 * 60 * 1000);
-  refreshLoadboard();
 
   // PWA Service Worker 등록
   if ('serviceWorker' in navigator) {
