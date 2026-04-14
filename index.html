@@ -12,6 +12,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SBB Control">
 <meta name="theme-color" content="#275300">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -722,7 +725,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     document.getElementById('batch-pct').textContent = '100%';
     document.getElementById('batch-status').textContent = `✅ 분석 완료! 총 ${fileArray.length}개 검수`;
 
-    // ── 이력 저장 (window.storage 공유 저장소) ──
+    // ── 이력 저장 (Firebase Firestore) ──
     const session = {
       id: Date.now(),
       datetime: sessionStart,
@@ -732,16 +735,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       rate: Math.round((damageCount / fileArray.length) * 100),
       items: batchResults.map(r => ({ filename: r.filename, hasDamage: r.hasDamage, score: r.score, datetime: r.datetime }))
     };
-    try {
-      const existing = await window.storage.get('sbb_history', true);
-      const hist = existing ? JSON.parse(existing.value) : [];
-      hist.unshift(session);
-      await window.storage.set('sbb_history', JSON.stringify(hist), true);
-    } catch(e) {
-      const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
-      hist.unshift(session);
-      localStorage.setItem('sbb_history', JSON.stringify(hist));
-    }
+    await saveSession(session);
   }
 
   function resetInspection() {
@@ -772,14 +766,27 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   let calMonth = new Date().getMonth();
   let selectedCalDate = null;
 
-  // ── 공통 스토리지 헬퍼 ──
+  // ── 공통 스토리지 헬퍼 (Firebase Firestore) ──
   async function getHistory() {
-    try {
-      const stored = await window.storage.get('sbb_history', true);
-      return stored ? JSON.parse(stored.value) : [];
-    } catch(e) {
-      return JSON.parse(localStorage.getItem('sbb_history') || '[]');
+    if (db) {
+      try {
+        const snap = await db.collection('sbb_sessions').orderBy('id', 'desc').get();
+        return snap.docs.map(d => d.data());
+      } catch(e) { console.warn('Firestore 읽기 실패:', e); }
     }
+    return JSON.parse(localStorage.getItem('sbb_history') || '[]');
+  }
+
+  async function saveSession(session) {
+    if (db) {
+      try {
+        await db.collection('sbb_sessions').doc(String(session.id)).set(session);
+        return;
+      } catch(e) { console.warn('Firestore 저장 실패:', e); }
+    }
+    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+    hist.unshift(session);
+    localStorage.setItem('sbb_history', JSON.stringify(hist));
   }
 
   async function renderAnalytics() {
@@ -939,9 +946,17 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 
   async function clearHistory() {
     if (!confirm('모든 검수 이력을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
-    try {
-      await window.storage.delete('sbb_history', true);
-    } catch(e) {
+    if (db) {
+      try {
+        const snap = await db.collection('sbb_sessions').get();
+        const batch = db.batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      } catch(e) {
+        console.warn('Firestore 삭제 실패:', e);
+        localStorage.removeItem('sbb_history');
+      }
+    } else {
       localStorage.removeItem('sbb_history');
     }
     selectedCalDate = null;
@@ -978,7 +993,26 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     a.click();
   }
 
+  /* ─── Firebase 초기화 ────────────────────────────── */
+  const firebaseConfig = {
+    apiKey: "AIzaSyB6rnyG5kULDiImo1UuI2wZ40R4kMDuYE0",
+    authDomain: "sbb-control-tower-33b95.firebaseapp.com",
+    projectId: "sbb-control-tower-33b95",
+    storageBucket: "sbb-control-tower-33b95.firebasestorage.app",
+    messagingSenderId: "667691336675",
+    appId: "1:667691336675:web:acf946e8fe21a589a296d6"
+  };
+  let db = null;
+  function initFirebase() {
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      console.log('✅ Firebase Firestore 연결됨');
+    } catch(e) { console.warn('Firebase 초기화 실패:', e); }
+  }
+
   /* ─── 초기 실행 ───────────────────────────────────── */
+  initFirebase();
   loadWeather();
   setInterval(loadWeather, 5 * 60 * 1000);
 
