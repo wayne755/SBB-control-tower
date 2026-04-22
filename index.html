@@ -3,491 +3,470 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>OTR Finder — HPC</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<title>OTR Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--w:#fff;--g50:#F9FAFB;--g100:#F3F4F6;--g150:#EDEDEE;--g200:#E5E7EB;--g300:#D1D5DB;--g400:#9CA3AF;--g500:#6B7280;--g600:#4B5563;--g700:#374151;--g800:#1F2937;--g900:#111827;--sh0:0 1px 2px rgba(0,0,0,.05);--sh1:0 2px 8px rgba(0,0,0,.08);--sh2:0 8px 32px rgba(0,0,0,.10);}
-html,body{height:100%;overflow:hidden;-webkit-font-smoothing:antialiased}
-body{background:var(--w);color:var(--g800);font-family:'Inter',sans-serif;font-size:15px}
+:root{
+  --bg:#FAFAF9;
+  --surface:#FFFFFF;
+  --sidebar:#F5F4F2;
+  --sidebar-border:#EBEBEA;
+
+  --g50:#F7F6F4;
+  --g100:#EFEDE9;
+  --g150:#E5E2DC;
+  --g200:#D8D4CC;
+  --g300:#BCB8AE;
+  --g400:#9E9A91;
+  --g500:#7A766E;
+  --g600:#5C5850;
+  --g700:#3E3C36;
+  --g800:#28261F;
+  --g900:#1A1812;
+
+  --accent:#1A1812;
+  --accent2:#3D6B57;   /* 물류 그린 포인트 */
+  --accent2-light:#EBF4EF;
+  --accent2-mid:#6A9E86;
+
+  --blue:#2D5FA8;
+  --blue-light:#EEF3FB;
+
+  --sh0:0 1px 3px rgba(26,24,18,.06);
+  --sh1:0 4px 16px rgba(26,24,18,.08);
+  --sh2:0 12px 40px rgba(26,24,18,.12);
+  --sh3:0 24px 64px rgba(26,24,18,.16);
+
+  --radius-sm:8px;
+  --radius:12px;
+  --radius-lg:18px;
+  --radius-xl:24px;
+}
+html,body{height:100%;-webkit-font-smoothing:antialiased;overflow:hidden}
+body{background:var(--bg);color:var(--g800);font-family:'DM Sans',sans-serif;font-size:15px;display:flex}
 button{cursor:pointer;font-family:inherit;border:none;background:none}
 textarea{font-family:inherit}
-::-webkit-scrollbar{width:3px}
-::-webkit-scrollbar-thumb{background:var(--g200);border-radius:3px}
-#app{display:flex;flex-direction:column;height:100vh;max-width:680px;margin:0 auto}
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--g100);background:rgba(255,255,255,.97);backdrop-filter:blur(12px);flex-shrink:0}
-.hdr-name{font-weight:700;font-size:14px;color:var(--g900)}
-.hdr-r{display:flex;gap:6px}
-.hbtn{padding:5px 12px;border-radius:16px;background:var(--g100);color:var(--g600);font-size:12px;font-weight:500;transition:background .15s}
-.hbtn:hover{background:var(--g150)}
-.chat{flex:1;overflow-y:auto;padding:16px 16px 8px}
-.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64vh;padding:24px 8px;text-align:center}
-.wel-title{font-size:22px;font-weight:700;color:var(--g900);letter-spacing:-.4px;margin-bottom:22px}
-.qa-col{display:flex;flex-direction:column;gap:8px;width:100%;max-width:360px}
-.qa{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:1px solid var(--g200);background:var(--w);text-align:left;transition:all .14s;box-shadow:var(--sh0)}
-.qa:hover{border-color:var(--g300);background:var(--g50)}
-.qa-t{font-size:14px;font-weight:600;color:var(--g800)}
-.qa-s{font-size:11px;color:var(--g400);margin-top:2px}
-.mg{padding:4px 0}
-.msg{display:flex;gap:8px;align-items:flex-start}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--g200);border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ── SIDEBAR ── */
+.sidebar{width:256px;min-width:256px;height:100vh;background:var(--sidebar);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;padding:20px 14px;flex-shrink:0;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.sidebar-logo{font-size:15px;font-weight:700;color:var(--g900);padding:4px 8px 22px;letter-spacing:-.4px;display:flex;align-items:center;gap:9px}
+.sidebar-logo-mark{width:28px;height:28px;border-radius:8px;background:var(--g900);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sidebar-new{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--g600);transition:all .15s;width:100%;text-align:left;border:1px solid transparent}
+.sidebar-new:hover{background:var(--surface);border-color:var(--g150);color:var(--g800);box-shadow:var(--sh0)}
+.sidebar-new svg{width:13px;height:13px;stroke:var(--g400);fill:none;stroke-width:2;stroke-linecap:round}
+.sidebar-section{font-size:10px;font-weight:600;color:var(--g300);letter-spacing:.08em;text-transform:uppercase;padding:20px 8px 7px}
+.sidebar-item{padding:8px 12px;border-radius:var(--radius-sm);font-size:12.5px;color:var(--g500);cursor:pointer;transition:all .12s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;text-align:left;display:flex;align-items:center;gap:7px}
+.sidebar-item::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--g300);flex-shrink:0}
+.sidebar-item:hover{background:var(--surface);color:var(--g800);box-shadow:var(--sh0)}
+.sidebar-item.active{background:var(--surface);color:var(--g900);font-weight:500;box-shadow:var(--sh0)}
+.sidebar-footer{margin-top:auto;padding-top:14px;border-top:1px solid var(--sidebar-border)}
+.sidebar-footer-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:var(--radius-sm);font-size:12px;color:var(--g500);transition:all .12s;width:100%;text-align:left}
+.sidebar-footer-item:hover{background:var(--surface);color:var(--g700)}
+.sidebar-footer-item svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.user-dot{width:22px;height:22px;border-radius:50%;background:var(--g200);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--g600);flex-shrink:0}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;position:relative;background:var(--bg)}
+
+/* ── TOP BAR (모바일용) ── */
+.topbar{display:none;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--g100);flex-shrink:0;background:var(--surface)}
+.topbar-logo{font-size:14px;font-weight:700;color:var(--g900);display:flex;align-items:center;gap:8px}
+.topbar-logo-mark{width:24px;height:24px;border-radius:6px;background:var(--g900);display:flex;align-items:center;justify-content:center;font-size:12px}
+.topbar-menu{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--g100);display:flex;align-items:center;justify-content:center;transition:background .12s}
+.topbar-menu:hover{background:var(--g150)}
+.topbar-menu svg{width:14px;height:14px;stroke:var(--g600);fill:none;stroke-width:2;stroke-linecap:round}
+
+/* ── CHAT AREA ── */
+.chat{flex:1;overflow-y:auto;padding:0 0 8px}
+.chat-inner{max-width:740px;margin:0 auto;padding:28px 28px 8px}
+
+/* ── WELCOME ── */
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:72vh;text-align:center;padding:40px 24px;animation:wFade .5s ease}
+@keyframes wFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.welcome-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent2-light);color:var(--accent2);font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;margin-bottom:20px;letter-spacing:.02em}
+.welcome-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.welcome-icon{font-size:42px;margin-bottom:18px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.1))}
+.welcome-title{font-size:30px;font-weight:700;color:var(--g900);letter-spacing:-.8px;margin-bottom:10px;line-height:1.15}
+.welcome-sub{font-size:14px;color:var(--g400);margin-bottom:40px;line-height:1.7;max-width:400px}
+.welcome-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:580px}
+.pill{padding:9px 18px;border-radius:20px;border:1.5px solid var(--g150);background:var(--surface);font-size:12.5px;color:var(--g600);cursor:pointer;transition:all .18s;font-weight:500;box-shadow:var(--sh0)}
+.pill:hover{border-color:var(--g800);background:var(--g900);color:#fff;transform:translateY(-1px);box-shadow:var(--sh1)}
+
+/* ── MESSAGES ── */
+.mg{padding:5px 0;animation:msgIn .22s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg{display:flex;gap:10px;align-items:flex-start}
 .msg.user{flex-direction:row-reverse}
-.msg.user .bub{background:var(--g900);color:#fff;border-radius:18px 4px 18px 18px}
-.msg.ai .bub{background:var(--g100);color:var(--g800);border-radius:4px 18px 18px 18px}
-.av{width:24px;height:24px;border-radius:50%;flex-shrink:0;margin-top:4px;background:var(--g800);display:flex;align-items:center;justify-content:center}
+.msg.user .bub{background:var(--g900);color:#fff;border-radius:var(--radius-lg) 5px var(--radius-lg) var(--radius-lg);max-width:78%;font-size:13.5px;line-height:1.6}
+.msg.ai .bub{background:var(--surface);color:var(--g800);border-radius:5px var(--radius-lg) var(--radius-lg) var(--radius-lg);max-width:84%;border:1px solid var(--g100);box-shadow:var(--sh0)}
+.av{width:28px;height:28px;border-radius:50%;flex-shrink:0;margin-top:2px;background:var(--g900);display:flex;align-items:center;justify-content:center}
 .av svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round}
-.bub{max-width:86%;padding:10px 14px;font-size:13.5px;line-height:1.62}
-.thk-dots{display:inline-flex;gap:4px;align-items:center;padding:12px 14px}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--g300);animation:bo .85s infinite}
-.dot:nth-child(2){animation-delay:.17s}.dot:nth-child(3){animation-delay:.34s}
-@keyframes bo{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
-.opts{padding:4px 0 4px 32px;display:flex;flex-direction:column;gap:5px;animation:fu .2s ease}
-@keyframes fu{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
-.opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid var(--g200);background:var(--w);font-size:13px;color:var(--g700);text-align:left;transition:all .14s;box-shadow:var(--sh0)}
-.opt:hover{border-color:var(--g400);background:var(--g50)}
-.opt:disabled{opacity:.35;cursor:not-allowed}
-.onum{min-width:20px;height:20px;border-radius:5px;background:var(--g100);color:var(--g500);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bub{padding:12px 16px;font-size:13.5px;line-height:1.68;white-space:pre-wrap}
+.thk-dots{display:inline-flex;gap:5px;align-items:center;padding:14px 16px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--g300);animation:bo .9s infinite}
+.dot:nth-child(2){animation-delay:.18s}.dot:nth-child(3){animation-delay:.36s}
+@keyframes bo{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-5px);opacity:1}}
+
+/* ── OPTIONS ── */
+.opts{padding:6px 0 6px 38px;display:flex;flex-direction:column;gap:5px;animation:fu .22s ease}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.opt{display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--radius);border:1.5px solid var(--g150);background:var(--surface);font-size:13px;color:var(--g700);text-align:left;transition:all .16s;box-shadow:var(--sh0)}
+.opt:hover{border-color:var(--g800);background:var(--g50);transform:translateX(2px)}
+.opt:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.onum{min-width:22px;height:22px;border-radius:6px;background:var(--g100);color:var(--g500);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Mono',monospace}
 .olbl{font-weight:600;font-size:13px;color:var(--g800)}
 .osub{font-size:11px;color:var(--g400);margin-top:1px}
-.prog{padding:4px 14px 4px 32px;display:flex;align-items:center;gap:8px}
-.pbar{flex:1;height:2px;background:var(--g100);border-radius:2px;overflow:hidden}
-.pfill{height:100%;background:var(--g800);border-radius:2px;transition:width .4s}
-.ptxt{font-size:10px;color:var(--g400);font-weight:500;white-space:nowrap}
-.res{padding:4px 0 4px 32px;animation:fu .25s ease}
-.res-hdr{font-size:11px;font-weight:600;color:var(--g400);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
-.aib{background:var(--g50);border:1px solid var(--g200);border-radius:11px;padding:13px 15px;margin-bottom:8px;font-size:13px;line-height:1.8;color:var(--g700);white-space:pre-wrap}
-.aib-hdr{font-size:10px;font-weight:600;color:var(--g500);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
-.ratebox{background:var(--g50);border:1px solid var(--g200);border-radius:11px;padding:14px 16px;margin-bottom:8px}
-.ratebox-hdr{font-size:10px;font-weight:600;color:var(--g500);letter-spacing:.06em;text-transform:uppercase;margin-bottom:11px}
-.rate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.rg{background:var(--w);border:1px solid var(--g200);border-radius:9px;padding:10px 8px;text-align:center}
-.rg-l{font-size:9px;color:var(--g400);font-weight:500;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
-.rg-v{font-size:16px;font-weight:700;color:var(--g900);letter-spacing:-.3px}
+
+/* ── RESULTS ── */
+.res{padding:6px 0 6px 38px;animation:fu .25s ease}
+.res-hdr{font-size:10px;font-weight:600;color:var(--g400);letter-spacing:.06em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.res-hdr::after{content:'';flex:1;height:1px;background:var(--g100)}
+.aib{background:var(--surface);border:1.5px solid var(--g150);border-radius:var(--radius);padding:16px 18px;margin-bottom:10px;font-size:13px;line-height:1.8;color:var(--g700);white-space:pre-wrap;box-shadow:var(--sh0)}
+.cards{display:flex;flex-direction:column;gap:8px}
+
+/* ── CARRIER CARDS ── */
+.cc{background:var(--surface);border:1.5px solid var(--g150);border-radius:var(--radius-lg);padding:14px 16px;cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);box-shadow:var(--sh0)}
+.cc:hover{border-color:var(--g300);box-shadow:var(--sh1);transform:translateY(-1px)}
+.cc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
+.cc-rnk{width:22px;height:22px;border-radius:6px;background:var(--g100);color:var(--g500);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Mono',monospace}
+.cc-rnk.r1{background:var(--g900);color:#fff}.cc-rnk.r2{background:var(--g700);color:#fff}.cc-rnk.r3{background:var(--g400);color:#fff}
+.cc-nw{flex:1;min-width:0}
+.cc-name{font-size:13.5px;font-weight:700;color:var(--g900);letter-spacing:-.2px}
+.cc-hq{font-size:10.5px;color:var(--g400);margin-top:2px}
+.cc-sv{width:26px;height:26px;border-radius:7px;background:var(--g100);color:var(--g400);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.cc-sv:hover{background:var(--g200)}
+.cc-sv.on{background:var(--accent2-light);color:var(--accent2);border:1.5px solid var(--accent2-mid)}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px}
+.sg{background:var(--g50);border-radius:8px;padding:6px 7px;text-align:center;border:1px solid var(--g100)}
+.sgl{font-size:8px;color:var(--g400);margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em;font-weight:500}
+.sgv{font-size:11px;font-weight:700;color:var(--g700);font-family:'DM Mono',monospace}
+.cbdg{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.bdg{font-size:9px;padding:2px 7px;border-radius:5px;background:var(--g100);color:var(--g500);font-weight:600;font-family:'DM Mono',monospace}
+.db-badge{font-size:9px;padding:2px 7px;border-radius:5px;background:var(--blue-light);color:var(--blue);font-weight:600}
+.cact{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--g100)}
+.cbtn{flex:1;padding:8px;border-radius:var(--radius-sm);font-size:11.5px;font-weight:600;transition:all .15s}
+.cbtn.p{background:var(--g900);color:#fff}.cbtn.p:hover{background:var(--g700);transform:translateY(-1px)}
+.cbtn.s{background:var(--g100);color:var(--g700);border:1px solid var(--g150)}.cbtn.s:hover{background:var(--g150)}
+.lvis{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--g150);border-radius:var(--radius);padding:10px 14px;margin-bottom:10px;box-shadow:var(--sh0)}
+.ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.lline{flex:1;height:1px;background:linear-gradient(90deg,var(--g300),var(--g200));position:relative}
+.larrow{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--accent2);font-weight:700}
+.ltype{font-size:10px;color:var(--g400);margin-left:auto;font-weight:500;background:var(--g50);padding:2px 8px;border-radius:20px;border:1px solid var(--g150)}
+
+/* ── RATE BOX ── */
+.ratebox{background:var(--surface);border:1.5px solid var(--g150);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:10px;box-shadow:var(--sh0)}
+.ratebox-hdr{font-size:10px;font-weight:600;color:var(--g400);letter-spacing:.07em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.ratebox-hdr::before{content:'';display:inline-block;width:3px;height:12px;background:var(--accent2);border-radius:2px}
+.rate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.rg{background:var(--g50);border:1px solid var(--g100);border-radius:var(--radius);padding:12px 10px;text-align:center}
+.rg-l{font-size:9px;color:var(--g400);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.rg-v{font-size:18px;font-weight:700;color:var(--g900);letter-spacing:-.5px;font-family:'DM Mono',monospace}
 .rg-s{font-size:10px;color:var(--g400);margin-top:2px}
-.rate-range{margin-bottom:11px}
-.rr-lbl{font-size:11px;font-weight:600;color:var(--g600);margin-bottom:6px}
-.rr-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-.rr-tag{font-size:10px;color:var(--g400);width:36px;flex-shrink:0;font-weight:500}
-.rr-bar{flex:1;height:5px;background:var(--g200);border-radius:5px;overflow:hidden}
-.rr-fill{height:100%;background:var(--g400);border-radius:5px}
-.rr-fill.mid{background:var(--g700)}
-.rr-val{font-size:11px;font-weight:600;color:var(--g700);width:58px;text-align:right;flex-shrink:0}
+.rr-lbl{font-size:11px;font-weight:600;color:var(--g600);margin-bottom:8px}
+.rr-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.rr-tag{font-size:10px;color:var(--g400);width:36px;flex-shrink:0;font-weight:600;font-family:'DM Mono',monospace}
+.rr-bar{flex:1;height:5px;background:var(--g100);border-radius:5px;overflow:hidden}
+.rr-fill{height:100%;background:var(--g300);border-radius:5px;transition:width .4s ease}
+.rr-fill.mid{background:var(--accent2-mid)}
+.rr-val{font-size:12px;font-weight:700;color:var(--g800);width:58px;text-align:right;flex-shrink:0;font-family:'DM Mono',monospace}
 .mkt-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .mkt-lbl{font-size:11px;color:var(--g500)}
-.mkt-badge{font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:var(--g200);color:var(--g700)}
+.mkt-badge{font-size:11px;font-weight:600;padding:3px 12px;border-radius:20px;background:var(--accent2-light);color:var(--accent2)}
 .mkt-fsc{font-size:11px;color:var(--g400);margin-left:auto}
-.rate-tips{font-size:12px;color:var(--g600);line-height:1.75;margin-bottom:8px}
-.rate-note{font-size:10px;color:var(--g300);margin-top:10px;padding-top:9px;border-top:1px solid var(--g200)}
-.lvis{display:flex;align-items:center;gap:8px;background:var(--g50);border:1px solid var(--g200);border-radius:10px;padding:9px 13px;margin-bottom:8px}
-.ldot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.lline{flex:1;height:1px;background:var(--g300);position:relative}
-.larrow{position:absolute;top:-7px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--g400);font-weight:500}
-.ltype{font-size:10px;color:var(--g400);margin-left:auto}
-.cards{display:flex;flex-direction:column;gap:7px}
-.cc{background:var(--w);border:1px solid var(--g200);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .16s;box-shadow:var(--sh0)}
-.cc:hover{border-color:var(--g400);box-shadow:var(--sh1)}
-.cc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:5px}
-.cc-rnk{width:19px;height:19px;border-radius:5px;background:var(--g100);color:var(--g500);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:monospace}
-.cc-rnk.r1{background:var(--g900);color:#fff}.cc-rnk.r2{background:var(--g600);color:#fff}.cc-rnk.r3{background:var(--g400);color:#fff}
-.cc-nw{flex:1;min-width:0}
-.cc-name{font-size:13px;font-weight:700;color:var(--g900)}
-.cc-hq{font-size:10px;color:var(--g400);margin-top:1px}
-.cc-sv{width:26px;height:26px;border-radius:7px;background:var(--g100);color:var(--g500);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .14s;flex-shrink:0}
-.cc-sv.on{background:var(--g900);color:#fff}
-.cc-row{display:flex;align-items:center;gap:5px;margin-bottom:7px;flex-wrap:wrap}
-.star{font-size:10px;color:var(--g300)}.star.on{color:var(--g800)}
+.rate-tips{font-size:12px;color:var(--g600);line-height:1.75}
+.rate-note{font-size:10px;color:var(--g300);margin-top:10px;padding-top:9px;border-top:1px solid var(--g100)}
+
+/* ── PROGRESS ── */
+.prog{padding:5px 0 5px 38px;display:flex;align-items:center;gap:10px}
+.pbar{flex:1;height:2px;background:var(--g100);border-radius:2px;overflow:hidden}
+.pfill{height:100%;background:linear-gradient(90deg,var(--accent2-mid),var(--g900));border-radius:2px;transition:width .5s ease}
+.ptxt{font-size:10px;color:var(--g400);font-weight:500;white-space:nowrap}
+
+/* ── STATUS BADGES ── */
+.s-ok{background:var(--accent2-light);color:var(--accent2);font-size:9px;padding:2px 7px;border-radius:5px;font-weight:700}
+.s-bk{background:var(--g100);color:var(--g500);font-size:9px;padding:2px 7px;border-radius:5px;font-weight:600}
+.star{font-size:11px;color:var(--g200)}.star.on{color:#E4A62A}
 .sn{font-size:10px;color:var(--g400)}
-.s-ok{background:var(--g100);color:var(--g600);font-size:9px;padding:1px 6px;border-radius:4px;font-weight:600}
-.s-bk{background:var(--g100);color:var(--g500);font-size:9px;padding:1px 6px;border-radius:4px;font-weight:600}
-.rt{font-size:10px;color:var(--g400);margin-left:auto}
-.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:7px}
-.sg{background:var(--g50);border-radius:6px;padding:5px 6px;text-align:center}
-.sgl{font-size:8px;color:var(--g400);margin-bottom:1px;text-transform:uppercase;letter-spacing:.03em}
-.sgv{font-size:10px;font-weight:700;color:var(--g700)}
-.ctags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
-.tg{font-size:9px;padding:1px 7px;border-radius:20px;background:var(--g100);color:var(--g600);font-weight:500}
-.cbdg{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
-.bdg{font-size:9px;padding:1px 6px;border-radius:4px;background:var(--g100);color:var(--g500);font-weight:500}
-.db-badge{font-size:9px;padding:1px 6px;border-radius:4px;background:#dbeafe;color:#1d4ed8;font-weight:600}
-.cmc{font-size:8px;color:var(--g300);margin-left:auto;font-family:monospace}
-.cact{display:flex;gap:5px;margin-top:9px;padding-top:9px;border-top:1px solid var(--g100)}
-.cbtn{flex:1;padding:8px;border-radius:8px;font-size:11px;font-weight:600;transition:all .14s}
-.cbtn.p{background:var(--g900);color:#fff}.cbtn.p:hover{background:var(--g800)}
-.cbtn.s{background:var(--g100);color:var(--g700)}.cbtn.s:hover{background:var(--g150)}
-.inp-area{padding:10px 16px 20px;border-top:1px solid var(--g100);background:rgba(255,255,255,.97);backdrop-filter:blur(12px);flex-shrink:0}
-.ac-wrap{position:relative}
-.acdrop{position:absolute;bottom:calc(100% + 5px);left:0;right:0;z-index:100;background:var(--w);border:1px solid var(--g200);border-radius:12px;box-shadow:var(--sh2);overflow:hidden;display:none}
-.aci{padding:9px 14px;font-size:13px;color:var(--g700);cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .1s}
+.rt{font-size:10px;color:var(--g400);margin-left:auto;font-family:'DM Mono',monospace}
+.cc-row{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.ctags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:7px}
+.tg{font-size:9px;padding:2px 8px;border-radius:20px;background:var(--g50);color:var(--g600);font-weight:500;border:1px solid var(--g150)}
+.cmc{font-size:8px;color:var(--g300);margin-left:auto;font-family:'DM Mono',monospace}
+
+/* ── INPUT AREA ── */
+.inp-area{padding:14px 28px 24px;flex-shrink:0;max-width:740px;margin:0 auto;width:100%}
+.inp-wrap{position:relative}
+.acdrop{position:absolute;bottom:calc(100% + 8px);left:0;right:0;z-index:100;background:var(--surface);border:1.5px solid var(--g150);border-radius:var(--radius-lg);box-shadow:var(--sh2);overflow:hidden;display:none}
+.aci{padding:11px 16px;font-size:13px;color:var(--g700);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s}
 .aci:hover,.aci.hl{background:var(--g50)}
 .aci mark{background:transparent;color:var(--g900);font-weight:700;padding:0}
-.hub-c{font-size:9px;background:var(--g100);color:var(--g500);padding:1px 5px;border-radius:4px;margin-left:auto;font-weight:600}
-.ibox{display:flex;align-items:flex-end;gap:6px;background:var(--g100);border-radius:22px;padding:5px 5px 5px 14px;transition:box-shadow .2s,background .2s}
-.ibox:focus-within{background:var(--w);box-shadow:0 0 0 1.5px var(--g800),var(--sh1)}
-.ibox textarea{flex:1;background:transparent;border:none;outline:none;color:var(--g900);font-size:14px;resize:none;line-height:1.5;padding:4px 0;min-height:24px;max-height:96px}
-.ibox textarea::placeholder{color:var(--g400)}
-.sbtn{width:32px;height:32px;border-radius:13px;flex-shrink:0;background:var(--g900);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .14s}
-.sbtn:hover{background:var(--g800)}
-.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.3);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center}
+.hub-c{font-size:9px;background:var(--g100);color:var(--g500);padding:2px 6px;border-radius:4px;margin-left:auto;font-weight:600}
+.ibox{display:flex;align-items:flex-end;gap:10px;background:var(--surface);border:1.5px solid var(--g200);border-radius:var(--radius-xl);padding:12px 12px 12px 20px;transition:all .22s;box-shadow:var(--sh0)}
+.ibox:focus-within{border-color:var(--g600);box-shadow:0 0 0 3px rgba(26,24,18,.07),var(--sh1)}
+.ibox textarea{flex:1;background:transparent;border:none;outline:none;color:var(--g900);font-size:14px;resize:none;line-height:1.5;padding:2px 0;min-height:24px;max-height:120px}
+.ibox textarea::placeholder{color:var(--g300)}
+.sbtn{width:36px;height:36px;border-radius:var(--radius);flex-shrink:0;background:var(--g900);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .16s}
+.sbtn:hover{background:var(--g700);transform:scale(1.05)}
+.sbtn:disabled{background:var(--g200);cursor:not-allowed;transform:none}
+.inp-hint{text-align:center;font-size:11px;color:var(--g300);margin-top:9px;letter-spacing:.01em}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(26,24,18,.25);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center}
 .overlay.on{display:flex}
-.modal{background:var(--w);border-radius:20px 20px 0 0;width:100%;max-width:680px;max-height:88vh;overflow-y:auto;padding:16px 18px 28px;animation:su .25s ease}
+.modal{background:var(--surface);border-radius:var(--radius-xl) var(--radius-xl) 0 0;width:100%;max-width:740px;max-height:88vh;overflow-y:auto;padding:16px 22px 36px;animation:su .28s cubic-bezier(.4,0,.2,1);border-top:1px solid var(--g150)}
 @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.mh{width:30px;height:4px;border-radius:4px;background:var(--g200);margin:0 auto 14px}
-.mt{font-size:17px;font-weight:700;color:var(--g900);margin-bottom:3px}
-.ms{font-size:12px;color:var(--g400);margin-bottom:13px}
-.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
-.mi{background:var(--g50);border-radius:8px;padding:9px 11px}
-.mik{font-size:9px;color:var(--g400);font-weight:500;margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
-.miv{font-size:12px;color:var(--g800);font-weight:600}
-.macts{display:flex;gap:6px;margin-top:12px}
-.mbtn{flex:1;padding:11px;border-radius:10px;font-size:13px;font-weight:600;transition:all .14s;text-align:center;display:flex;align-items:center;justify-content:center}
-.mbtn.p{background:var(--g900);color:#fff}.mbtn.p:hover{background:var(--g800)}
-.mbtn.s{background:var(--g100);color:var(--g700)}.mbtn.s:hover{background:var(--g150)}
-.rfqpre{background:var(--g50);border:1px solid var(--g200);border-radius:9px;padding:13px;font-size:11.5px;color:var(--g700);white-space:pre-wrap;max-height:280px;overflow-y:auto;line-height:1.7;font-family:'Courier New',monospace}
-.cpybtn{width:100%;margin-top:8px;padding:11px;border-radius:10px;font-size:13px;font-weight:600;background:var(--g900);color:#fff;transition:all .14s}
-.cpybtn:hover{background:var(--g800)}.cpybtn.ok{background:var(--g600)}
-@media(max-width:480px){.sgrid{grid-template-columns:repeat(2,1fr)}}
+.mh{width:36px;height:4px;border-radius:4px;background:var(--g200);margin:0 auto 18px}
+.mt{font-size:18px;font-weight:700;color:var(--g900);margin-bottom:4px;letter-spacing:-.3px}
+.ms{font-size:12px;color:var(--g400);margin-bottom:16px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.mi{background:var(--g50);border-radius:var(--radius-sm);padding:11px 13px;border:1px solid var(--g100)}
+.mik{font-size:9px;color:var(--g400);font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.06em}
+.miv{font-size:12.5px;color:var(--g800);font-weight:600;font-family:'DM Mono',monospace}
+.macts{display:flex;gap:8px;margin-top:14px}
+.mbtn{flex:1;padding:12px;border-radius:var(--radius);font-size:13px;font-weight:600;transition:all .16s;text-align:center;display:flex;align-items:center;justify-content:center}
+.mbtn.p{background:var(--g900);color:#fff}.mbtn.p:hover{background:var(--g700)}
+.mbtn.s{background:var(--g100);color:var(--g700);border:1.5px solid var(--g150)}.mbtn.s:hover{background:var(--g150)}
+.rfqpre{background:var(--g50);border:1.5px solid var(--g150);border-radius:var(--radius);padding:14px;font-size:11.5px;color:var(--g700);white-space:pre-wrap;max-height:300px;overflow-y:auto;line-height:1.75;font-family:'DM Mono',monospace}
+.cpybtn{width:100%;margin-top:10px;padding:12px;border-radius:var(--radius);font-size:13px;font-weight:600;background:var(--g900);color:#fff;transition:all .16s}
+.cpybtn:hover{background:var(--g700)}.cpybtn.ok{background:var(--accent2)}
+
+/* ── MOBILE ── */
+@media(max-width:700px){
+  .sidebar{position:fixed;top:0;left:0;z-index:300;transform:translateX(-100%);box-shadow:var(--sh3)}
+  .sidebar.open{transform:translateX(0)}
+  .topbar{display:flex}
+  .inp-area{padding:10px 16px 22px}
+  .chat-inner{padding:16px 16px}
+  .sgrid{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
-<div id="app">
-  <div class="hdr">
-    <div><div class="hdr-name">OTR Finder</div></div>
-    <div class="hdr-r">
-      <button class="hbtn" onclick="showSaved()">Saved (<span id="sc">0</span>)</button>
-      <button class="hbtn" onclick="goHome()">New</button>
-    </div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">🚛</div>
+    OTR Finder
   </div>
-  <div class="chat" id="chat"></div>
-  <div class="inp-area">
-    <div class="ac-wrap"><div class="acdrop" id="acdrop"></div></div>
-    <div class="ibox">
-      <textarea id="ui" rows="1" placeholder="메시지를 입력하세요..." oninput="autoR(this)" onkeydown="onK(event)"></textarea>
-      <button class="sbtn" onclick="send()">↑</button>
-    </div>
+  <button class="sidebar-new" onclick="goHome()">
+    <svg viewBox="0 0 16 16"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg>
+    새 대화 시작
+  </button>
+  <div class="sidebar-section">빠른 검색</div>
+  <button class="sidebar-item" onclick="fillInput('LA에서 Chicago 가는 Dry Van 운송회사 찾아줘')">LA → Chicago 캐리어</button>
+  <button class="sidebar-item" onclick="fillInput('엘에이에서 조지아 가는 OTR 운송회사 찾아줘')">LA → Georgia OTR</button>
+  <button class="sidebar-item" onclick="fillInput('LA to NY Dry Van 운임 얼마야?')">LA → NY 운임 조회</button>
+  <button class="sidebar-item" onclick="fillInput('MC-042958 조회해줘')">MC# 캐리어 조회</button>
+  <button class="sidebar-item" onclick="fillInput('Hazmat 취급 가능한 캐리어 찾아줘')">Hazmat 전문 캐리어</button>
+  <div class="sidebar-footer">
+    <button class="sidebar-footer-item">
+      <div class="user-dot">W</div>
+      wayneslee1018
+    </button>
   </div>
 </div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- 모바일 상단바 -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-mark">🚛</div>
+      OTR Finder
+    </div>
+    <button class="topbar-menu" onclick="toggleSidebar()">
+      <svg viewBox="0 0 16 16"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>
+    </button>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat" id="chat">
+    <div class="chat-inner" id="chatInner"></div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="inp-area">
+    <div class="inp-wrap">
+      <div class="acdrop" id="acdrop"></div>
+      <div class="ibox">
+        <textarea id="ui" rows="1" placeholder="운송 관련 무엇이든 물어보세요..." oninput="autoR(this)" onkeydown="onK(event)"></textarea>
+        <button class="sbtn" id="sbtn" onclick="send()">↑</button>
+      </div>
+    </div>
+    <div class="inp-hint">FMCSA 5만개 캐리어 DB · AI 물류 상담 · Powered by Claude</div>
+  </div>
+</div>
+
+<!-- MODAL -->
 <div class="overlay" id="ov" onclick="if(event.target===this)closeM()">
   <div class="modal"><div class="mh"></div><div id="mc"></div></div>
 </div>
 
 <script>
-// ─── SUPABASE CONFIG ─────────────────────────────────────────────
-const SUPA_URL='https://unpfzovqcbtfyhknibsj.supabase.co';
-const SUPA_KEY='REPLACE_WITH_YOUR_ANON_KEY'; // ← eyJ... 로 시작하는 anon key 넣기
+// ─── CONFIG ──────────────────────────────────────────────────────
+const WORKER = 'https://otr-finder-api.wayneslee1018.workers.dev';
+const SUPA_URL = 'https://unpfzovqcbtfyhknibsj.supabase.co';
+const SUPA_KEY = 'REPLACE_WITH_YOUR_ANON_KEY';
 
-// ─── CITY → STATE ────────────────────────────────────────────────
-const CITY_STATE={'Los Angeles, CA':'CA','Long Beach, CA':'CA','San Francisco, CA':'CA','San Diego, CA':'CA','Oakland, CA':'CA','Sacramento, CA':'CA','Riverside, CA':'CA','Chicago, IL':'IL','Dallas, TX':'TX','Houston, TX':'TX','New York, NY':'NY','Atlanta, GA':'GA','Miami, FL':'FL','Seattle, WA':'WA','Denver, CO':'CO','Phoenix, AZ':'AZ','Las Vegas, NV':'NV','Portland, OR':'OR','Boston, MA':'MA','Philadelphia, PA':'PA','Minneapolis, MN':'MN','Detroit, MI':'MI','Nashville, TN':'TN','Memphis, TN':'TN','Louisville, KY':'KY','Indianapolis, IN':'IN','Columbus, OH':'OH','Cleveland, OH':'OH','Kansas City, MO':'MO','St. Louis, MO':'MO','Milwaukee, WI':'WI','Charlotte, NC':'NC','Raleigh, NC':'NC','Baltimore, MD':'MD','Washington, DC':'DC','Newark, NJ':'NJ','Pittsburgh, PA':'PA','Tampa, FL':'FL','Orlando, FL':'FL','Jacksonville, FL':'FL','San Antonio, TX':'TX','El Paso, TX':'TX','Laredo, TX':'TX','Laredo Border, TX':'TX','Albuquerque, NM':'NM','Tucson, AZ':'AZ','Omaha, NE':'NE','Oklahoma City, OK':'OK','Tulsa, OK':'OK','Richmond, VA':'VA','Port of Los Angeles, CA':'CA','Port of Long Beach, CA':'CA','Port of Houston, TX':'TX','Port of Savannah, GA':'GA','Port of New York, NJ':'NJ','Chicago Rail Hub, IL':'IL','Dallas Freight Hub, TX':'TX'};
+// ─── CITY DATA ───────────────────────────────────────────────────
+const CITY_STATE={'Los Angeles, CA':'CA','Long Beach, CA':'CA','San Francisco, CA':'CA','San Diego, CA':'CA','Oakland, CA':'CA','Sacramento, CA':'CA','Chicago, IL':'IL','Dallas, TX':'TX','Houston, TX':'TX','New York, NY':'NY','Atlanta, GA':'GA','Miami, FL':'FL','Seattle, WA':'WA','Denver, CO':'CO','Phoenix, AZ':'AZ','Las Vegas, NV':'NV','Portland, OR':'OR','Boston, MA':'MA','Philadelphia, PA':'PA','Minneapolis, MN':'MN','Detroit, MI':'MI','Nashville, TN':'TN','Memphis, TN':'TN','Louisville, KY':'KY','Indianapolis, IN':'IN','Columbus, OH':'OH','Cleveland, OH':'OH','Kansas City, MO':'MO','St. Louis, MO':'MO','Milwaukee, WI':'WI','Charlotte, NC':'NC','Raleigh, NC':'NC','Baltimore, MD':'MD','Washington, DC':'DC','Newark, NJ':'NJ','Pittsburgh, PA':'PA','Tampa, FL':'FL','Orlando, FL':'FL','Jacksonville, FL':'FL','San Antonio, TX':'TX','El Paso, TX':'TX','Laredo, TX':'TX','Albuquerque, NM':'NM','Tucson, AZ':'AZ','Omaha, NE':'NE','Oklahoma City, OK':'OK','Richmond, VA':'VA'};
+const CITIES_EN=['Albuquerque, NM','Atlanta, GA','Austin, TX','Baltimore, MD','Boston, MA','Charlotte, NC','Chicago, IL','Cincinnati, OH','Cleveland, OH','Columbus, OH','Dallas, TX','Denver, CO','Detroit, MI','El Paso, TX','Houston, TX','Indianapolis, IN','Jacksonville, FL','Kansas City, MO','Laredo, TX','Las Vegas, NV','Long Beach, CA','Los Angeles, CA','Louisville, KY','Memphis, TN','Miami, FL','Milwaukee, WI','Minneapolis, MN','Nashville, TN','New York, NY','Newark, NJ','Oakland, CA','Oklahoma City, OK','Orlando, FL','Philadelphia, PA','Phoenix, AZ','Pittsburgh, PA','Portland, OR','Raleigh, NC','Sacramento, CA','San Antonio, TX','San Diego, CA','San Francisco, CA','Seattle, WA','St. Louis, MO','Tampa, FL','Tucson, AZ','Washington, DC'];
 
-// ─── CITY DICTIONARY ─────────────────────────────────────────────
-const CITY_MAP={'엘에이':'Los Angeles, CA','로스앤젤레스':'Los Angeles, CA','로스엔젤레스':'Los Angeles, CA','시카고':'Chicago, IL','쉬카고':'Chicago, IL','달라스':'Dallas, TX','댈러스':'Dallas, TX','달러스':'Dallas, TX','뉴욕':'New York, NY','뉴욕시':'New York, NY','휴스턴':'Houston, TX','휴우스턴':'Houston, TX','라스베가스':'Las Vegas, NV','라스베이거스':'Las Vegas, NV','라스 베가스':'Las Vegas, NV','애틀란타':'Atlanta, GA','애틀래타':'Atlanta, GA','마이애미':'Miami, FL','마이아미':'Miami, FL','시애틀':'Seattle, WA','씨애틀':'Seattle, WA','포틀랜드':'Portland, OR','덴버':'Denver, CO','피닉스':'Phoenix, AZ','피닉':'Phoenix, AZ','샌프란시스코':'San Francisco, CA','샌프란':'San Francisco, CA','에스에프':'San Francisco, CA','SF':'San Francisco, CA','샌디에고':'San Diego, CA','산디에고':'San Diego, CA','샌안토니오':'San Antonio, TX','낙스빌':'Nashville, TN','내슈빌':'Nashville, TN','멤피스':'Memphis, TN','루이빌':'Louisville, KY','루이스빌':'Louisville, KY','인디애나폴리스':'Indianapolis, IN','콜럼버스':'Columbus, OH','클리블랜드':'Cleveland, OH','디트로이트':'Detroit, MI','밀워키':'Milwaukee, WI','미니애폴리스':'Minneapolis, MN','미네아폴리스':'Minneapolis, MN','캔자스시티':'Kansas City, MO','캔사스시티':'Kansas City, MO','세인트루이스':'St. Louis, MO','세인트 루이스':'St. Louis, MO','올랜도':'Orlando, FL','탬파':'Tampa, FL','잭슨빌':'Jacksonville, FL','샬럿':'Charlotte, NC','샬로트':'Charlotte, NC','롤리':'Raleigh, NC','리치먼드':'Richmond, VA','볼티모어':'Baltimore, MD','필라델피아':'Philadelphia, PA','필라':'Philadelphia, PA','피츠버그':'Pittsburgh, PA','보스턴':'Boston, MA','알버커키':'Albuquerque, NM','앨버커키':'Albuquerque, NM','투싼':'Tucson, AZ','투손':'Tucson, AZ','엘패소':'El Paso, TX','라레도':'Laredo, TX','오클라호마시티':'Oklahoma City, OK','툴사':'Tulsa, OK','오마하':'Omaha, NE','워싱턴':'Washington, DC','워싱턴DC':'Washington, DC','뉴어크':'Newark, NJ','뉴왁':'Newark, NJ','오클랜드':'Oakland, CA','새크라멘토':'Sacramento, CA','사크라멘토':'Sacramento, CA','롱비치':'Long Beach, CA','롱 비치':'Long Beach, CA','프레즈노':'Fresno, CA','리버사이드':'Riverside, CA','토론토':'Toronto, ON','밴쿠버':'Vancouver, BC','몬트리올':'Montreal, QC','캘거리':'Calgary, AB','몬테레이':'Monterrey, Mexico','멕시코':'Monterrey, Mexico',
-  // 미국 주 이름 (한글)
-  '캘리포니아':'Los Angeles, CA','캘리':'Los Angeles, CA',
-  '조지아':'Atlanta, GA','조지':'Atlanta, GA',
-  '텍사스':'Dallas, TX','텍사':'Dallas, TX',
-  '플로리다':'Miami, FL','플로리':'Miami, FL',
-  '일리노이':'Chicago, IL','일리노':'Chicago, IL',
-  '뉴저지':'Newark, NJ',
-  '테네시':'Nashville, TN',
-  '오하이오':'Columbus, OH',
-  '미시건':'Detroit, MI','미시간':'Detroit, MI',
-  '워싱턴주':'Seattle, WA',
-  '오레건':'Portland, OR','오리건':'Portland, OR',
-  '콜로라도':'Denver, CO',
-  '애리조나':'Phoenix, AZ',
-  '네바다':'Las Vegas, NV',
-  '미주리':'St. Louis, MO',
-  '노스캐롤라이나':'Charlotte, NC',
-  '버지니아':'Richmond, VA',
-  '메릴랜드':'Baltimore, MD',
-  '매사추세츠':'Boston, MA',
-  '펜실베니아':'Philadelphia, PA',
-  '인디아나':'Indianapolis, IN',
-  '위스콘신':'Milwaukee, WI',
-  '미네소타':'Minneapolis, MN',
-  '켄터키':'Louisville, KY',
-  '오클라호마':'Oklahoma City, OK',
-  '네브래스카':'Omaha, NE',
-  '앨라배마':'Birmingham, AL',
-  '미시시피':'Jackson, MS',
-  '아칸소':'Little Rock, AR',
-  '루이지애나':'New Orleans, LA',
-  '사우스캐롤라이나':'Charlotte, NC',
-  // 주 영문 약자
-  'GA':'Atlanta, GA','TX':'Dallas, TX','FL':'Miami, FL',
-  'IL':'Chicago, IL','NY':'New York, NY','NJ':'Newark, NJ',
-  'WA':'Seattle, WA','OR':'Portland, OR','CO':'Denver, CO',
-  'AZ':'Phoenix, AZ','NV':'Las Vegas, NV','TN':'Nashville, TN',
-  'OH':'Columbus, OH','MI':'Detroit, MI','MO':'St. Louis, MO',
-  'NC':'Charlotte, NC','VA':'Richmond, VA','MD':'Baltimore, MD',
-  'MA':'Boston, MA','PA':'Philadelphia, PA','IN':'Indianapolis, IN',
-  'WI':'Milwaukee, WI','MN':'Minneapolis, MN','KY':'Louisville, KY',
-  'OK':'Oklahoma City, OK','NE':'Omaha, NE',
-  '에서':'','-에서':'','까지':'','-까지':'','to':'','from':'','→':'','-':'',',':''};
-const CITIES_EN=['Albuquerque, NM','Arlington, TX','Atlanta, GA','Austin, TX','Baltimore, MD','Boston, MA','Charlotte, NC','Chicago, IL','Cincinnati, OH','Cleveland, OH','Columbus, OH','Dallas, TX','Denver, CO','Detroit, MI','El Paso, TX','Fort Worth, TX','Houston, TX','Indianapolis, IN','Jacksonville, FL','Kansas City, MO','Laredo, TX','Las Vegas, NV','Long Beach, CA','Los Angeles, CA','Louisville, KY','Memphis, TN','Miami, FL','Milwaukee, WI','Minneapolis, MN','Nashville, TN','New Orleans, LA','New York, NY','Newark, NJ','Oakland, CA','Oklahoma City, OK','Orlando, FL','Philadelphia, PA','Phoenix, AZ','Pittsburgh, PA','Portland, OR','Raleigh, NC','Sacramento, CA','San Antonio, TX','San Diego, CA','San Francisco, CA','San Jose, CA','Seattle, WA','St. Louis, MO','Tampa, FL','Tucson, AZ','Washington, DC','Port of Los Angeles, CA','Port of Long Beach, CA','Port of Houston, TX','Port of Savannah, GA','Port of New York, NJ','Chicago Rail Hub, IL','Dallas Freight Hub, TX','Toronto, ON','Vancouver, BC','Monterrey, Mexico','Laredo Border, TX'];
-
-function parseCityFromText(text){for(const [ko,en] of Object.entries(CITY_MAP)){if(en&&text.includes(ko))return en;}const lower=text.toLowerCase();for(const city of CITIES_EN){const name=city.split(',')[0].toLowerCase();if(lower.includes(name))return city;}return '';}
-
-// ─── 스마트 레인 파싱 ───────────────────────────────────────────
-// 도시/주 약자 → 정식 도시명 매핑 (완전판)
-const CITY_ALIAS={
-  // 영문 약자
-  'LA':'Los Angeles, CA','LV':'Las Vegas, NV','LAS VEGAS':'Las Vegas, NV',
-  'LOS ANGELES':'Los Angeles, CA','SF':'San Francisco, CA','SFO':'San Francisco, CA',
-  'NYC':'New York, NY','NY':'New York, NY','NEW YORK':'New York, NY',
-  'CHI':'Chicago, IL','DAL':'Dallas, TX','HOU':'Houston, TX',
-  'ATL':'Atlanta, GA','SEA':'Seattle, WA','DEN':'Denver, CO',
-  'PHX':'Phoenix, AZ','MIA':'Miami, FL','PDX':'Portland, OR',
-  'LB':'Long Beach, CA','LONG BEACH':'Long Beach, CA',
-  'SD':'San Diego, CA','SAN DIEGO':'San Diego, CA',
-  'SAN ANTONIO':'San Antonio, TX','SAN FRANCISCO':'San Francisco, CA',
-  'LAS':'Las Vegas, NV','VEGAS':'Las Vegas, NV',
-  'SOCAL':'Los Angeles, CA','SO CAL':'Los Angeles, CA',
-  'NORCAL':'San Francisco, CA','NOR CAL':'San Francisco, CA',
-  'NASHVILLE':'Nashville, TN','MEMPHIS':'Memphis, TN',
-  'DETROIT':'Detroit, MI','MILWAUKEE':'Milwaukee, WI',
-  'MINNEAPOLIS':'Minneapolis, MN','KANSAS CITY':'Kansas City, MO',
-  'ST LOUIS':'St. Louis, MO','SAINT LOUIS':'St. Louis, MO',
-  'CHARLOTTE':'Charlotte, NC','RALEIGH':'Raleigh, NC',
-  'BALTIMORE':'Baltimore, MD','WASHINGTON':'Washington, DC','DC':'Washington, DC',
-  'NEWARK':'Newark, NJ','PITTSBURGH':'Pittsburgh, PA',
-  'TAMPA':'Tampa, FL','ORLANDO':'Orlando, FL','JACKSONVILLE':'Jacksonville, FL',
-  'OKLAHOMA CITY':'Oklahoma City, OK','TULSA':'Tulsa, OK','OMAHA':'Omaha, NE',
-  'ALBUQUERQUE':'Albuquerque, NM','TUCSON':'Tucson, AZ','EL PASO':'El Paso, TX',
-  'LAREDO':'Laredo, TX','RICHMOND':'Richmond, VA',
-  'INDIANAPOLIS':'Indianapolis, IN','COLUMBUS':'Columbus, OH',
-  'CLEVELAND':'Cleveland, OH','LOUISVILLE':'Louisville, KY',
-  // 주 약자 → 주요 도시
-  'CA':'Los Angeles, CA','TX':'Dallas, TX','FL':'Miami, FL',
-  'IL':'Chicago, IL','GA':'Atlanta, GA','WA':'Seattle, WA',
-  'OR':'Portland, OR','CO':'Denver, CO','AZ':'Phoenix, AZ',
-  'NV':'Las Vegas, NV','TN':'Nashville, TN','OH':'Columbus, OH',
-  'MI':'Detroit, MI','MO':'St. Louis, MO','NC':'Charlotte, NC',
-  'VA':'Richmond, VA','MD':'Baltimore, MD','MA':'Boston, MA',
-  'PA':'Philadelphia, PA','IN':'Indianapolis, IN','WI':'Milwaukee, WI',
-  'MN':'Minneapolis, MN','KY':'Louisville, KY','OK':'Oklahoma City, OK',
-  'NE':'Omaha, NE','NM':'Albuquerque, NM','NJ':'Newark, NJ',
-  // 한글 약자/별명
-  '엘에이':'Los Angeles, CA','LA':'Los Angeles, CA',
-  '라스베가스':'Las Vegas, NV','라스베이거스':'Las Vegas, NV',
-  '라스':'Las Vegas, NV','베가스':'Las Vegas, NV','LV':'Las Vegas, NV',
-  '시카고':'Chicago, IL','달라스':'Dallas, TX','댈러스':'Dallas, TX',
-  '뉴욕':'New York, NY','휴스턴':'Houston, TX','애틀란타':'Atlanta, GA',
-  '시애틀':'Seattle, WA','덴버':'Denver, CO','피닉스':'Phoenix, AZ',
-  '샌프란시스코':'San Francisco, CA','샌프란':'San Francisco, CA',
-  '샌디에고':'San Diego, CA','마이애미':'Miami, FL','포틀랜드':'Portland, OR',
-  '롱비치':'Long Beach, CA','로스앤젤레스':'Los Angeles, CA',
-  '보스턴':'Boston, MA','필라델피아':'Philadelphia, PA','필라':'Philadelphia, PA',
-  '내슈빌':'Nashville, TN','멤피스':'Memphis, TN','올랜도':'Orlando, FL',
-  '탬파':'Tampa, FL','샬럿':'Charlotte, NC','볼티모어':'Baltimore, MD',
-  '워싱턴':'Washington, DC','디트로이트':'Detroit, MI','클리블랜드':'Cleveland, OH',
-  '콜럼버스':'Columbus, OH','루이빌':'Louisville, KY','밀워키':'Milwaukee, WI',
-  '미니애폴리스':'Minneapolis, MN','캔자스시티':'Kansas City, MO',
-  '세인트루이스':'St. Louis, MO','인디애나폴리스':'Indianapolis, IN',
-  '오마하':'Omaha, NE','오클라호마시티':'Oklahoma City, OK',
-  '엘패소':'El Paso, TX','라레도':'Laredo, TX','투싼':'Tucson, AZ',
-  '알버커키':'Albuquerque, NM','뉴어크':'Newark, NJ','피츠버그':'Pittsburgh, PA',
-  '잭슨빌':'Jacksonville, FL','리치먼드':'Richmond, VA','롤리':'Raleigh, NC',
-  '샌안토니오':'San Antonio, TX','새크라멘토':'Sacramento, CA',
-  // 한글 주 이름
-  '캘리포니아':'Los Angeles, CA','캘리':'Los Angeles, CA',
-  '조지아':'Atlanta, GA','조지':'Atlanta, GA',
-  '텍사스':'Dallas, TX','텍사':'Dallas, TX',
-  '플로리다':'Miami, FL','일리노이':'Chicago, IL',
-  '뉴저지':'Newark, NJ','테네시':'Nashville, TN',
-  '오하이오':'Columbus, OH','미시건':'Detroit, MI','미시간':'Detroit, MI',
-  '워싱턴주':'Seattle, WA','오레건':'Portland, OR','오리건':'Portland, OR',
-  '콜로라도':'Denver, CO','애리조나':'Phoenix, AZ','네바다':'Las Vegas, NV',
-  '미주리':'St. Louis, MO','노스캐롤라이나':'Charlotte, NC',
-  '버지니아':'Richmond, VA','메릴랜드':'Baltimore, MD',
-  '매사추세츠':'Boston, MA','펜실베니아':'Philadelphia, PA',
-  '인디아나':'Indianapolis, IN','위스콘신':'Milwaukee, WI',
-  '미네소타':'Minneapolis, MN','켄터키':'Louisville, KY',
-  '오클라호마':'Oklahoma City, OK','네브래스카':'Omaha, NE',
-};
-
-function resolveCity(raw){
-  if(!raw) return '';
-  const t = raw.trim();
-  // 1) 정확히 매핑되는 경우 (대소문자 무시)
-  const upper = t.toUpperCase();
-  for(const [alias, city] of Object.entries(CITY_ALIAS)){
-    if(alias.toUpperCase() === upper) return city;
-  }
-  // 2) 포함 매핑 (긴 것 먼저)
-  const sorted = Object.entries(CITY_ALIAS).sort((a,b)=>b[0].length-a[0].length);
-  for(const [alias, city] of sorted){
-    if(t.toLowerCase().includes(alias.toLowerCase())) return city;
-  }
-  // 3) CITIES_EN 직접 매칭
-  const lower = t.toLowerCase();
-  for(const city of CITIES_EN){
-    const name = city.split(',')[0].toLowerCase();
-    if(lower.includes(name)) return city;
-  }
-  return '';
-}
-
-async function parseLaneWithAI(text){
-  try{
-    const res = await fetch('https://otr-finder-api.wayneslee1018.workers.dev/parse', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({text})
-    });
-    if(!res.ok) throw new Error('Worker error');
-    const data = await res.json();
-    return {origin: data.origin||'', dest: data.dest||''};
-  }catch(e){
-    console.error('Parse error:', e);
-    return parseLaneTextFallback(text);
-  }
-}
-
-// ─── LOCAL CARRIER DATA ──────────────────────────────────────────
-const C=[{id:1,n:'J.B. Hunt Transport',s:'JB Hunt',mc:'MC-042958',dot:'804436',yr:1961,hq:'Lowell, AR',fl:12000,dr:22000,auth:'Active',safe:'Satisfactory',svc:['OTR','Intermodal','FTL'],eq:['Dry Van','Intermodal','Flatbed'],ln:['Nationwide','Canada','Mexico'],spec:['Intermodal','Amazon Network'],ph:'1-800-643-3622',wb:'jbhunt.com',pay:28,cr:98,ot:94,edi:true,haz:false,rt:'$$$$',rat:4.5,rev:1240},{id:2,n:'Werner Enterprises',s:'Werner',mc:'MC-053466',dot:'793094',yr:1956,hq:'Omaha, NE',fl:8500,dr:14000,auth:'Active',safe:'Satisfactory',svc:['OTR','Regional','FTL','Expedited'],eq:['Dry Van','Flatbed','Refrigerated','Specialized'],ln:['Nationwide','Mexico','Canada'],spec:['Reefer','Team Drivers'],ph:'1-800-228-2240',wb:'werner.com',pay:30,cr:96,ot:92,edi:true,haz:true,rt:'$$$',rat:4.3,rev:890},{id:3,n:'Schneider National',s:'Schneider',mc:'MC-154673',dot:'264184',yr:1935,hq:'Green Bay, WI',fl:10000,dr:18000,auth:'Active',safe:'Satisfactory',svc:['OTR','Intermodal','Bulk','FTL','LTL'],eq:['Dry Van','Tanker','Bulk','Intermodal'],ln:['Nationwide','Canada','Mexico'],spec:['Bulk/Tanker','Chemical'],ph:'1-800-558-6767',wb:'schneider.com',pay:25,cr:97,ot:93,edi:true,haz:true,rt:'$$$',rat:4.4,rev:1050},{id:4,n:'C.H. Robinson',s:'CHR',mc:'MC-147674',dot:'984622',yr:1905,hq:'Eden Prairie, MN',fl:0,dr:0,auth:'Active (Broker)',safe:'N/A',svc:['OTR','LTL','FTL','Air','Ocean'],eq:['Dry Van','Refrigerated','Flatbed','Specialized'],ln:['Nationwide','Global','Canada','Mexico'],spec:['Asset-light','Global Network'],ph:'1-800-323-7587',wb:'chrobinson.com',pay:35,cr:99,ot:91,edi:true,haz:true,rt:'$$$$',rat:4.5,rev:2100},{id:5,n:'Knight-Swift',s:'KnightSwift',mc:'MC-155472',dot:'325381',yr:1966,hq:'Phoenix, AZ',fl:23000,dr:35000,auth:'Active',safe:'Satisfactory',svc:['OTR','Intermodal','FTL'],eq:['Dry Van','Refrigerated','Intermodal'],ln:['Nationwide','Mexico'],spec:['Largest Fleet'],ph:'1-800-800-2200',wb:'knighttrans.com',pay:30,cr:95,ot:89,edi:true,haz:false,rt:'$$$',rat:4.2,rev:1560},{id:6,n:'Landstar System',s:'Landstar',mc:'MC-276023',dot:'1256671',yr:1968,hq:'Jacksonville, FL',fl:17000,dr:11000,auth:'Active',safe:'Satisfactory',svc:['OTR','Flatbed','Specialized','Heavy Haul'],eq:['Flatbed','Dry Van','Specialized','Heavy Haul'],ln:['Nationwide','Canada','Mexico'],spec:['Oversize','Project Cargo'],ph:'1-904-398-9400',wb:'landstar.com',pay:27,cr:96,ot:95,edi:true,haz:true,rt:'$$$$',rat:4.4,rev:780},{id:7,n:'XPO Logistics',s:'XPO',mc:'MC-236512',dot:'1156954',yr:2000,hq:'Greenwich, CT',fl:7000,dr:12000,auth:'Active',safe:'Satisfactory',svc:['OTR','LTL','FTL','Expedited'],eq:['Dry Van','Flatbed','Refrigerated'],ln:['Nationwide','Canada'],spec:['Tech-Driven','LTL'],ph:'1-844-742-5976',wb:'xpo.com',pay:32,cr:94,ot:91,edi:true,haz:false,rt:'$$$',rat:4.1,rev:940},{id:8,n:'Coyote Logistics',s:'Coyote',mc:'MC-545210',dot:'2335922',yr:2006,hq:'Chicago, IL',fl:0,dr:0,auth:'Active (Broker)',safe:'N/A',svc:['OTR','LTL','FTL','Expedited'],eq:['Dry Van','Flatbed','Refrigerated'],ln:['Nationwide','Canada','Mexico'],spec:['Spot Market'],ph:'1-800-COYOTE1',wb:'coyote.com',pay:30,cr:97,ot:90,edi:true,haz:false,rt:'$$$',rat:4.2,rev:670},{id:9,n:'Old Dominion Freight',s:'ODFL',mc:'MC-022846',dot:'76648',yr:1934,hq:'Thomasville, NC',fl:9500,dr:22000,auth:'Active',safe:'Satisfactory',svc:['OTR','LTL','Expedited'],eq:['Dry Van'],ln:['Nationwide'],spec:['LTL Leader','On-Time'],ph:'1-800-432-6335',wb:'odfl.com',pay:20,cr:99,ot:97,edi:true,haz:true,rt:'$$$$',rat:4.6,rev:1820},{id:10,n:'Echo Global Logistics',s:'Echo',mc:'MC-662697',dot:'2304801',yr:2005,hq:'Chicago, IL',fl:0,dr:0,auth:'Active (Broker)',safe:'N/A',svc:['OTR','LTL','FTL'],eq:['Dry Van','Flatbed','Refrigerated'],ln:['Nationwide'],spec:['Mid-Market'],ph:'1-800-354-7993',wb:'echo.com',pay:35,cr:92,ot:88,edi:true,haz:false,rt:'$$',rat:4.0,rev:420},{id:11,n:'Ryder System',s:'Ryder',mc:'MC-318966',dot:'1589233',yr:1933,hq:'Miami, FL',fl:6000,dr:9000,auth:'Active',safe:'Satisfactory',svc:['OTR','Dedicated','FTL'],eq:['Dry Van','Refrigerated'],ln:['Nationwide','Canada'],spec:['Dedicated','Last Mile'],ph:'1-888-879-3371',wb:'ryder.com',pay:28,cr:95,ot:93,edi:true,haz:false,rt:'$$$',rat:4.2,rev:560},{id:12,n:'Universal Truckload',s:'Universal',mc:'MC-367544',dot:'2110552',yr:1994,hq:'Warren, MI',fl:3000,dr:4500,auth:'Active',safe:'Satisfactory',svc:['OTR','Flatbed','Specialized','Heavy Haul'],eq:['Flatbed','Dry Van','Container','Specialized'],ln:['Nationwide','Canada','Mexico'],spec:['Automotive','Steel'],ph:'1-586-920-0100',wb:'utsCO.com',pay:32,cr:90,ot:91,edi:true,haz:false,rt:'$$$',rat:4.1,rev:310}];
+// ─── ALIAS MAP ───────────────────────────────────────────────────
+const CITY_ALIAS={'LA':'Los Angeles, CA','LV':'Las Vegas, NV','LAS VEGAS':'Las Vegas, NV','LOS ANGELES':'Los Angeles, CA','SF':'San Francisco, CA','NYC':'New York, NY','NY':'New York, NY','CHI':'Chicago, IL','DAL':'Dallas, TX','HOU':'Houston, TX','ATL':'Atlanta, GA','SEA':'Seattle, WA','DEN':'Denver, CO','PHX':'Phoenix, AZ','MIA':'Miami, FL','VEGAS':'Las Vegas, NV','SOCAL':'Los Angeles, CA','엘에이':'Los Angeles, CA','로스앤젤레스':'Los Angeles, CA','라스베가스':'Las Vegas, NV','라스베이거스':'Las Vegas, NV','라스':'Las Vegas, NV','베가스':'Las Vegas, NV','시카고':'Chicago, IL','달라스':'Dallas, TX','댈러스':'Dallas, TX','뉴욕':'New York, NY','휴스턴':'Houston, TX','애틀란타':'Atlanta, GA','시애틀':'Seattle, WA','덴버':'Denver, CO','피닉스':'Phoenix, AZ','샌프란시스코':'San Francisco, CA','샌프란':'San Francisco, CA','샌디에고':'San Diego, CA','마이애미':'Miami, FL','포틀랜드':'Portland, OR','롱비치':'Long Beach, CA','보스턴':'Boston, MA','필라델피아':'Philadelphia, PA','내슈빌':'Nashville, TN','멤피스':'Memphis, TN','올랜도':'Orlando, FL','탬파':'Tampa, FL','샬럿':'Charlotte, NC','볼티모어':'Baltimore, MD','워싱턴':'Washington, DC','디트로이트':'Detroit, MI','클리블랜드':'Cleveland, OH','콜럼버스':'Columbus, OH','루이빌':'Louisville, KY','밀워키':'Milwaukee, WI','미니애폴리스':'Minneapolis, MN','캔자스시티':'Kansas City, MO','세인트루이스':'St. Louis, MO','인디애나폴리스':'Indianapolis, IN','오마하':'Omaha, NE','엘패소':'El Paso, TX','라레도':'Laredo, TX','오클라호마시티':'Oklahoma City, OK','새크라멘토':'Sacramento, CA','샌안토니오':'San Antonio, TX','캘리포니아':'Los Angeles, CA','캘리':'Los Angeles, CA','조지아':'Atlanta, GA','텍사스':'Dallas, TX','플로리다':'Miami, FL','일리노이':'Chicago, IL','네바다':'Las Vegas, NV','콜로라도':'Denver, CO','애리조나':'Phoenix, AZ','워싱턴주':'Seattle, WA','오리건':'Portland, OR','테네시':'Nashville, TN','오하이오':'Columbus, OH','미시건':'Detroit, MI','미시간':'Detroit, MI','노스캐롤라이나':'Charlotte, NC','버지니아':'Richmond, VA','매사추세츠':'Boston, MA','펜실베니아':'Philadelphia, PA','CA':'Los Angeles, CA','TX':'Dallas, TX','FL':'Miami, FL','IL':'Chicago, IL','GA':'Atlanta, GA','WA':'Seattle, WA','OR':'Portland, OR','CO':'Denver, CO','AZ':'Phoenix, AZ','NV':'Las Vegas, NV','TN':'Nashville, TN','OH':'Columbus, OH','MI':'Detroit, MI','MO':'St. Louis, MO','NC':'Charlotte, NC','MA':'Boston, MA','PA':'Philadelphia, PA','NJ':'Newark, NJ'};
 
 // ─── RATE TABLES ─────────────────────────────────────────────────
 const RATE_TABLE={'Dry Van':{rpm:2.5},'Refrigerated (Reefer)':{rpm:3.1},'Flatbed':{rpm:2.9},'Specialized / Heavy Haul':{rpm:3.8},'Tanker / Bulk':{rpm:3.4}};
-const DIST_TABLE={'Los Angeles, CA|Chicago, IL':2015,'Los Angeles, CA|New York, NY':2800,'Los Angeles, CA|Dallas, TX':1435,'Los Angeles, CA|Houston, TX':1550,'Los Angeles, CA|Atlanta, GA':2180,'Los Angeles, CA|Miami, FL':2760,'Los Angeles, CA|Seattle, WA':1135,'Los Angeles, CA|Denver, CO':1020,'Los Angeles, CA|Phoenix, AZ':370,'Los Angeles, CA|Las Vegas, NV':270,'Los Angeles, CA|San Francisco, CA':380,'Chicago, IL|New York, NY':790,'Chicago, IL|Dallas, TX':920,'Chicago, IL|Atlanta, GA':720,'Chicago, IL|Miami, FL':1380,'Chicago, IL|Houston, TX':1090,'Dallas, TX|New York, NY':1550,'Dallas, TX|Atlanta, GA':780,'Dallas, TX|Miami, FL':1310,'Dallas, TX|Houston, TX':240,'Dallas, TX|Denver, CO':1020,'New York, NY|Atlanta, GA':880,'New York, NY|Miami, FL':1280,'Houston, TX|Atlanta, GA':790,'Houston, TX|Miami, FL':1190,'Seattle, WA|Chicago, IL':2060,'Seattle, WA|Dallas, TX':2110,'Los Angeles, CA|Laredo, TX':1250,'Los Angeles, CA|Laredo Border, TX':1250,'Los Angeles, CA|El Paso, TX':800};
+const DIST_TABLE={'Los Angeles, CA|Chicago, IL':2015,'Los Angeles, CA|New York, NY':2800,'Los Angeles, CA|Dallas, TX':1435,'Los Angeles, CA|Houston, TX':1550,'Los Angeles, CA|Atlanta, GA':2180,'Los Angeles, CA|Miami, FL':2760,'Los Angeles, CA|Seattle, WA':1135,'Los Angeles, CA|Denver, CO':1020,'Los Angeles, CA|Phoenix, AZ':370,'Los Angeles, CA|Las Vegas, NV':270,'Los Angeles, CA|San Francisco, CA':380,'Chicago, IL|New York, NY':790,'Chicago, IL|Dallas, TX':920,'Chicago, IL|Atlanta, GA':720,'Chicago, IL|Miami, FL':1380,'Chicago, IL|Houston, TX':1090,'Dallas, TX|New York, NY':1550,'Dallas, TX|Atlanta, GA':780,'Dallas, TX|Miami, FL':1310,'Dallas, TX|Houston, TX':240,'Dallas, TX|Denver, CO':1020,'New York, NY|Atlanta, GA':880,'New York, NY|Miami, FL':1280,'Houston, TX|Atlanta, GA':790,'Houston, TX|Miami, FL':1190,'Seattle, WA|Chicago, IL':2060,'Seattle, WA|Dallas, TX':2110,'Los Angeles, CA|Laredo, TX':1250,'Los Angeles, CA|El Paso, TX':800};
 function estimateDist(o,d){return DIST_TABLE[`${o}|${d}`]||DIST_TABLE[`${d}|${o}`]||1200;}
 function calcRate(o,d,eq){const dist=estimateDist(o,d);const rpm=(RATE_TABLE[eq]||RATE_TABLE['Dry Van']).rpm;const mid=Math.round(dist*rpm);const transit=Math.ceil(dist/550);return{dist,low:Math.round(mid*.88),mid,high:Math.round(mid*1.16),rpmMid:rpm.toFixed(2),transit};}
 
-// ─── SUPABASE SEARCH ─────────────────────────────────────────────
-async function searchSupabase(originState, limit=20){
-  try{
-    const headers={'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`};
-    
-    // 출발지 State 캐리어 검색
-    if(originState){
-      const url=`${SUPA_URL}/rest/v1/carriers?phy_state=eq.${originState}&allowed_to_operate=eq.Y&order=total_power_units.desc&limit=${limit}`;
-      console.log('Supabase URL:', url);
-      const res=await fetch(url,{headers});
-      console.log('Supabase status:', res.status);
-      if(res.ok){
-        const data=await res.json();
-        console.log('Supabase 결과:', data.length, '개');
-        if(data.length>=3) return data;
-      }
-    }
-    
-    // State 결과 없거나 부족하면 전국 검색 (트럭 많은 순)
-    const url2=`${SUPA_URL}/rest/v1/carriers?allowed_to_operate=eq.Y&total_power_units=gte.10&order=total_power_units.desc&limit=${limit}`;
-    const res2=await fetch(url2,{headers});
-    if(res2.ok) return await res2.json();
-    return[];
-  }catch(e){
-    console.error('Supabase error:',e);
-    return[];
-  }
-}
+// ─── LOCAL CARRIER DATA ──────────────────────────────────────────
+const C=[{id:1,n:'J.B. Hunt Transport',mc:'MC-042958',dot:'804436',yr:1961,hq:'Lowell, AR',fl:12000,dr:22000,auth:'Active',safe:'Satisfactory',svc:['OTR','Intermodal','FTL'],eq:['Dry Van','Intermodal','Flatbed'],ln:['Nationwide','Canada','Mexico'],spec:['Intermodal','Amazon Network'],ph:'1-800-643-3622',wb:'jbhunt.com',pay:28,cr:98,ot:94,edi:true,haz:false,rt:'$$$$',rat:4.5,rev:1240},{id:2,n:'Werner Enterprises',mc:'MC-053466',dot:'793094',yr:1956,hq:'Omaha, NE',fl:8500,dr:14000,auth:'Active',safe:'Satisfactory',svc:['OTR','Regional','FTL','Expedited'],eq:['Dry Van','Flatbed','Refrigerated','Specialized'],ln:['Nationwide','Mexico','Canada'],spec:['Reefer','Team Drivers'],ph:'1-800-228-2240',wb:'werner.com',pay:30,cr:96,ot:92,edi:true,haz:true,rt:'$$$',rat:4.3,rev:890},{id:3,n:'Schneider National',mc:'MC-154673',dot:'264184',yr:1935,hq:'Green Bay, WI',fl:10000,dr:18000,auth:'Active',safe:'Satisfactory',svc:['OTR','Intermodal','Bulk','FTL','LTL'],eq:['Dry Van','Tanker','Bulk','Intermodal'],ln:['Nationwide','Canada','Mexico'],spec:['Bulk/Tanker','Chemical'],ph:'1-800-558-6767',wb:'schneider.com',pay:25,cr:97,ot:93,edi:true,haz:true,rt:'$$$',rat:4.4,rev:1050},{id:4,n:'C.H. Robinson',mc:'MC-147674',dot:'984622',yr:1905,hq:'Eden Prairie, MN',fl:0,dr:0,auth:'Active (Broker)',safe:'N/A',svc:['OTR','LTL','FTL','Air','Ocean'],eq:['Dry Van','Refrigerated','Flatbed','Specialized'],ln:['Nationwide','Global','Canada','Mexico'],spec:['Asset-light','Global Network'],ph:'1-800-323-7587',wb:'chrobinson.com',pay:35,cr:99,ot:91,edi:true,haz:true,rt:'$$$$',rat:4.5,rev:2100},{id:5,n:'Knight-Swift',mc:'MC-155472',dot:'325381',yr:1966,hq:'Phoenix, AZ',fl:23000,dr:35000,auth:'Active',safe:'Satisfactory',svc:['OTR','Intermodal','FTL'],eq:['Dry Van','Refrigerated','Intermodal'],ln:['Nationwide','Mexico'],spec:['Largest Fleet'],ph:'1-800-800-2200',wb:'knighttrans.com',pay:30,cr:95,ot:89,edi:true,haz:false,rt:'$$$',rat:4.2,rev:1560},{id:6,n:'Landstar System',mc:'MC-276023',dot:'1256671',yr:1968,hq:'Jacksonville, FL',fl:17000,dr:11000,auth:'Active',safe:'Satisfactory',svc:['OTR','Flatbed','Specialized','Heavy Haul'],eq:['Flatbed','Dry Van','Specialized','Heavy Haul'],ln:['Nationwide','Canada','Mexico'],spec:['Oversize','Project Cargo'],ph:'1-904-398-9400',wb:'landstar.com',pay:27,cr:96,ot:95,edi:true,haz:true,rt:'$$$$',rat:4.4,rev:780},{id:7,n:'XPO Logistics',mc:'MC-236512',dot:'1156954',yr:2000,hq:'Greenwich, CT',fl:7000,dr:12000,auth:'Active',safe:'Satisfactory',svc:['OTR','LTL','FTL','Expedited'],eq:['Dry Van','Flatbed','Refrigerated'],ln:['Nationwide','Canada'],spec:['Tech-Driven','LTL'],ph:'1-844-742-5976',wb:'xpo.com',pay:32,cr:94,ot:91,edi:true,haz:false,rt:'$$$',rat:4.1,rev:940},{id:8,n:'Old Dominion Freight',mc:'MC-022846',dot:'76648',yr:1934,hq:'Thomasville, NC',fl:9500,dr:22000,auth:'Active',safe:'Satisfactory',svc:['OTR','LTL','Expedited'],eq:['Dry Van'],ln:['Nationwide'],spec:['LTL Leader','On-Time'],ph:'1-800-432-6335',wb:'odfl.com',pay:20,cr:99,ot:97,edi:true,haz:true,rt:'$$$$',rat:4.6,rev:1820}];
 
-// ─── AI CALL ─────────────────────────────────────────────────────
-async function aiCall(prompt,maxTokens=500){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,messages:[{role:'user',content:prompt}]})});const d=await r.json();if(d.error)throw new Error(d.error.message);return d.content?.[0]?.text||'';}
-
-// ─── STATE ───────────────────────────────────────────────────────
-let ST={origin:'',dest:'',eq:'',weight:'',notes:'',svc:[],ln:[],saved:JSON.parse(localStorage.getItem('otr8_sv')||'[]'),optOn:false,pending:null};
-const persist=()=>localStorage.setItem('otr8_sv',JSON.stringify(ST.saved));
+// ─── STATE / CHAT ─────────────────────────────────────────────────
+let ST={origin:'',dest:'',eq:'',weight:'',notes:'',saved:JSON.parse(localStorage.getItem('otr9_sv')||'[]'),optOn:false,pending:null};
+let chatHistory=[];
+const persist=()=>localStorage.setItem('otr9_sv',JSON.stringify(ST.saved));
 const isS=c=>ST.saved.some(s=>s.id===c.id);
-const togSv=c=>{if(isS(c))ST.saved=ST.saved.filter(s=>s.id!==c.id);else ST.saved=[...ST.saved,c];persist();document.getElementById('sc').textContent=ST.saved.length;refreshSvBtns()};
+const togSv=c=>{if(isS(c))ST.saved=ST.saved.filter(s=>s.id!==c.id);else ST.saved=[...ST.saved,c];persist();refreshSvBtns()};
 const slp=ms=>new Promise(r=>setTimeout(r,ms));
 
 // ─── CHAT HELPERS ────────────────────────────────────────────────
-const ch=document.getElementById('chat');
-const scr=()=>setTimeout(()=>ch.scrollTop=ch.scrollHeight,60);
+const ch=document.getElementById('chatInner');
+const scr=()=>setTimeout(()=>document.getElementById('chat').scrollTop=99999,60);
 const SVG=`<svg viewBox="0 0 12 12"><circle cx="6" cy="4" r="2"/><path d="M2 10c0-2.2 1.8-4 4-4s4 1.8 4 4"/></svg>`;
 const AV=`<div class="av">${SVG}</div>`;
-function addAI(html){const d=document.createElement('div');d.className='mg';d.innerHTML=`<div class="msg ai">${AV}<div class="bub ai">${html.replace(/\n/g,'<br/>')}</div></div>`;ch.appendChild(d);scr();return d}
-function addUser(t){const d=document.createElement('div');d.className='mg';d.innerHTML=`<div class="msg user"><div class="bub user">${t}</div></div>`;ch.appendChild(d);scr()}
-function addThink(){const d=document.createElement('div');d.id='thk';d.className='mg';d.innerHTML=`<div class="msg ai">${AV}<div class="bub ai" style="padding:0"><div class="thk-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div>`;ch.appendChild(d);scr()}
-function rmThink(){const t=document.getElementById('thk');if(t)t.remove()}
-function addProg(p,lbl){const d=document.createElement('div');d.className='prog';d.innerHTML=`<div class="pbar"><div class="pfill" style="width:${p}%"></div></div><span class="ptxt">${lbl}</span>`;ch.appendChild(d);scr()}
-function addOpts(opts,cb){ST.optOn=true;const w=document.createElement('div');w.className='opts';w.id='ow';opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="onum">${i+1}</span><div><div class="olbl">${o.l}</div>${o.s?`<div class="osub">${o.s}</div>`:''}</div>`;b.onclick=()=>{if(!ST.optOn)return;disOpts();cb(o,i)};w.appendChild(b);});ch.appendChild(w);scr();document.getElementById('ui').placeholder=`${opts.length}개 중 번호 선택 또는 직접 입력...`;}
-function disOpts(){ST.optOn=false;const w=document.getElementById('ow');if(w){w.querySelectorAll('button').forEach(b=>b.disabled=true);w.id='ow_d'}document.getElementById('ui').placeholder='메시지를 입력하세요...';}
+function addAI(html){const d=document.createElement('div');d.className='mg';d.innerHTML=`<div class="msg ai">${AV}<div class="bub ai">${html.replace(/\n/g,'<br/>')}</div></div>`;ch.appendChild(d);scr();return d;}
+function addUser(t){const d=document.createElement('div');d.className='mg';d.innerHTML=`<div class="msg user"><div class="bub user">${t}</div></div>`;ch.appendChild(d);scr();}
+function addThink(){const d=document.createElement('div');d.id='thk';d.className='mg';d.innerHTML=`<div class="msg ai">${AV}<div class="bub ai" style="padding:0"><div class="thk-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div>`;ch.appendChild(d);scr();}
+function rmThink(){const t=document.getElementById('thk');if(t)t.remove();}
+function addProg(p,lbl){const d=document.createElement('div');d.className='prog';d.innerHTML=`<div class="pbar"><div class="pfill" style="width:${p}%"></div></div><span class="ptxt">${lbl}</span>`;ch.appendChild(d);scr();}
+function addOpts(opts,cb){ST.optOn=true;const w=document.createElement('div');w.className='opts';w.id='ow';opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="onum">${i+1}</span><div><div class="olbl">${o.l}</div>${o.s?`<div class="osub">${o.s}</div>`:''}</div>`;b.onclick=()=>{if(!ST.optOn)return;disOpts();cb(o,i);};w.appendChild(b);});ch.appendChild(w);scr();document.getElementById('ui').placeholder=`${opts.length}개 중 선택 또는 직접 입력...`;}
+function disOpts(){ST.optOn=false;const w=document.getElementById('ow');if(w){w.querySelectorAll('button').forEach(b=>b.disabled=true);w.id='ow_d';}document.getElementById('ui').placeholder='운송 관련 무엇이든 물어보세요...';}
 
 // ─── WELCOME ─────────────────────────────────────────────────────
-function showWelcome(){ch.innerHTML='';ST.pending=null;ST.optOn=false;const d=document.createElement('div');d.className='welcome';d.innerHTML=`<div class="wel-title">무엇을 도와드릴까요?</div><div class="qa-col"><button class="qa" onclick="startCarrier()"><div><div class="qa-t">캐리어 찾기</div><div class="qa-s">레인 입력 후 AI 캐리어 매칭</div></div></button><button class="qa" onclick="startRate()"><div><div class="qa-t">운임 조회</div><div class="qa-s">레인별 시장 운임 추정 · $/mile</div></div></button><button class="qa" onclick="startMC()"><div><div class="qa-t">MC # 조회</div><div class="qa-s">MC · DOT 번호로 캐리어 검색</div></div></button><button class="qa" onclick="startChat()"><div><div class="qa-t">🤖 AI 물류 상담</div><div class="qa-s">운송 관련 무엇이든 질문하세요</div></div></button></div>`;ch.appendChild(d);}
-
-// ─── CARRIER FLOW ────────────────────────────────────────────────
-function startCarrier(){ST={...ST,origin:'',dest:'',eq:'',weight:'',notes:'',svc:[],ln:[]};ch.innerHTML='';addUser('캐리어 찾기');setTimeout(async()=>{addThink();await slp(400);rmThink();addAI('어떤 레인으로 운송하시나요?\n편하게 말씀해주세요. 한국어·영어 다 괜찮아요.');ST.pending='__lane__';document.getElementById('ui').placeholder='자유롭게 입력하세요';document.getElementById('ui').focus();},300);}
-async function handleLaneInput(text){
-  addThink();
-  const {origin,dest}=await parseLaneWithAI(text);
-  rmThink();
-  ST.origin=origin;ST.dest=dest;
-  if(!origin&&!dest){addAI('출발지나 목적지를 잘 못 찾았어요.\n예: "LA에서 Vegas" / "엘에이→시카고" / "소칼에서 달라스"');ST.pending='__lane__';return;}
-  addAI(`${origin||'미정'} → ${dest||'미정'} 확인했습니다.\n\n어떤 장비(Equipment)가 필요하신가요?`);
-  addOpts([{l:'Dry Van',s:'일반 건화물'},{l:'Refrigerated (Reefer)',s:'냉동 · 냉장'},{l:'Flatbed',s:'플랫베드 · 중장비'},{l:'Specialized / Heavy Haul',s:'특수 · 대형'},{l:'Tanker / Bulk',s:'탱커 · 벌크'}],(o)=>{ST.eq=o.l;addUser(o.l);askWeight();});
+function showWelcome(){
+  ch.innerHTML='';ST.pending=null;ST.optOn=false;chatHistory=[];
+  const d=document.createElement('div');d.className='welcome';
+  d.innerHTML=`
+    <div class="welcome-badge"><span class="welcome-badge-dot"></span>FMCSA 50,000+ Carriers</div>
+    <div class="welcome-icon">🚛</div>
+    <div class="welcome-title">OTR Finder AI</div>
+    <div class="welcome-sub">미국 화물 운송에 관해 무엇이든 물어보세요<br/>FMCSA 5만개 캐리어 DB 기반으로 답변합니다</div>
+    <div class="welcome-pills">
+      <button class="pill" onclick="fillInput('LA에서 Chicago 가는 Dry Van 운송회사 찾아줘')">🔍 LA → Chicago 캐리어</button>
+      <button class="pill" onclick="fillInput('엘에이에서 조지아 가는 OTR 운송회사 찾아줘')">🚚 LA → Georgia OTR</button>
+      <button class="pill" onclick="fillInput('LA to NY Dry Van 운임 얼마야?')">💰 LA → NY 운임 조회</button>
+      <button class="pill" onclick="fillInput('MC-042958 조회해줘')">🔢 MC# 조회</button>
+      <button class="pill" onclick="fillInput('Hazmat 취급 가능한 캐리어 찾아줘')">⚠️ Hazmat 캐리어</button>
+      <button class="pill" onclick="fillInput('지금 freight 시장 상황 어때?')">📊 시장 상황</button>
+    </div>`;
+  ch.appendChild(d);
 }
-async function askWeight(){addThink();await slp(380);rmThink();addAI('화물 무게는 어느 정도인가요?');addOpts([{l:'20,000 lbs 이하'},{l:'20,000 – 35,000 lbs'},{l:'35,000 – 44,000 lbs',s:'Full truckload'},{l:'Mexico 국경 통과 포함'},{l:'Canada 국경 통과 포함'},{l:'건너뛰기'}],(o)=>{if(o.l.includes('Mexico'))ST.ln=['Mexico'];else if(o.l.includes('Canada'))ST.ln=['Canada'];else if(o.l!=='건너뛰기')ST.weight=o.l;addUser(o.l);askSpecial();});}
-async function askSpecial(){addThink();await slp(380);rmThink();addAI('특별한 요구사항이 있나요?');addOpts([{l:'Hazmat 취급 가능'},{l:'EDI / 실시간 트래킹 필수'},{l:'Expedited (긴급 운송)'},{l:'Dedicated (전용 캐리어)'},{l:'없음 — 바로 검색'}],(o)=>{if(o.l.includes('Hazmat'))ST.notes+=' Hazmat';else if(o.l.includes('EDI'))ST.notes+=' EDI';else if(o.l.includes('Expedited'))ST.svc=['Expedited'];else if(o.l.includes('Dedicated'))ST.svc=['Dedicated'];addUser(o.l);runCarrierSearch();});}
 
-// ─── CARRIER SEARCH (로컬 + Supabase) ────────────────────────────
-async function runCarrierSearch(){
-  addThink();await slp(500);rmThink();
-  // 로컬 필터
-  const eqMap={'Dry Van':['Dry Van'],'Refrigerated (Reefer)':['Refrigerated'],'Flatbed':['Flatbed'],'Specialized / Heavy Haul':['Specialized','Heavy Haul'],'Tanker / Bulk':['Tanker','Bulk']};
-  const eqs=ST.eq?(eqMap[ST.eq]||[ST.eq]):[];
-  const localResults=C.filter(c=>{const eq=!eqs.length||eqs.some(e=>c.eq.includes(e));const haz=!ST.notes.includes('Hazmat')||c.haz;return eq&&haz;}).sort((a,b)=>b.rat-a.rat);
-  // Supabase 검색
-  const originState=CITY_STATE[ST.origin]||'';
-  addProg(30,'FMCSA DB 검색 중...');
-  const supaResults=await searchSupabase(originState,20);
-  addProg(80,'결과 정리 중...');
-  // Lane 시각화
-  if(ST.origin||ST.dest){const lv=document.createElement('div');lv.className='res';lv.innerHTML=`<div class="lvis"><div class="ldot" style="background:var(--g800)"></div><span style="font-size:12px;font-weight:600;color:var(--g800)">${ST.origin||'Origin'}</span><div class="lline"><div class="larrow">→</div></div><span style="font-size:12px;font-weight:600;color:var(--g800)">${ST.dest||'Destination'}</span><div class="ldot" style="background:var(--g400)"></div><span class="ltype">${ST.eq||'OTR'}</span></div>`;ch.appendChild(lv);}
-  // 결과 요약
-  const aiW=document.createElement('div');aiW.className='res';
-  aiW.innerHTML=`<div class="aib"><div class="aib-hdr">매칭 결과</div>${ST.origin||'?'} → ${ST.dest||'?'} 레인에서 총 <b>${localResults.length+supaResults.length}개</b> 캐리어를 찾았습니다.\n\n⭐ 프리미엄 DB: ${localResults.length}개\n🗄️ FMCSA DB${originState?' ('+originState+' 지역 우선)':''}: ${supaResults.length}개</div>`;
-  ch.appendChild(aiW);
-  // 로컬 카드
-  if(localResults.length>0){const cW=document.createElement('div');cW.className='res';cW.innerHTML=`<div class="res-hdr">⭐ 프리미엄 캐리어 ${localResults.length}개</div><div class="cards">${localResults.map((c,i)=>cHTML(c,i+1)).join('')}</div>`;ch.appendChild(cW);}
-  // Supabase 카드
-  if(supaResults.length>0){const sW=document.createElement('div');sW.className='res';sW.innerHTML=`<div class="res-hdr">🗄️ FMCSA DB ${supaResults.length}개${originState?' · '+originState+' 지역':''}</div><div class="cards">${supaResults.map((c,i)=>cHTMLSupa(c,i+1)).join('')}</div>`;ch.appendChild(sW);}
-  addProg(100,'완료');
-  setTimeout(()=>{addOpts([{l:'이 레인 운임 조회'},{l:'다시 검색'},{l:'처음으로'}],(o)=>{if(o.l.includes('운임'))startRateWithLane();else if(o.l.includes('다시'))startCarrier();else showWelcome();});},400);
+// ─── AI 레인 파싱 ────────────────────────────────────────────────
+async function parseLaneWithAI(text){
+  try{
+    const res=await fetch(`${WORKER}/parse`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});
+    if(!res.ok)throw new Error('Worker error');
+    const data=await res.json();
+    return{origin:data.origin||'',dest:data.dest||''};
+  }catch(e){return parseLaneTextFallback(text);}
+}
+
+function parseLaneTextFallback(text){
+  let t=text.trim();
+  const patterns=[/(.+?)에서\s*(.+?)(?:까지|로|으로|가는)?(?:\s|$)/,/(.+?)\s*→\s*(.+)/,/(.+?)\s+to\s+(.+)/i,/(.+?)\s*[-–]\s*(.+)/];
+  for(const pat of patterns){
+    const m=t.match(pat);
+    if(m){
+      const a=m[1].trim();const b=m[2].trim().replace(/까지$|로$|으로$|가는$/,'').trim();
+      const origin=resolveCity(a);const dest=resolveCity(b);
+      if(origin&&dest)return{origin,dest};
+    }
+  }
+  const found=[];
+  const sorted=Object.entries(CITY_ALIAS).sort((a,b)=>b[0].length-a[0].length);
+  let rem=t;
+  for(const [alias,city] of sorted){
+    const idx=rem.toLowerCase().indexOf(alias.toLowerCase());
+    if(idx>=0&&!found.find(f=>f.city===city)){
+      found.push({city,idx:t.toLowerCase().indexOf(alias.toLowerCase())});
+      rem=rem.slice(0,idx)+' '.repeat(alias.length)+rem.slice(idx+alias.length);
+    }
+    if(found.length>=2)break;
+  }
+  found.sort((a,b)=>a.idx-b.idx);
+  if(found.length>=2)return{origin:found[0].city,dest:found[1].city};
+  if(found.length===1)return{origin:found[0].city,dest:''};
+  return{origin:'',dest:''};
+}
+
+function resolveCity(raw){
+  if(!raw)return'';
+  const t=raw.trim();
+  const upper=t.toUpperCase();
+  for(const [alias,city] of Object.entries(CITY_ALIAS)){if(alias.toUpperCase()===upper)return city;}
+  const sorted=Object.entries(CITY_ALIAS).sort((a,b)=>b[0].length-a[0].length);
+  for(const [alias,city] of sorted){if(t.toLowerCase().includes(alias.toLowerCase()))return city;}
+  const lower=t.toLowerCase();
+  for(const city of CITIES_EN){const name=city.split(',')[0].toLowerCase();if(lower.includes(name))return city;}
+  return'';
+}
+
+// ─── AI 채팅 (메인 기능) ─────────────────────────────────────────
+async function doAIChat(userMsg){
+  chatHistory.push({role:'user',content:userMsg});
+  addThink();
+  try{
+    const res=await fetch(`${WORKER}/chat`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:chatHistory})
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'죄송해요, 잠시 후 다시 시도해주세요.';
+    rmThink();
+    chatHistory.push({role:'assistant',content:reply});
+    addAI(reply);
+
+    // ── Worker가 캐리어 데이터를 반환했으면 카드로 렌더링 ──
+    const meta=data._meta;
+    if(meta&&meta.carriers&&meta.carriers.length>0){
+      renderCarrierCards(meta.carriers,meta.source,meta.originState);
+    }
+  }catch(e){
+    rmThink();
+    addAI('연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+  }
+  ST.pending='__chat__';
+}
+
+// ─── 캐리어 카드 렌더링 (채팅 응답에서) ──────────────────────────
+function renderCarrierCards(carriers,source,originState){
+  cacheSupa(carriers); // RFQ/상세보기용 캐시
+  const sourceLabel=source==='nationwide'
+    ?`🌐 전국 대형 캐리어 ${carriers.length}개`
+    :`📍 ${originState||source} 출발 현지 캐리어 ${carriers.length}개 · 우선 매칭`;
+  const w=document.createElement('div');
+  w.className='res';
+  w.innerHTML=`<div class="res-hdr">${sourceLabel}</div><div class="cards">${carriers.map((c,i)=>cHTMLSupa(c,i+1)).join('')}</div>`;
+  ch.appendChild(w);
   scr();
 }
 
-// Supabase 캐리어 카드
-function cHTMLSupa(c,rank){
-  const name=c.legal_name||c.dba_name||'Unknown';
-  const city=`${c.phy_city||''}, ${c.phy_state||''}`.trim().replace(/^,\s*/,'');
-  const trucks=c.total_power_units>0?c.total_power_units.toLocaleString():'—';
-  const drivers=c.total_drivers>0?c.total_drivers.toLocaleString():'—';
-  const rk=rank<=3?`r${rank}`:'';
-  return`<div class="cc"><div class="cc-top"><div class="cc-rnk ${rk}">${rank}</div><div class="cc-nw"><div class="cc-name">${name}</div><div class="cc-hq">${city}</div></div><span class="s-ok">Active</span></div><div class="sgrid" style="margin-top:8px"><div class="sg"><div class="sgl">Trucks</div><div class="sgv">${trucks}</div></div><div class="sg"><div class="sgl">Drivers</div><div class="sgv">${drivers}</div></div><div class="sg"><div class="sgl">Safety</div><div class="sgv">${c.safety_rating||'—'}</div></div><div class="sg"><div class="sgl">Hazmat</div><div class="sgv">${c.hazmat_flag==='Y'?'✓':'—'}</div></div></div><div class="cbdg" style="margin-top:6px"><span class="bdg">DOT# ${c.dot_number||'—'}</span>${c.mc_number&&c.mc_number!=='EMPTY'?`<span class="bdg">MC# ${c.mc_number}</span>`:''}<span class="db-badge">FMCSA DB</span></div></div>`;
-}
-
-// ─── RATE FLOW ───────────────────────────────────────────────────
-function startRate(){ST={...ST,origin:'',dest:'',eq:'',weight:''};ch.innerHTML='';addUser('운임 조회');setTimeout(async()=>{addThink();await slp(380);rmThink();addAI('어떤 레인의 운임이 궁금하세요?\n편하게 말씀해주세요.');ST.pending='__rate_lane__';document.getElementById('ui').placeholder='자유롭게 입력하세요';document.getElementById('ui').focus();},300);}
-async function handleRateLane(text){
-  addThink();
-  const {origin,dest}=await parseLaneWithAI(text);
-  rmThink();
-  ST.origin=origin;ST.dest=dest;
-  if(!origin&&!dest){addAI('출발지 또는 목적지를 인식하지 못했어요. 다시 입력해주세요.');ST.pending='__rate_lane__';return;}
-  addAI(`${origin||'?'} → ${dest||'?'}\n\n어떤 장비로 운송하시나요?`);
-  addOpts([{l:'Dry Van',s:'일반 건화물'},{l:'Refrigerated (Reefer)',s:'냉동 · 냉장'},{l:'Flatbed',s:'플랫베드'},{l:'Specialized / Heavy Haul',s:'특수 화물'},{l:'Tanker / Bulk',s:'탱커'}],(o)=>{ST.eq=o.l;addUser(o.l);askRateWeight();});
-}
-async function askRateWeight(){addThink();await slp(350);rmThink();addAI('화물 무게는요?');addOpts([{l:'20,000 lbs 이하'},{l:'20,000 – 35,000 lbs'},{l:'35,000 – 44,000 lbs',s:'Full load'},{l:'건너뛰기'}],(o)=>{if(o.l!=='건너뛰기')ST.weight=o.l;addUser(o.l);showRateResult(ST.origin,ST.dest,ST.eq,ST.weight);});}
-function startRateWithLane(){ch.innerHTML='';addUser('운임 조회');setTimeout(()=>showRateResult(ST.origin,ST.dest,ST.eq||'Dry Van',ST.weight),300);}
-function showRateResult(origin,dest,eq,weight){
-  if(origin||dest){const lv=document.createElement('div');lv.className='res';lv.innerHTML=`<div class="lvis"><div class="ldot" style="background:var(--g800)"></div><span style="font-size:12px;font-weight:600;color:var(--g800)">${origin||'Origin'}</span><div class="lline"><div class="larrow">→</div></div><span style="font-size:12px;font-weight:600;color:var(--g800)">${dest||'Destination'}</span><div class="ldot" style="background:var(--g400)"></div><span class="ltype">${eq||'OTR'}</span></div>`;ch.appendChild(lv);}
-  const r=calcRate(origin,dest,eq);const maxR=r.high;
-  const mkt=r.dist>2000?'Tight · 공급 부족':r.dist>1000?'Balanced · 균형':'Soft · 공급 우세';
-  const tips=['화물 픽업/딜리버리 유연성을 제공하면 더 좋은 레이트를 받을 수 있습니다.','복수 캐리어에 동시 RFQ를 보내 경쟁 입찰을 유도하세요.','월간 볼륨을 약속하면 장기 계약 할인을 협상할 수 있습니다.'];
-  const rw=document.createElement('div');rw.className='res';
-  rw.innerHTML=`<div class="ratebox"><div class="ratebox-hdr">운임 추정</div><div class="rate-grid"><div class="rg"><div class="rg-l">거리</div><div class="rg-v">${r.dist.toLocaleString()}</div><div class="rg-s">miles</div></div><div class="rg"><div class="rg-l">예상 운임</div><div class="rg-v">$${r.mid.toLocaleString()}</div><div class="rg-s">${r.rpmMid}/mile</div></div><div class="rg"><div class="rg-l">운송 기간</div><div class="rg-v">${r.transit}</div><div class="rg-s">days</div></div></div><div class="rate-range"><div class="rr-lbl">운임 범위</div><div class="rr-row"><span class="rr-tag">Low</span><div class="rr-bar"><div class="rr-fill" style="width:${Math.round(r.low/maxR*100)}%"></div></div><span class="rr-val">$${r.low.toLocaleString()}</span></div><div class="rr-row"><span class="rr-tag">Mid</span><div class="rr-bar"><div class="rr-fill mid" style="width:${Math.round(r.mid/maxR*100)}%"></div></div><span class="rr-val">$${r.mid.toLocaleString()}</span></div><div class="rr-row"><span class="rr-tag">High</span><div class="rr-bar"><div class="rr-fill mid" style="width:100%"></div></div><span class="rr-val">$${r.high.toLocaleString()}</span></div></div><div class="mkt-row"><span class="mkt-lbl">시장 상황</span><span class="mkt-badge">${mkt}</span><span class="mkt-fsc">연료 할증 ~20%</span></div><div class="rate-tips">${tips.map(t=>`• ${t}`).join('<br/>')}</div><div class="rate-note">※ 시장 평균 기반 추정치입니다.<br/>정확한 현재 시세: <a href="https://dat.com" target="_blank" style="color:var(--g600);text-decoration:underline">DAT.com</a> · <a href="https://freightwaves.com" target="_blank" style="color:var(--g600);text-decoration:underline">FreightWaves</a></div></div>`;
-  ch.appendChild(rw);scr();
-  setTimeout(()=>{addOpts([{l:'이 레인 캐리어 찾기'},{l:'다른 레인 운임 조회'},{l:'처음으로'}],(o)=>{if(o.l.includes('캐리어'))runCarrierSearch();else if(o.l.includes('다른'))startRate();else showWelcome();});},400);
-}
-
-// ─── MC LOOKUP ───────────────────────────────────────────────────
-function startMC(){ch.innerHTML='';addUser('MC # 조회');setTimeout(async()=>{addThink();await slp(350);rmThink();addAI('MC 번호, DOT 번호, 또는 캐리어 이름을 입력해주세요.');ST.pending='__mc__';document.getElementById('ui').placeholder='예: MC-042958 또는 J.B. Hunt...';document.getElementById('ui').focus();},300);}
+// ─── MC 조회 ────────────────────────────────────────────────────
 async function doMC(q){
   const local=C.find(c=>c.mc.toLowerCase().includes(q.toLowerCase())||c.dot.toLowerCase().includes(q.toLowerCase())||c.n.toLowerCase().includes(q.toLowerCase()));
-  if(local){const w=document.createElement('div');w.className='res';w.innerHTML=`<div class="res-hdr">검색 결과 (로컬 DB)</div><div class="cards">${cHTML(local,1)}</div>`;ch.appendChild(w);scr();setTimeout(()=>{addOpts([{l:'캐리어 찾기'},{l:'다른 MC 조회'},{l:'처음으로'}],(o)=>{if(o.l.includes('캐리어'))startCarrier();else if(o.l.includes('MC'))startMC();else showWelcome();});},400);return;}
+  if(local){const w=document.createElement('div');w.className='res';w.innerHTML=`<div class="res-hdr">검색 결과</div><div class="cards">${cHTML(local,1)}</div>`;ch.appendChild(w);scr();ST.pending='__chat__';return;}
   addThink();
-  const WORKER='https://otr-finder-api.wayneslee1018.workers.dev';
   const clean=q.replace(/mc-?/i,'').trim();
   let apiUrl='';
   if(q.match(/^mc-?\d+$/i))apiUrl=`${WORKER}/mc/${clean}`;
@@ -496,107 +475,170 @@ async function doMC(q){
   try{
     const res=await fetch(apiUrl);const data=await res.json();rmThink();
     const carriers=(data.content||[]).map(item=>item.carrier||item).filter(Boolean);
-    if(!carriers.length){addAI(`"${q}" — FMCSA에서도 찾지 못했습니다.\n공식 조회: <a href="https://safer.fmcsa.dot.gov" target="_blank" style="color:var(--g800);text-decoration:underline">safer.fmcsa.dot.gov</a>`);ST.pending='__mc__';return;}
+    if(!carriers.length){addAI(`"${q}" — 검색 결과가 없습니다.\n공식 조회: safer.fmcsa.dot.gov`);ST.pending='__chat__';return;}
     const w=document.createElement('div');w.className='res';
-    w.innerHTML=`<div class="res-hdr">FMCSA 검색 결과 ${carriers.length}개</div><div class="cards">${carriers.slice(0,5).map((c,i)=>{const name=c.legalName||c.dbaName||'Unknown';const auth=c.allowedToOperate==='Y'?'Active':'Inactive';const city=`${c.phyCity||''}, ${c.phyState||''}`.trim().replace(/^,\s*/,'');return`<div class="cc"><div class="cc-top"><div class="cc-rnk ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</div><div class="cc-nw"><div class="cc-name">${name}</div><div class="cc-hq">${city}</div></div><span class="${auth==='Active'?'s-ok':'s-bk'}">${auth}</span></div><div class="sgrid" style="margin-top:8px"><div class="sg"><div class="sgl">Trucks</div><div class="sgv">${c.totalPowerUnits||'—'}</div></div><div class="sg"><div class="sgl">Drivers</div><div class="sgv">${c.totalDrivers||'—'}</div></div><div class="sg"><div class="sgl">Safety</div><div class="sgv">${c.safetyRating||'—'}</div></div><div class="sg"><div class="sgl">OOS</div><div class="sgv">${c.oosRate||'—'}</div></div></div><div class="cbdg" style="margin-top:6px"><span class="bdg">DOT# ${c.dotNumber||'—'}</span><span class="bdg">MC# ${c.mcNumber||'—'}</span>${c.hazmatFlag==='Y'?'<span class="bdg">Hazmat</span>':''}</div></div>`;}).join('')}</div>`;
+    w.innerHTML=`<div class="res-hdr">FMCSA 결과 ${carriers.length}개</div><div class="cards">${carriers.slice(0,5).map((c,i)=>{
+      const name=c.legalName||c.dbaName||'Unknown';const auth=c.allowedToOperate==='Y'?'Active':'Inactive';const city=`${c.phyCity||''}, ${c.phyState||''}`.trim().replace(/^,\s*/,'');
+      return`<div class="cc"><div class="cc-top"><div class="cc-rnk ${i===0?'r1':i===1?'r2':i===2?'r3':''}">${i+1}</div><div class="cc-nw"><div class="cc-name">${name}</div><div class="cc-hq">${city}</div></div><span class="${auth==='Active'?'s-ok':'s-bk'}">${auth}</span></div><div class="sgrid" style="margin-top:8px"><div class="sg"><div class="sgl">Trucks</div><div class="sgv">${c.totalPowerUnits||'—'}</div></div><div class="sg"><div class="sgl">Drivers</div><div class="sgv">${c.totalDrivers||'—'}</div></div><div class="sg"><div class="sgl">Safety</div><div class="sgv">${c.safetyRating||'—'}</div></div><div class="sg"><div class="sgl">Hazmat</div><div class="sgv">${c.hazmatFlag==='Y'?'✓':'—'}</div></div></div><div class="cbdg" style="margin-top:6px"><span class="bdg">DOT# ${c.dotNumber||'—'}</span><span class="bdg">MC# ${c.mcNumber||'—'}</span></div></div>`;
+    }).join('')}</div>`;
     ch.appendChild(w);scr();
-  }catch(e){rmThink();addAI('조회 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');ST.pending='__mc__';}
-  setTimeout(()=>{addOpts([{l:'다른 MC 조회'},{l:'캐리어 찾기'},{l:'처음으로'}],(o)=>{if(o.l.includes('MC'))startMC();else if(o.l.includes('캐리어'))startCarrier();else showWelcome();});},400);
-}
-
-// ─── LOCAL CARRIER CARD ──────────────────────────────────────────
-function cHTML(c,rank){const sv=isS(c);const st=[1,2,3,4,5].map(i=>`<span class="star${i<=Math.round(c.rat)?' on':''}">★</span>`).join('');const rk=rank<=3?`r${rank}`:'';const sf=c.safe==='N/A'?`<span class="s-bk">Broker</span>`:`<span class="s-ok">Satisfactory</span>`;return`<div class="cc" onclick="openC(${c.id})"><div class="cc-top"><div class="cc-rnk ${rk}">${rank}</div><div class="cc-nw"><div class="cc-name">${c.n}</div><div class="cc-hq">Est.${c.yr} · ${c.hq}</div></div><button class="cc-sv${sv?' on':''}" onclick="event.stopPropagation();togSv(C.find(x=>x.id===${c.id}))" title="저장">✓</button></div><div class="cc-row">${st}<span class="sn">&nbsp;${c.rat}&nbsp;(${c.rev})</span>&nbsp;${sf}<span class="rt">${c.rt}</span></div><div class="sgrid"><div class="sg"><div class="sgl">Fleet</div><div class="sgv">${c.fl>0?c.fl.toLocaleString():'Broker'}</div></div><div class="sg"><div class="sgl">On-Time</div><div class="sgv">${c.ot}%</div></div><div class="sg"><div class="sgl">Avg Pay</div><div class="sgv">~${c.pay}d</div></div><div class="sg"><div class="sgl">Credit</div><div class="sgv">${c.cr}/100</div></div></div><div class="ctags">${c.eq.map(e=>`<span class="tg">${e}</span>`).join('')}${c.svc.slice(0,3).map(s=>`<span class="tg">${s}</span>`).join('')}</div><div class="cbdg">${c.edi?'<span class="bdg">EDI Tracking</span>':''}${c.haz?'<span class="bdg">Hazmat</span>':''}${c.ln.includes('Mexico')?'<span class="bdg">Mexico</span>':''}${c.ln.includes('Canada')?'<span class="bdg">Canada</span>':''}<span class="cmc">${c.mc}</span></div><div class="cact"><button class="cbtn p" onclick="event.stopPropagation();openRFQ(${c.id})">RFQ 이메일 생성</button><button class="cbtn s" onclick="event.stopPropagation();openC(${c.id})">상세 보기</button></div></div>`;}
-function refreshSvBtns(){document.querySelectorAll('.cc').forEach(card=>{const m=card.getAttribute('onclick')||'';const mm=m.match(/openC\((\d+)\)/);if(mm){const c=C.find(x=>x.id===parseInt(mm[1]));if(c){const b=card.querySelector('.cc-sv');if(b)b.className='cc-sv'+(isS(c)?' on':'')}}});}
-
-// ─── MODALS ──────────────────────────────────────────────────────
-function openC(id){const c=C.find(x=>x.id===id);if(!c)return;document.getElementById('mc').innerHTML=`<div class="mt">${c.n}</div><div class="ms">Est.${c.yr} · ${c.hq} · ${c.ph}</div><div class="mgrid">${[['MC#',c.mc],['DOT#',c.dot],['Authority',c.auth],['Safety',c.safe],['Fleet',c.fl>0?c.fl.toLocaleString():'Asset-light'],['Drivers',c.dr>0?c.dr.toLocaleString():'Independent'],['Avg Pay Days',c.pay+'d'],['Credit Score',c.cr+'/100'],['On-Time',c.ot+'%'],['Rate Index',c.rt]].map(([k,v])=>`<div class="mi"><div class="mik">${k}</div><div class="miv">${v}</div></div>`).join('')}</div><div class="ctags">${c.spec.map(s=>`<span class="tg">${s}</span>`).join('')}</div><div class="macts"><button class="mbtn p" onclick="openRFQ(${c.id});closeM()">RFQ 이메일 생성</button><a class="mbtn s" href="https://${c.wb}" target="_blank">웹사이트</a></div>`;document.getElementById('ov').classList.add('on');}
-async function openRFQ(id){const c=C.find(x=>x.id===id);document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일 생성</div><div class="ms">To: ${c.n}</div><div style="text-align:center;padding:24px;color:var(--g400);font-size:13px">생성 중...</div>`;document.getElementById('ov').classList.add('on');try{const txt=await aiCall(`Write a professional freight RFQ email from Hyundai Platform Corporation (HPC), Los Angeles CA to ${c.n}. Lane: ${ST.origin||'TBD'} to ${ST.dest||'TBD'} | Equipment: ${ST.eq||'Dry Van'} | Weight: ${ST.weight||'TBD'} | MC#: ${c.mc} | Phone: ${c.ph}. Format: Subject line first, blank line, email body under 180 words.`,500);document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일</div><div class="ms">To: ${c.n}</div><pre class="rfqpre">${txt}</pre><button class="cpybtn" id="cpyb" onclick="cpyRFQ()">클립보드에 복사</button>`;window._rfqTxt=txt;}catch(e){document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일 생성</div><div class="ms" style="color:var(--g500)">Claude.ai 환경에서만 사용 가능합니다.<br/><b>${c.n}</b><br/>${c.ph}</div>`;}}
-function cpyRFQ(){if(!window._rfqTxt)return;navigator.clipboard.writeText(window._rfqTxt).then(()=>{const b=document.getElementById('cpyb');if(b){b.textContent='복사됨';b.className='cpybtn ok';setTimeout(()=>{b.textContent='클립보드에 복사';b.className='cpybtn'},2000)}});}
-function closeM(){document.getElementById('ov').classList.remove('on')}
-function showSaved(){const mc=document.getElementById('mc');mc.innerHTML=ST.saved.length?`<div class="mt">저장된 캐리어</div><div class="ms">${ST.saved.length}개</div><div class="cards">${ST.saved.map((c,i)=>cHTML(c,i+1)).join('')}</div>`:`<div class="mt">저장된 캐리어</div><div class="ms">아직 저장된 캐리어가 없습니다.</div>`;document.getElementById('ov').classList.add('on');}
-
-// ─── AUTOCOMPLETE ────────────────────────────────────────────────
-let acSg=[],acHL=0;
-function doAC(q){const drop=document.getElementById('acdrop');if(!q||q.length<2){drop.style.display='none';return}const lower=q.toLowerCase();const a=CITIES_EN.filter(c=>c.toLowerCase().startsWith(lower)).slice(0,5);const b=CITIES_EN.filter(c=>!c.toLowerCase().startsWith(lower)&&c.toLowerCase().includes(lower)).slice(0,3);acSg=[...a,...b].slice(0,7);acHL=0;if(!acSg.length){drop.style.display='none';return}drop.style.display='block';drop.innerHTML=acSg.map((city,i)=>{const isH=city.includes('Port of')||city.includes('Hub')||city.includes('Border');const idx=city.toLowerCase().indexOf(lower);const hi=idx>=0?city.slice(0,idx)+`<mark>${city.slice(idx,idx+q.length)}</mark>`+city.slice(idx+q.length):city;return`<div class="aci${i===acHL?' hl':''}" onmousedown="event.preventDefault();selAC('${city.replace(/'/g,"\\'")}')"> ${hi}${isH?'<span class="hub-c">HUB</span>':''}</div>`;}).join('');}
-function selAC(city){const ui=document.getElementById('ui');ui.value=city;autoR(ui);document.getElementById('acdrop').style.display='none'}
-function closeAC(){document.getElementById('acdrop').style.display='none'}
-
-// ─── INPUT ───────────────────────────────────────────────────────
-function autoR(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,96)+'px'}
-function onK(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();return}const q=e.target.value+(e.key.length===1?e.key:'');if(ST.pending==='__lane__'||ST.pending==='__rate_lane__')doAC(q);else closeAC();}
-function send(){
-  const ui=document.getElementById('ui');const val=ui.value.trim();if(!val)return;
-  ui.value='';ui.style.height='auto';closeAC();
-  const num=parseInt(val);if(!isNaN(num)&&num>=1&&ST.optOn){const btns=document.querySelectorAll('#ow button');if(btns[num-1]){btns[num-1].click();return}}
-
-  // 옵션 선택 중이더라도 새 레인 입력이면 흐름 재시작
-  if(ST.optOn){
-    // AI로 도시 감지해서 새 레인이면 재시작
-    parseLaneWithAI(val).then(({origin,dest})=>{
-      if(origin&&dest){
-        // 새 레인 감지 → 캐리어 찾기 재시작
-        disOpts();
-        ST.origin=origin;ST.dest=dest;
-        ch.innerHTML='';
-        addUser(val);
-        addAI(`${origin} → ${dest} 확인했습니다.\n\n어떤 장비(Equipment)가 필요하신가요?`);
-        addOpts([{l:'Dry Van',s:'일반 건화물'},{l:'Refrigerated (Reefer)',s:'냉동 · 냉장'},{l:'Flatbed',s:'플랫베드 · 중장비'},{l:'Specialized / Heavy Haul',s:'특수 · 대형'},{l:'Tanker / Bulk',s:'탱커 · 벌크'}],(o)=>{ST.eq=o.l;addUser(o.l);askWeight();});
-      } else {
-        // 도시 아니면 원래 옵션 선택으로
-        addUser(val);
-      }
-    });
-    return;
-  }
-
-  if(ST.pending){const p=ST.pending;ST.pending=null;addUser(val);if(p==='__lane__')handleLaneInput(val);else if(p==='__rate_lane__')handleRateLane(val);else if(p==='__mc__')doMC(val);else if(p==='__chat__')doChat(val);return;}
-  addUser(val);const l=val.toLowerCase();
-  if(l.includes('운임')||l.includes('rate')||l.includes('얼마')||l.includes('비용'))startRate();
-  else if(l.includes('찾')||l.includes('캐리어')||l.includes('carrier'))startCarrier();
-  else if(l.includes('mc-')||l.match(/\d{6,}/))doMC(val);
-  else{const{origin,dest}=parseLaneText(val);if(origin||dest){ST.origin=origin;ST.dest=dest;ch.innerHTML='';addUser(val);handleLaneInput(val)}else{setTimeout(async()=>{addThink();await slp(350);rmThink();addAI('무엇을 도와드릴까요?');addOpts([{l:'캐리어 찾기'},{l:'운임 조회'},{l:'MC # 조회'},{l:'처음으로'}],(o)=>{if(o.l.includes('캐리어'))startCarrier();else if(o.l.includes('운임'))startRate();else if(o.l.includes('MC'))startMC();else showWelcome()})},0);}}
-}
-function goHome(){showWelcome()}
-
-// ─── AI 채팅 ─────────────────────────────────────────────────────
-let chatHistory = [];
-function startChat(){
-  chatHistory = [];
-  ch.innerHTML='';
-  addUser('AI 물류 상담');
-  setTimeout(async()=>{
-    addThink();await slp(400);rmThink();
-    addAI('안녕하세요! OTR Finder AI입니다. 🚛\n\n미국 화물 운송에 관한 무엇이든 물어보세요!\n\n예시:\n• "LA에서 Chicago 가는 Dry Van 시장 운임이 어때?"\n• "Werner Enterprises 어떤 회사야?"\n• "Hazmat 화물 운송할 때 주의사항은?"\n• "지금 freight 시장 상황 어때?"');
-    ST.pending='__chat__';
-    document.getElementById('ui').placeholder='화물 운송에 관해 무엇이든 질문하세요...';
-    document.getElementById('ui').focus();
-  },300);
-}
-
-async function doChat(userMsg){
-  chatHistory.push({role:'user', content: userMsg});
-  addThink();
-  try{
-    const res = await fetch('https://otr-finder-api.wayneslee1018.workers.dev/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({messages: chatHistory})
-    });
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || '죄송해요, 잠시 후 다시 시도해주세요.';
-    rmThink();
-    chatHistory.push({role:'assistant', content: reply});
-    addAI(reply);
-  }catch(e){
-    rmThink();
-    addAI('연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-  }
+  }catch(e){rmThink();addAI('조회 중 오류가 발생했습니다.');}
   ST.pending='__chat__';
 }
-window.startCarrier=startCarrier;window.startRate=startRate;window.startMC=startMC;window.startChat=startChat;
+
+// ─── 운임 표시 ───────────────────────────────────────────────────
+function showRate(origin,dest,eq){
+  const r=calcRate(origin,dest,eq||'Dry Van');
+  const maxR=r.high;
+  const mkt=r.dist>2000?'Tight · 공급 부족':r.dist>1000?'Balanced · 균형':'Soft · 공급 우세';
+  const rw=document.createElement('div');rw.className='res';
+  rw.innerHTML=`<div class="lvis"><div class="ldot" style="background:var(--g800)"></div><span style="font-size:12px;font-weight:600;color:var(--g800)">${origin||'?'}</span><div class="lline"><div class="larrow">→</div></div><span style="font-size:12px;font-weight:600;color:var(--g800)">${dest||'?'}</span><div class="ldot" style="background:var(--g400)"></div><span class="ltype">${eq||'Dry Van'}</span></div>
+  <div class="ratebox"><div class="ratebox-hdr">운임 추정</div><div class="rate-grid"><div class="rg"><div class="rg-l">거리</div><div class="rg-v">${r.dist.toLocaleString()}</div><div class="rg-s">miles</div></div><div class="rg"><div class="rg-l">예상 운임</div><div class="rg-v">$${r.mid.toLocaleString()}</div><div class="rg-s">${r.rpmMid}/mile</div></div><div class="rg"><div class="rg-l">운송 기간</div><div class="rg-v">${r.transit}</div><div class="rg-s">days</div></div></div><div class="rr-lbl">운임 범위</div><div class="rr-row"><span class="rr-tag">Low</span><div class="rr-bar"><div class="rr-fill" style="width:${Math.round(r.low/maxR*100)}%"></div></div><span class="rr-val">$${r.low.toLocaleString()}</span></div><div class="rr-row"><span class="rr-tag">Mid</span><div class="rr-bar"><div class="rr-fill mid" style="width:${Math.round(r.mid/maxR*100)}%"></div></div><span class="rr-val">$${r.mid.toLocaleString()}</span></div><div class="rr-row"><span class="rr-tag">High</span><div class="rr-bar"><div class="rr-fill mid" style="width:100%"></div></div><span class="rr-val">$${r.high.toLocaleString()}</span></div><div class="mkt-row" style="margin-top:10px"><span class="mkt-lbl">시장 상황</span><span class="mkt-badge">${mkt}</span><span class="mkt-fsc">연료 할증 ~20%</span></div><div class="rate-note">※ 시장 평균 기반 추정치 · 정확한 시세: <a href="https://dat.com" target="_blank" style="color:var(--g600)">DAT.com</a></div></div>`;
+  ch.appendChild(rw);scr();
+}
+
+// ─── CARRIER CARD ────────────────────────────────────────────────
+function cHTML(c,rank){
+  const sv=isS(c);const st=[1,2,3,4,5].map(i=>`<span class="star${i<=Math.round(c.rat)?' on':''}">★</span>`).join('');const rk=rank<=3?`r${rank}`:'';
+  return`<div class="cc" onclick="openC(${c.id})"><div class="cc-top"><div class="cc-rnk ${rk}">${rank}</div><div class="cc-nw"><div class="cc-name">${c.n}</div><div class="cc-hq">Est.${c.yr} · ${c.hq}</div></div><button class="cc-sv${sv?' on':''}" onclick="event.stopPropagation();togSv(C.find(x=>x.id===${c.id}))" title="저장">✓</button></div><div class="cc-row">${st}<span class="sn">&nbsp;${c.rat}&nbsp;(${c.rev})</span><span class="rt">${c.rt}</span></div><div class="sgrid"><div class="sg"><div class="sgl">Fleet</div><div class="sgv">${c.fl>0?c.fl.toLocaleString():'Broker'}</div></div><div class="sg"><div class="sgl">On-Time</div><div class="sgv">${c.ot}%</div></div><div class="sg"><div class="sgl">Avg Pay</div><div class="sgv">~${c.pay}d</div></div><div class="sg"><div class="sgl">Credit</div><div class="sgv">${c.cr}/100</div></div></div><div class="ctags">${c.eq.map(e=>`<span class="tg">${e}</span>`).join('')}</div><div class="cbdg">${c.edi?'<span class="bdg">EDI</span>':''}${c.haz?'<span class="bdg">Hazmat</span>':''}${c.ln.includes('Mexico')?'<span class="bdg">Mexico</span>':''}${c.ln.includes('Canada')?'<span class="bdg">Canada</span>':''}<span class="cmc">${c.mc}</span></div><div class="cact"><button class="cbtn p" onclick="event.stopPropagation();openRFQ(${c.id})">RFQ 이메일</button><button class="cbtn s" onclick="event.stopPropagation();openC(${c.id})">상세 보기</button></div></div>`;
+}
+function refreshSvBtns(){document.querySelectorAll('.cc').forEach(card=>{const m=card.getAttribute('onclick')||'';const mm=m.match(/openC\((\d+)\)/);if(mm){const c=C.find(x=>x.id===parseInt(mm[1]));if(c){const b=card.querySelector('.cc-sv');if(b)b.className='cc-sv'+(isS(c)?' on':'')}}});}
+
+// ─── SUPABASE 캐리어 카드 ─────────────────────────────────────────
+function cHTMLSupa(c,rank){
+  const name=c.legal_name||c.dba_name||'Unknown';
+  const city=`${c.phy_city||''}, ${c.phy_state||''}`.trim().replace(/^,\s*/,'');
+  const trucks=c.total_power_units>0?c.total_power_units.toLocaleString():'—';
+  const drivers=c.total_drivers>0?c.total_drivers.toLocaleString():'—';
+  const rk=rank<=3?`r${rank}`:'';
+  const dotId=`supa_${c.dot_number}`;
+  return`<div class="cc" data-dot="${c.dot_number}"><div class="cc-top"><div class="cc-rnk ${rk}">${rank}</div><div class="cc-nw"><div class="cc-name">${name}</div><div class="cc-hq">${city}</div></div><span class="s-ok">Active</span></div><div class="sgrid"><div class="sg"><div class="sgl">Trucks</div><div class="sgv">${trucks}</div></div><div class="sg"><div class="sgl">Drivers</div><div class="sgv">${drivers}</div></div><div class="sg"><div class="sgl">Safety</div><div class="sgv">${c.safety_rating||'—'}</div></div><div class="sg"><div class="sgl">Hazmat</div><div class="sgv">${c.hazmat_flag==='Y'?'✓':'—'}</div></div></div><div class="cbdg" style="margin-top:8px"><span class="bdg">DOT# ${c.dot_number||'—'}</span>${c.mc_number&&c.mc_number!=='EMPTY'?`<span class="bdg">MC# ${c.mc_number}</span>`:''}<span class="db-badge">FMCSA DB</span></div><div class="cact"><button class="cbtn p" onclick="openRFQSupa('${c.dot_number}')">RFQ 이메일</button><button class="cbtn s" onclick="openDetailSupa('${c.dot_number}')">상세 보기</button></div></div>`;
+}
+
+// Supabase 카드용 캐시 (RFQ/상세보기에서 쓰려고)
+const supaCache={};
+function cacheSupa(carriers){carriers.forEach(c=>{supaCache[c.dot_number]=c});}
+
+async function openRFQSupa(dotNum){
+  const c=supaCache[dotNum];
+  if(!c){alert('데이터를 찾을 수 없어요');return;}
+  const name=c.legal_name||c.dba_name||'Unknown';
+  const city=`${c.phy_city||''}, ${c.phy_state||''}`.trim().replace(/^,\s*/,'');
+  document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일</div><div class="ms">To: ${name}</div><div style="text-align:center;padding:24px;color:var(--g400);font-size:13px">생성 중...</div>`;
+  document.getElementById('ov').classList.add('on');
+  try{
+    const res=await fetch(`${WORKER}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:`Write a professional freight RFQ email from Hyundai Platform Corporation (HPC), Los Angeles CA to ${name} (DOT# ${c.dot_number}, located in ${city}). Lane: ${ST.origin||'TBD'} to ${ST.dest||'TBD'} | Equipment: ${ST.eq||'Dry Van'}. Format: Subject line first, blank line, email body under 180 words. Keep it professional and concise.`}]})});
+    const data=await res.json();const txt=data.content?.[0]?.text||'';
+    document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일</div><div class="ms">To: ${name}</div><pre class="rfqpre">${txt}</pre><button class="cpybtn" id="cpyb" onclick="cpyRFQ()">클립보드에 복사</button>`;
+    window._rfqTxt=txt;
+  }catch(e){document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일</div><div class="ms">${name}</div><div style="padding:20px;color:var(--g400)">생성 실패. 다시 시도해주세요.</div>`;}
+}
+
+function openDetailSupa(dotNum){
+  const c=supaCache[dotNum];
+  if(!c)return;
+  const name=c.legal_name||c.dba_name||'Unknown';
+  const city=`${c.phy_city||''}, ${c.phy_state||''}`.trim().replace(/^,\s*/,'');
+  document.getElementById('mc').innerHTML=`<div class="mt">${name}</div><div class="ms">본사 · ${city}</div><div class="mgrid">${[
+    ['DOT#',c.dot_number||'—'],
+    ['MC#',(c.mc_number&&c.mc_number!=='EMPTY')?c.mc_number:'—'],
+    ['Authority',c.allowed_to_operate==='Y'?'Active':'Inactive'],
+    ['Safety',c.safety_rating||'—'],
+    ['Trucks',c.total_power_units>0?c.total_power_units.toLocaleString():'—'],
+    ['Drivers',c.total_drivers>0?c.total_drivers.toLocaleString():'—'],
+    ['Hazmat',c.hazmat_flag==='Y'?'✓':'—'],
+    ['Operation',c.carrier_operation||'—']
+  ].map(([k,v])=>`<div class="mi"><div class="mik">${k}</div><div class="miv">${v}</div></div>`).join('')}</div><div class="macts"><button class="mbtn p" onclick="openRFQSupa('${c.dot_number}');closeM()">RFQ 이메일</button><a class="mbtn s" href="https://safer.fmcsa.dot.gov/query.asp?query_type=queryCarrierSnapshot&query_param=USDOT&query_string=${c.dot_number}" target="_blank">FMCSA 조회</a></div>`;
+  document.getElementById('ov').classList.add('on');
+}
+
+// ─── MODALS ──────────────────────────────────────────────────────
+function openC(id){const c=C.find(x=>x.id===id);if(!c)return;document.getElementById('mc').innerHTML=`<div class="mt">${c.n}</div><div class="ms">Est.${c.yr} · ${c.hq} · ${c.ph}</div><div class="mgrid">${[['MC#',c.mc],['DOT#',c.dot],['Authority',c.auth],['Safety',c.safe],['Fleet',c.fl>0?c.fl.toLocaleString():'Broker'],['Drivers',c.dr>0?c.dr.toLocaleString():'—'],['Avg Pay',c.pay+'d'],['Credit',c.cr+'/100'],['On-Time',c.ot+'%'],['Rate',c.rt]].map(([k,v])=>`<div class="mi"><div class="mik">${k}</div><div class="miv">${v}</div></div>`).join('')}</div><div class="macts"><button class="mbtn p" onclick="openRFQ(${c.id});closeM()">RFQ 이메일</button><a class="mbtn s" href="https://${c.wb}" target="_blank">웹사이트</a></div>`;document.getElementById('ov').classList.add('on');}
+async function openRFQ(id){
+  const c=C.find(x=>x.id===id);
+  document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일</div><div class="ms">To: ${c.n}</div><div style="text-align:center;padding:24px;color:var(--g400);font-size:13px">생성 중...</div>`;
+  document.getElementById('ov').classList.add('on');
+  try{
+    const res=await fetch(`${WORKER}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:`Write a professional freight RFQ email from Hyundai Platform Corporation (HPC), Los Angeles CA to ${c.n}. Lane: ${ST.origin||'TBD'} to ${ST.dest||'TBD'} | Equipment: ${ST.eq||'Dry Van'} | MC#: ${c.mc} | Phone: ${c.ph}. Format: Subject line first, blank line, email body under 180 words.`}]})});
+    const data=await res.json();const txt=data.content?.[0]?.text||'';
+    document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일</div><div class="ms">To: ${c.n}</div><pre class="rfqpre">${txt}</pre><button class="cpybtn" id="cpyb" onclick="cpyRFQ()">클립보드에 복사</button>`;
+    window._rfqTxt=txt;
+  }catch(e){document.getElementById('mc').innerHTML=`<div class="mt">RFQ 이메일</div><div class="ms">${c.n} · ${c.ph}</div>`;}
+}
+function cpyRFQ(){if(!window._rfqTxt)return;navigator.clipboard.writeText(window._rfqTxt).then(()=>{const b=document.getElementById('cpyb');if(b){b.textContent='복사됨 ✓';b.className='cpybtn ok';setTimeout(()=>{b.textContent='클립보드에 복사';b.className='cpybtn'},2000);}});}
+function closeM(){document.getElementById('ov').classList.remove('on');}
+
+// ─── INPUT ───────────────────────────────────────────────────────
+function fillInput(text){const ui=document.getElementById('ui');ui.value=text;autoR(ui);ui.focus();}
+function autoR(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function onK(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+
+// ─── SEND (핵심) ─────────────────────────────────────────────────
+async function send(){
+  const ui=document.getElementById('ui');
+  const val=ui.value.trim();
+  if(!val)return;
+  ui.value='';ui.style.height='auto';
+
+  // 옵션 선택 중이면 비활성화
+  if(ST.optOn){
+    const num=parseInt(val);
+    if(!isNaN(num)&&num>=1){const btns=document.querySelectorAll('#ow button');if(btns[num-1]){btns[num-1].click();return;}}
+    disOpts();
+  }
+
+  addUser(val);
+
+  // pending 상태 처리
+  if(ST.pending==='__eq__'){ST.pending=null;ST.eq=val;askWeight();return;}
+  if(ST.pending==='__weight__'){ST.pending=null;ST.weight=val;runCarrierSearch();return;}
+
+  // ── 모든 입력을 AI 채팅으로 처리 ──
+  await doAIChat(val);
+}
+
+// ─── 캐리어 검색 (Supabase) ──────────────────────────────────────
+async function searchSupabase(originState,limit=15){
+  try{
+    const headers={'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`};
+    if(originState){
+      const url=`${SUPA_URL}/rest/v1/carriers?phy_state=eq.${originState}&allowed_to_operate=eq.Y&total_power_units=gte.10&order=total_power_units.desc&limit=${limit}`;
+      const res=await fetch(url,{headers});
+      if(res.ok){const data=await res.json();if(data.length>=5)return data;}
+    }
+    const url2=`${SUPA_URL}/rest/v1/carriers?allowed_to_operate=eq.Y&total_power_units=gte.100&order=total_power_units.desc&limit=${limit}`;
+    const res2=await fetch(url2,{headers});
+    if(res2.ok)return await res2.json();
+    return[];
+  }catch(e){return[];}
+}
+
+async function runCarrierSearch(){
+  addThink();await slp(400);rmThink();
+  const originState=CITY_STATE[ST.origin]||'';
+  addProg(40,'FMCSA DB 검색 중...');
+  const supaResults=await searchSupabase(originState,15);
+  addProg(90,'결과 정리 중...');
+  const localResults=C.filter(c=>{const eqMap={'Dry Van':['Dry Van'],'Refrigerated (Reefer)':['Refrigerated'],'Flatbed':['Flatbed'],'Specialized / Heavy Haul':['Specialized','Heavy Haul'],'Tanker / Bulk':['Tanker','Bulk']};const eqs=ST.eq?(eqMap[ST.eq]||[ST.eq]):[];return !eqs.length||eqs.some(e=>c.eq.includes(e));}).sort((a,b)=>b.rat-a.rat);
+  if(ST.origin||ST.dest){const lv=document.createElement('div');lv.className='res';lv.innerHTML=`<div class="lvis"><div class="ldot" style="background:var(--g800)"></div><span style="font-size:12px;font-weight:600;color:var(--g800)">${ST.origin||'?'}</span><div class="lline"><div class="larrow">→</div></div><span style="font-size:12px;font-weight:600;color:var(--g800)">${ST.dest||'?'}</span><div class="ldot" style="background:var(--g400)"></div><span class="ltype">${ST.eq||'OTR'}</span></div>`;ch.appendChild(lv);}
+  if(supaResults.length>0){const sW=document.createElement('div');sW.className='res';sW.innerHTML=`<div class="res-hdr">🗄️ FMCSA DB ${supaResults.length}개${originState?' · '+originState+' 지역 우선':''}</div><div class="cards">${supaResults.map((c,i)=>cHTMLSupa(c,i+1)).join('')}</div>`;ch.appendChild(sW);}
+  if(localResults.length>0){const cW=document.createElement('div');cW.className='res';cW.innerHTML=`<div class="res-hdr">⭐ 프리미엄 캐리어</div><div class="cards">${localResults.map((c,i)=>cHTML(c,i+1)).join('')}</div>`;ch.appendChild(cW);}
+  addProg(100,'완료');scr();
+  ST.pending='__chat__';
+}
+
+async function askWeight(){
+  addAI('화물 무게는요?');
+  addOpts([{l:'20,000 lbs 이하'},{l:'20,000 – 35,000 lbs'},{l:'35,000 – 44,000 lbs',s:'Full load'},{l:'건너뛰기'}],(o)=>{if(o.l!=='건너뛰기')ST.weight=o.l;addUser(o.l);runCarrierSearch();});
+}
+
+// ─── 사이드바 / 유틸 ─────────────────────────────────────────────
+function goHome(){showWelcome();}
 window.openC=openC;window.openRFQ=openRFQ;window.cpyRFQ=cpyRFQ;window.closeM=closeM;
-window.showSaved=showSaved;window.goHome=goHome;window.selAC=selAC;window.togSv=togSv;
-document.getElementById('sc').textContent=ST.saved.length;
+window.togSv=togSv;window.fillInput=fillInput;window.goHome=goHome;window.toggleSidebar=toggleSidebar;
+window.openRFQSupa=openRFQSupa;window.openDetailSupa=openDetailSupa;
+
 showWelcome();
 </script>
 </body>
