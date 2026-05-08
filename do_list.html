@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPC-WMS | 출고 처리</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-config.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0D1B2A; --bg2: #112233; --bg3: #1A2F44;
+            --sidebar: #0A1628; --border: rgba(255,255,255,0.08);
+            --text: #E8EDF2; --text-light: #8A9BB0; --text-muted: #4A6080;
+            --cyan: #00D4FF; --cyan-dim: rgba(0,212,255,0.15);
+            --green: #00E676; --green-dim: rgba(0,230,118,0.15);
+            --orange: #FF9800; --orange-dim: rgba(255,152,0,0.15);
+            --red: #FF5252; --red-dim: rgba(255,82,82,0.15);
+            --purple: #B388FF; --purple-dim: rgba(179,136,255,0.15);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 20px 16px; display: flex; flex-direction: column; gap: 4px; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; }
+        .logo { display: flex; align-items: center; gap: 10px; padding: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .logo-icon { width: 36px; height: 36px; background: var(--cyan); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--bg); font-weight: 800; font-size: 16px; }
+        .logo-name { font-size: 15px; font-weight: 700; }
+        .logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; }
+        .nav-section { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; padding: 12px 10px 6px; font-weight: 600; }
+        .nav-item { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 8px; color: var(--text-light); text-decoration: none; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+        .nav-item:hover { background: var(--bg3); color: var(--text); }
+        .nav-item.active { background: var(--cyan-dim); color: var(--cyan); border-left: 2px solid var(--cyan); }
+        .nav-item .left { display: flex; align-items: center; gap: 10px; }
+        .nav-item .icon { font-size: 15px; width: 20px; text-align: center; }
+        .nav-badge { background: var(--red); color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+        .nav-item.disabled { opacity: 0.35; cursor: not-allowed; }
+        .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+        .nav-item.parent-open { background: rgba(0,212,255,0.06); color: var(--text); }
+        .nav-right { display: flex; align-items: center; gap: 6px; }
+        .nav-chevron { color: var(--text-muted); font-size: 11px; transition: transform 0.2s; }
+        .nav-chevron.open { transform: rotate(90deg); }
+        .nav-submenu { overflow: hidden; max-height: 0; transition: max-height 0.25s ease; }
+        .nav-submenu.open { max-height: 200px; }
+        .nav-sub-item { display: flex; align-items: center; gap: 8px; padding: 7px 12px 7px 38px; border-radius: 6px; color: var(--text-muted); text-decoration: none; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; position: relative; }
+        .nav-sub-item::before { content: ''; position: absolute; left: 26px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-muted); transition: background 0.15s; }
+        .nav-sub-item:hover { color: var(--text-light); background: rgba(255,255,255,0.03); }
+        .nav-sub-item:hover::before { background: var(--cyan); }
+        .nav-sub-item.active { color: var(--cyan); }
+        .nav-sub-item.active::before { background: var(--cyan); }
+        .nav-sub-item.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+        .main { flex: 1; margin-left: 240px; display: flex; flex-direction: column; }
+        .topbar { background: var(--sidebar); border-bottom: 1px solid var(--border); padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .breadcrumb { font-size: 13px; color: var(--text-muted); }
+        .breadcrumb span { color: var(--text-light); }
+        .content { padding: 24px 28px; }
+        .page-title { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+        .page-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
+        .topbar-btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text-light); transition: all 0.15s; }
+        .topbar-btn:hover { color: var(--text); }
+
+        .filter-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .filter-card input, .filter-card select { padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--bg3); font-family: inherit; }
+        .filter-card input { min-width: 240px; }
+        .filter-card input::placeholder { color: var(--text-muted); }
+        .filter-card input:focus, .filter-card select:focus { outline: none; border-color: var(--cyan); }
+        .filter-card select option { background: var(--bg3); }
+        .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; }
+        .btn-primary { background: var(--cyan); color: var(--bg); }
+        .btn-secondary { background: var(--bg3); color: var(--text-light); border: 1px solid var(--border); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: var(--bg2); border-radius: 12px; border: 1px solid var(--border); padding: 16px 20px; position: relative; overflow: hidden; }
+        .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; }
+        .stat-card.cyan::after { background: var(--cyan); }
+        .stat-card.green::after { background: var(--green); }
+        .stat-card.orange::after { background: var(--orange); }
+        .stat-card.purple::after { background: var(--purple); }
+        .stat-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .stat-num { font-size: 32px; font-weight: 700; line-height: 1; }
+        .stat-unit { font-size: 13px; color: var(--text-muted); margin-left: 4px; }
+
+        .section-title { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+        .section-title::before { content: ''; width: 4px; height: 16px; background: var(--cyan); border-radius: 2px; }
+
+        .table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .table-header-bar { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .table-header-bar h2 { font-size: 14px; font-weight: 600; }
+        .table-header-bar .count { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead th { padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+        tbody tr:hover { background: var(--bg3); }
+        tbody tr:last-child { border-bottom: none; }
+        td { padding: 13px 16px; white-space: nowrap; }
+        td.mono { font-family: 'SF Mono', monospace; font-size: 12px; color: var(--cyan); }
+
+        .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-green { background: var(--green-dim); color: var(--green); }
+        .badge-blue { background: var(--cyan-dim); color: var(--cyan); }
+        .badge-orange { background: var(--orange-dim); color: var(--orange); }
+        .badge-gray { background: rgba(255,255,255,0.05); color: var(--text-muted); }
+        .badge-red { background: var(--red-dim); color: var(--red); }
+
+        .btn-status { padding: 5px 12px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text-light); transition: all 0.1s; }
+        .btn-status:hover { border-color: var(--cyan); color: var(--cyan); }
+
+        .empty { padding: 60px 20px; text-align: center; color: var(--text-muted); }
+        .loading { padding: 40px; text-align: center; color: var(--text-muted); }
+
+        .toast { position: fixed; bottom: 32px; right: 32px; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; display: none; z-index: 9999; }
+        .toast.success { background: var(--green); color: var(--bg); }
+        .toast.error { background: var(--red); color: white; }
+
+        /* DO 생성 모달 */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 500; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 660px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; }
+        .modal-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg2); z-index: 1; }
+        .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+        .modal-sub { font-size: 12px; color: var(--text-muted); }
+        .modal-close { width: 32px; height: 32px; border-radius: 8px; background: var(--bg3); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .modal-close:hover { color: var(--text); }
+        .modal-body { padding: 20px 24px; }
+        .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; position: sticky; bottom: 0; background: var(--bg2); }
+        .form-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+        .form-section-title::before { content:''; width:3px; height:11px; background:var(--cyan); border-radius:2px; }
+        .form-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .field label .req { color: var(--red); margin-left: 2px; }
+        .field input, .field select, .field textarea { padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; color: var(--text); background: var(--bg2); font-family: inherit; transition: border-color .15s; }
+        .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-dim); }
+        .field select option { background: var(--bg2); }
+        .field input.err { border-color: var(--red); }
+        .pallet-hint { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+        .pallet-hint.warn { color: var(--orange); }
+        /* DO 상세 모달 */
+        .do-detail-section { margin-bottom: 18px; }
+        .do-detail-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing:.06em; font-weight:700; margin-bottom: 8px; }
+        .do-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .do-info-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+        .do-info-item .dii-label { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+        .do-info-item .dii-value { font-size: 14px; font-weight: 700; color: var(--text); }
+        .do-info-item .dii-value.mono { font-family: 'SF Mono', monospace; color: var(--cyan); }
+        .btn-action { padding: 6px 14px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer; border: none; font-family: inherit; transition: all .15s; }
+        .btn-transit { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0,212,255,.3); }
+        .btn-transit:hover { background: var(--cyan); color: var(--bg); }
+        .btn-delivered { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,230,118,.3); }
+        .btn-delivered:hover { background: var(--green); color: var(--bg); }
+        .btn-cancel { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,82,82,.3); }
+        .btn-cancel:hover { background: var(--red); color: white; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; padding: 16px 10px; }
+            .logo-name, .logo-sub, .nav-item span:not(.icon), .nav-section, .nav-badge { display: none; }
+            .nav-item { justify-content: center; }
+            .main { margin-left: 60px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .table-wrap { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">H</div>
+            <div><div class="logo-name">HPC-WMS</div><div class="logo-sub">WAREHOUSE PLATFORM</div></div>
+        </div>
+
+        <div class="nav-section">메인</div>
+        <a class="nav-item" href="index.html">
+            <div class="left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+                <span>대시보드</span>
+            </div>
+        </a>
+
+        <div class="nav-section">입출고 관리</div>
+        <div class="nav-item" id="nav_inbound_parent" onclick="toggleInboundMenu()">
+            <div class="left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/>
+                    <polyline points="9,15 12,18 15,15"/>
+                </svg>
+                <span>입고 관리</span>
+            </div>
+            <div class="nav-right"><span class="nav-chevron" id="inbound_chevron">›</span></div>
+        </div>
+        <div class="nav-submenu" id="inbound_submenu">
+            <a class="nav-sub-item" href="inbound.html">입고 접수</a>
+            <a class="nav-sub-item disabled" href="#">검수 처리</a>
+            <a class="nav-sub-item disabled" href="#">입고 지시</a>
+            <a class="nav-sub-item" href="history.html">이력 조회</a>
+        </div>
+
+        <a class="nav-item" href="inventory.html">
+            <div class="left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9,22 9,12 15,12 15,22"/>
+                </svg>
+                <span>재고 조회</span>
+            </div>
+            <div class="nav-right"><span class="nav-chevron">›</span></div>
+        </a>
+        <a class="nav-item active" href="do_list.html">
+            <div class="left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13" rx="2"/>
+                    <path d="M16 8h4l3 3v5h-7V8z"/>
+                    <circle cx="5.5" cy="18.5" r="2.5"/>
+                    <circle cx="18.5" cy="18.5" r="2.5"/>
+                </svg>
+                <span>출고 처리</span>
+            </div>
+            <div class="nav-right"><span class="nav-chevron">›</span></div>
+        </a>
+        <a class="nav-item" href="picking.html"><div class="left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3,6 4,7 6,4"/><polyline points="3,12 4,13 6,10"/><polyline points="3,18 4,19 6,16"/></svg><span>피킹 리스트</span></div></a>
+        <a class="nav-item disabled">
+            <div class="left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="1,4 1,10 7,10"/>
+                    <path d="M3.51 15a9 9 0 1 0 .49-4.9"/>
+                </svg>
+                <span>반품 관리</span>
+            </div>
+        </a>
+
+        <div class="nav-section">재고 / 창고</div>
+        <a class="nav-item disabled"><div class="left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27,6.96 12,12.01 20.73,6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>재고 관리</span></div></a>
+        <a class="nav-item" href="location.html"><div class="left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>로케이션 관리</span></div></a>
+        <a class="nav-item" href="dock.html"><div class="left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M8 6V4m8 2V4M2 11h20"/><circle cx="12" cy="16" r="1.5"/></svg><span>도크 관리</span></div></a>
+        <a class="nav-item" href="loading_plan.html"><div class="left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><line x1="12" y1="2.08" x2="12" y2="12"/><polyline points="7,9 12,12 17,9"/></svg><span>적재 계획</span></div></a>
+
+        <div class="nav-section">정산</div>
+        <a class="nav-item" href="invoice.html">
+            <div class="left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                </svg>
+                <span>청구서</span>
+            </div>
+        </a>
+
+        <div class="nav-section">시스템</div>
+        <a class="nav-item disabled">
+            <div class="left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>사용자 관리</span>
+            </div>
+        </a>
+        <a class="nav-item disabled">
+            <div class="left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                <span>설정</span>
+            </div>
+        </a>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="breadcrumb">WMS &nbsp;›&nbsp; <span>출고 처리</span></div>
+            <div style="display:flex;gap:8px">
+                <button class="topbar-btn" onclick="loadData()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 1 0 .49-4.9"/></svg>새로고침
+                </button>
+                <button class="btn btn-primary" onclick="openCreateDO()" style="padding:8px 18px;font-size:13px">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>DO 생성
+                </button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="page-title">출고 처리 (DO 목록)</div>
+            <div class="page-sub">Delivery Order 발행 및 배송 상태를 관리합니다</div>
+
+            <div class="filter-card">
+                <input type="text" id="search" placeholder="🔍  DO No. 또는 BOL# 검색...">
+                <select id="filter_status">
+                    <option value="">전체 상태</option>
+                    <option value="scheduled">출고 예정</option>
+                    <option value="in_transit">운송 중</option>
+                    <option value="delivered">배송 완료</option>
+                    <option value="cancelled">취소</option>
+                </select>
+                <button class="btn btn-primary" onclick="loadData()">검색</button>
+                <button class="btn btn-secondary" onclick="resetFilter()">초기화</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card purple">
+                    <div class="stat-top">
+                        <div class="stat-label">전체 DO</div>
+                        <div class="stat-icon" style="background:var(--purple-dim);color:var(--purple)">📋</div>
+                    </div>
+                    <div><span class="stat-num" id="stat_total">—</span><span class="stat-unit">건</span></div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-top">
+                        <div class="stat-label">출고 예정</div>
+                        <div class="stat-icon" style="background:var(--orange-dim);color:var(--orange)">📅</div>
+                    </div>
+                    <div><span class="stat-num" id="stat_scheduled">—</span><span class="stat-unit">건</span></div>
+                </div>
+                <div class="stat-card cyan">
+                    <div class="stat-top">
+                        <div class="stat-label">운송 중</div>
+                        <div class="stat-icon" style="background:var(--cyan-dim);color:var(--cyan)">🚚</div>
+                    </div>
+                    <div><span class="stat-num" id="stat_transit">—</span><span class="stat-unit">건</span></div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-top">
+                        <div class="stat-label">배송 완료</div>
+                        <div class="stat-icon" style="background:var(--green-dim);color:var(--green)">✅</div>
+                    </div>
+                    <div><span class="stat-num" id="stat_delivered">—</span><span class="stat-unit">건</span></div>
+                </div>
+            </div>
+
+            <div class="section-title">출고 목록</div>
+            <div class="table-wrap">
+                <div class="table-header-bar">
+                    <div>
+                        <h2>🚚 출고 목록</h2>
+                        <div class="count" id="result_count">로딩 중...</div>
+                    </div>
+                </div>
+                <div id="table_body"><div class="loading">⏳ 데이터 불러오는 중...</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DO 생성 모달 -->
+<div class="modal-overlay" id="create_modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div>
+                <div class="modal-title">🚚 DO 생성</div>
+                <div class="modal-sub">Delivery Order를 발행합니다</div>
+            </div>
+            <button class="modal-close" onclick="closeCreateDO()">✕</button>
+        </div>
+        <div class="modal-body">
+
+            <!-- 기본 정보 -->
+            <div class="form-card">
+                <div class="form-section-title">기본 정보</div>
+                <div class="grid-2" style="margin-bottom:12px">
+                    <div class="field">
+                        <label>DO No. <span class="req">*</span></label>
+                        <input type="text" id="f_do_no" placeholder="자동생성 또는 직접 입력">
+                    </div>
+                    <div class="field">
+                        <label>DO 일자 <span class="req">*</span></label>
+                        <input type="date" id="f_do_date">
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>화주 <span class="req">*</span></label>
+                        <select id="f_customer" onchange="onCustomerChange()">
+                            <option value="">선택하세요</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>컨테이너 (재고) <span class="req">*</span></label>
+                        <select id="f_container" onchange="onContainerChange()">
+                            <option value="">화주 먼저 선택</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 출고 수량 -->
+            <div class="form-card">
+                <div class="form-section-title">출고 수량</div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>출고 팔레트 수 <span class="req">*</span></label>
+                        <input type="number" id="f_pallet_count" min="1" placeholder="0" oninput="onPalletInput()">
+                        <span class="pallet-hint" id="pallet_hint">컨테이너를 먼저 선택하세요</span>
+                    </div>
+                    <div class="field">
+                        <label>BOL No.</label>
+                        <input type="text" id="f_bol_no" placeholder="BOL 번호 입력">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 운송 정보 -->
+            <div class="form-card">
+                <div class="form-section-title">운송 정보</div>
+                <div class="grid-2" style="margin-bottom:12px">
+                    <div class="field">
+                        <label>Carrier <span class="req">*</span></label>
+                        <select id="f_carrier">
+                            <option value="">선택하세요</option>
+                            <option>BNSF Logistics</option>
+                            <option>XPO Logistics</option>
+                            <option>J.B. Hunt</option>
+                            <option>Werner Enterprises</option>
+                            <option>Schneider</option>
+                            <option>Old Dominion</option>
+                            <option>FedEx Freight</option>
+                            <option>UPS Freight</option>
+                            <option>Estes Express</option>
+                            <option>Direct (자체 배송)</option>
+                            <option value="__custom__">직접 입력...</option>
+                        </select>
+                    </div>
+                    <div class="field" id="carrier_custom_wrap" style="display:none">
+                        <label>Carrier 직접 입력</label>
+                        <input type="text" id="f_carrier_custom" placeholder="운송사 이름">
+                    </div>
+                </div>
+                <div class="grid-3">
+                    <div class="field">
+                        <label>행선지 (City)</label>
+                        <input type="text" id="f_dest_city" placeholder="Los Angeles">
+                    </div>
+                    <div class="field">
+                        <label>State</label>
+                        <input type="text" id="f_dest_state" placeholder="CA" maxlength="2" style="text-transform:uppercase">
+                    </div>
+                    <div class="field">
+                        <label>픽업 예정일</label>
+                        <input type="date" id="f_pickup_date">
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top:12px">
+                    <div class="field">
+                        <label>ETA (배송 예정일)</label>
+                        <input type="date" id="f_eta_date">
+                    </div>
+                    <div class="field">
+                        <label>비고</label>
+                        <input type="text" id="f_notes" placeholder="특이사항 (선택)">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeCreateDO()">취소</button>
+            <button class="btn btn-primary" id="btn_save_do" onclick="saveNewDO()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px"><polyline points="20,6 9,17 4,12"/></svg>
+                DO 발행
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- DO 상세/수정 모달 -->
+<div class="modal-overlay" id="detail_modal">
+    <div class="modal">
+        <div class="modal-header">
+            <div>
+                <div class="modal-title" id="dm_title">DO 상세</div>
+                <div class="modal-sub" id="dm_sub"></div>
+            </div>
+            <button class="modal-close" onclick="closeDetailModal()">✕</button>
+        </div>
+        <div class="modal-body" id="dm_body"></div>
+        <div class="modal-footer" id="dm_footer"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function formatDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit' }).replace('. ', '/').replace('.', '');
+}
+
+function statusBadge(status) {
+    const map = {
+        'scheduled':  ['badge-orange', '출고 예정'],
+        'in_transit': ['badge-blue',   '운송 중'],
+        'delivered':  ['badge-green',  '배송 완료'],
+        'cancelled':  ['badge-red',    '취소'],
+    };
+    const [cls, label] = map[status] || ['badge-gray', status];
+    return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = `toast ${type}`;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 3000);
+}
+
+async function updateStatus(doId, newStatus, btn) {
+    btn.disabled = true; btn.textContent = '...';
+    const { error } = await db.from('delivery_orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', doId);
+    if (error) { showToast('상태 변경 실패', 'error'); btn.disabled = false; }
+    else { showToast('✅ 상태 변경 완료!', 'success'); loadData(); }
+}
+
+function nextStatusBtn(doId, status) {
+    const next = {
+        'scheduled': ['in_transit', '🚚 운송 시작'],
+        'in_transit': ['delivered', '✅ 배송 완료'],
+    };
+    if (!next[status]) return '';
+    const [nextStatus, label] = next[status];
+    return `<button class="btn-status" onclick="updateStatus('${doId}','${nextStatus}',this)">${label}</button>`;
+}
+
+async function loadData() {
+    document.getElementById('table_body').innerHTML = '<div class="loading">⏳ 데이터 불러오는 중...</div>';
+
+    let query = db.from('delivery_orders').select(`
+        *, containers ( container_no ), customers ( code )
+    `).order('created_at', { ascending: false });
+
+    const search = document.getElementById('search').value.trim();
+    if (search) query = query.or(`do_no.ilike.%${search}%,bol_no.ilike.%${search}%`);
+    const status = document.getElementById('filter_status').value;
+    if (status) query = query.eq('status', status);
+    if (window._filterDate) query = query.eq('do_date', window._filterDate);
+
+    const { data, error } = await query;
+
+    if (error) {
+        document.getElementById('table_body').innerHTML = `<div class="empty">⚠️ ${error.message}</div>`;
+        return;
+    }
+
+    _allDoData = data || []; // 상세 모달용 캐시
+
+    const total = data.length;
+    document.getElementById('stat_total').textContent = total;
+    document.getElementById('stat_scheduled').textContent = data.filter(d => d.status === 'scheduled').length;
+    document.getElementById('stat_transit').textContent = data.filter(d => d.status === 'in_transit').length;
+    document.getElementById('stat_delivered').textContent = data.filter(d => d.status === 'delivered').length;
+    document.getElementById('result_count').textContent = `총 ${total}건`;
+
+    if (total === 0) {
+        document.getElementById('table_body').innerHTML = `<div class="empty"><div style="font-size:32px;margin-bottom:12px">📭</div>등록된 출고가 없습니다.</div>`;
+        return;
+    }
+
+    const rows = data.map(d => {
+        const dest = [d.destination_city, d.destination_state].filter(Boolean).join(', ') || '—';
+        return `<tr style="cursor:pointer" onclick="openDetailModal('${d.id}')">
+            <td class="mono">${d.do_no || '—'}</td>
+            <td style="color:var(--text-light)">${formatDate(d.do_date)}</td>
+            <td class="mono" style="color:var(--cyan)">${d.containers?.container_no || '—'}</td>
+            <td style="color:var(--text);font-weight:600">${d.customers?.code || '—'}</td>
+            <td style="text-align:center;font-weight:700;color:var(--orange)">${d.pallet_count || 0}</td>
+            <td style="color:var(--text-light)">${dest}</td>
+            <td style="color:var(--text-light)">${d.carrier || '—'}</td>
+            <td class="mono" style="font-size:11px;color:var(--text-muted)">${d.bol_no || '—'}</td>
+            <td style="color:var(--text-light)">${formatDate(d.pickup_date)}</td>
+            <td style="color:var(--text-light)">${formatDate(d.eta_date)}</td>
+            <td>${statusBadge(d.status)}</td>
+            <td onclick="event.stopPropagation()">
+                ${nextStatusBtn(d.id, d.status)}
+            </td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('table_body').innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>DO No.</th><th>DO 일자</th><th>Container</th><th>화주</th>
+                    <th style="text-align:center">팔레트</th><th>행선지</th>
+                    <th>Carrier</th><th>BOL#</th><th>픽업일</th><th>ETA</th>
+                    <th>상태</th><th>액션</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+function resetFilter() {
+    document.getElementById('search').value = '';
+    document.getElementById('filter_status').value = '';
+    loadData();
+}
+
+document.getElementById('search').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadData();
+});
+
+function toggleInboundMenu() {
+    const sub = document.getElementById('inbound_submenu');
+    const chevron = document.getElementById('inbound_chevron');
+    const parent = document.getElementById('nav_inbound_parent');
+    sub.classList.toggle('open');
+    chevron.classList.toggle('open');
+    parent.classList.toggle('parent-open');
+}
+
+// ══════════════════════════════════════════
+//  DO 생성 모달
+// ══════════════════════════════════════════
+let _inventoryList = []; // 화주별 재고 캐시
+
+async function openCreateDO() {
+    // 날짜 기본값
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('f_do_date').value    = today;
+    document.getElementById('f_pickup_date').value = today;
+    document.getElementById('f_do_no').value      = genDoNo();
+    document.getElementById('f_pallet_count').value = '';
+    document.getElementById('f_bol_no').value     = '';
+    document.getElementById('f_dest_city').value  = '';
+    document.getElementById('f_dest_state').value = '';
+    document.getElementById('f_eta_date').value   = '';
+    document.getElementById('f_notes').value      = '';
+    document.getElementById('f_carrier').value    = '';
+    document.getElementById('carrier_custom_wrap').style.display = 'none';
+    document.getElementById('pallet_hint').textContent = '컨테이너를 먼저 선택하세요';
+    document.getElementById('pallet_hint').className   = 'pallet-hint';
+
+    // 화주 목록 로드
+    await loadCustomerOptions();
+
+    document.getElementById('create_modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCreateDO() {
+    document.getElementById('create_modal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function genDoNo() {
+    const d = new Date();
+    const ymd = d.toISOString().slice(2,10).replace(/-/g,'');
+    const rnd = String(Math.floor(Math.random()*900)+100);
+    return `DO-${ymd}-${rnd}`;
+}
+
+async function loadCustomerOptions() {
+    const sel = document.getElementById('f_customer');
+    sel.innerHTML = '<option value="">선택하세요</option>';
+    const { data } = await db.from('customers').select('id,code,name_kr').eq('is_active',true).order('code');
+    (data||[]).forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.id;
+        o.textContent = `${c.code}${c.name_kr ? ' — '+c.name_kr : ''}`;
+        sel.appendChild(o);
+    });
+}
+
+async function onCustomerChange() {
+    const custId = document.getElementById('f_customer').value;
+    const contSel = document.getElementById('f_container');
+    contSel.innerHTML = '<option value="">로딩 중...</option>';
+    document.getElementById('pallet_hint').textContent = '컨테이너를 선택하세요';
+
+    if (!custId) {
+        contSel.innerHTML = '<option value="">화주 먼저 선택</option>';
+        return;
+    }
+
+    // 재고 있는 컨테이너 (putaway/done 상태, remaining_pallets > 0)
+    const { data } = await db.from('containers')
+        .select('id, container_no, remaining_pallets, total_pallets, status, item_code')
+        .eq('customer_id', custId)
+        .eq('is_active', true)
+        .in('status', ['putaway','done','in_stock'])
+        .gt('remaining_pallets', 0)
+        .order('wh_receiving_date', { ascending: false });
+
+    _inventoryList = data || [];
+    contSel.innerHTML = '<option value="">선택하세요</option>';
+
+    if (!_inventoryList.length) {
+        contSel.innerHTML = '<option value="">출고 가능한 재고 없음</option>';
+        return;
+    }
+
+    _inventoryList.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.id;
+        o.textContent = `${c.container_no}  (잔여 ${c.remaining_pallets}plt)`;
+        contSel.appendChild(o);
+    });
+}
+
+function onContainerChange() {
+    const id = document.getElementById('f_container').value;
+    const c  = _inventoryList.find(x => String(x.id) === String(id));
+    const hint = document.getElementById('pallet_hint');
+    if (!c) { hint.textContent = '컨테이너를 선택하세요'; hint.className='pallet-hint'; return; }
+
+    hint.textContent = `최대 ${c.remaining_pallets}plt 출고 가능 (전체 ${c.total_pallets}plt 중 잔여)`;
+    hint.className = 'pallet-hint';
+    document.getElementById('f_pallet_count').max = c.remaining_pallets;
+    document.getElementById('f_pallet_count').value = c.remaining_pallets;
+    onPalletInput();
+}
+
+function onPalletInput() {
+    const id  = document.getElementById('f_container').value;
+    const c   = _inventoryList.find(x => String(x.id) === String(id));
+    if (!c) return;
+    const val = parseInt(document.getElementById('f_pallet_count').value) || 0;
+    const hint = document.getElementById('pallet_hint');
+    if (val > c.remaining_pallets) {
+        hint.textContent = `⚠️ 최대 ${c.remaining_pallets}plt 초과됨`;
+        hint.className   = 'pallet-hint warn';
+    } else {
+        hint.textContent = `최대 ${c.remaining_pallets}plt 출고 가능`;
+        hint.className   = 'pallet-hint';
+    }
+}
+
+// Carrier 직접입력 토글
+document.getElementById('f_carrier').addEventListener('change', function() {
+    const wrap = document.getElementById('carrier_custom_wrap');
+    wrap.style.display = this.value === '__custom__' ? 'block' : 'none';
+});
+
+async function saveNewDO() {
+    const doNo       = document.getElementById('f_do_no').value.trim();
+    const doDate     = document.getElementById('f_do_date').value;
+    const custId     = document.getElementById('f_customer').value;
+    const contId     = document.getElementById('f_container').value;
+    const pallets    = parseInt(document.getElementById('f_pallet_count').value) || 0;
+    const bolNo      = document.getElementById('f_bol_no').value.trim() || '';
+    const carrierRaw = document.getElementById('f_carrier').value;
+    const carrier    = carrierRaw === '__custom__'
+        ? document.getElementById('f_carrier_custom').value.trim()
+        : carrierRaw;
+    const destCity   = document.getElementById('f_dest_city').value.trim() || '';
+    const destState  = document.getElementById('f_dest_state').value.trim().toUpperCase() || '';
+    const pickupDate = document.getElementById('f_pickup_date').value || null;
+    const etaDate    = document.getElementById('f_eta_date').value || null;
+    const notes      = document.getElementById('f_notes').value.trim() || '';
+
+    // 검증
+    const errs = [];
+    if (!doNo)    errs.push('DO No.');
+    if (!doDate)  errs.push('DO 일자');
+    if (!custId)  errs.push('화주');
+    if (!contId)  errs.push('컨테이너');
+    if (!pallets || pallets < 1) errs.push('출고 팔레트 수');
+    if (!carrier) errs.push('Carrier');
+
+    if (errs.length) { showToast('필수 항목 입력: ' + errs.join(', '), 'error'); return; }
+
+    const c = _inventoryList.find(x => String(x.id) === String(contId));
+    if (c && pallets > c.remaining_pallets) {
+        showToast(`팔레트 수 초과 (최대 ${c.remaining_pallets}plt)`, 'error'); return;
+    }
+
+    const btn = document.getElementById('btn_save_do');
+    btn.disabled = true; btn.textContent = '발행 중...';
+
+    // ① DO 레코드 생성
+    const { data: newDo, error: e1 } = await db.from('delivery_orders').insert({
+        do_no: doNo, do_date: doDate,
+        customer_id: custId, container_id: contId,
+        pallet_count: pallets, bol_no: bolNo,
+        carrier, destination_city: destCity, destination_state: destState,
+        destination_address: [destCity, destState].filter(Boolean).join(', ') || '',
+        pickup_date: pickupDate, eta_date: etaDate,
+        notes, status: 'scheduled',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    }).select().single();
+
+    if (e1) {
+        showToast('DO 생성 실패: ' + e1.message, 'error');
+        btn.disabled = false; btn.textContent = 'DO 발행';
+        return;
+    }
+
+    // ② 컨테이너 잔여 팔레트 차감
+    const newRemaining = (c?.remaining_pallets || 0) - pallets;
+    const newStatus    = newRemaining <= 0 ? 'done' : (c?.status || 'in_stock');
+    await db.from('containers')
+        .update({ remaining_pallets: Math.max(0, newRemaining), status: newStatus })
+        .eq('id', contId);
+
+    showToast(`✅ DO ${doNo} 발행 완료! (재고 ${newRemaining}plt 잔여)`, 'success');
+    closeCreateDO();
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px"><polyline points="20,6 9,17 4,12"/></svg>DO 발행';
+    loadData();
+}
+
+// ══════════════════════════════════════════
+//  DO 상세 모달
+// ══════════════════════════════════════════
+let _allDoData = [];
+
+async function openDetailModal(id) {
+    const d = _allDoData.find(x => String(x.id) === String(id));
+    if (!d) return;
+
+    document.getElementById('dm_title').textContent = d.do_no || 'DO 상세';
+    document.getElementById('dm_sub').textContent   = `${d.customers?.code || ''} · ${statusLabel(d.status)}`;
+
+    const dest = [d.destination_city, d.destination_state].filter(Boolean).join(', ') || '—';
+
+    document.getElementById('dm_body').innerHTML = `
+        <div class="do-detail-section">
+            <div class="do-detail-label">출고 정보</div>
+            <div class="do-info-grid">
+                <div class="do-info-item"><div class="dii-label">DO No.</div><div class="dii-value mono">${d.do_no||'—'}</div></div>
+                <div class="do-info-item"><div class="dii-label">DO 일자</div><div class="dii-value">${d.do_date||'—'}</div></div>
+                <div class="do-info-item"><div class="dii-label">상태</div><div class="dii-value">${statusBadge(d.status)}</div></div>
+                <div class="do-info-item"><div class="dii-label">화주</div><div class="dii-value">${d.customers?.code||'—'}</div></div>
+                <div class="do-info-item"><div class="dii-label">컨테이너</div><div class="dii-value mono">${d.containers?.container_no||'—'}</div></div>
+                <div class="do-info-item"><div class="dii-label">팔레트</div><div class="dii-value" style="color:var(--orange)">${d.pallet_count||0} plt</div></div>
+            </div>
+        </div>
+        <div class="do-detail-section">
+            <div class="do-detail-label">운송 정보</div>
+            <div class="do-info-grid">
+                <div class="do-info-item"><div class="dii-label">Carrier</div><div class="dii-value">${d.carrier||'—'}</div></div>
+                <div class="do-info-item"><div class="dii-label">BOL No.</div><div class="dii-value mono">${d.bol_no||'—'}</div></div>
+                <div class="do-info-item"><div class="dii-label">행선지</div><div class="dii-value">${dest}</div></div>
+                <div class="do-info-item"><div class="dii-label">픽업일</div><div class="dii-value">${d.pickup_date||'—'}</div></div>
+                <div class="do-info-item"><div class="dii-label">ETA</div><div class="dii-value">${d.eta_date||'—'}</div></div>
+                <div class="do-info-item"><div class="dii-label">POD</div><div class="dii-value">${d.pod_url ? `<a href="${d.pod_url}" target="_blank" style="color:var(--cyan)">📄 보기</a>` : '미업로드'}</div></div>
+            </div>
+        </div>
+        ${d.notes ? `<div class="do-detail-section"><div class="do-detail-label">비고</div><div style="font-size:13px;color:var(--text-light);padding:10px 14px;background:var(--bg3);border-radius:8px">${d.notes}</div></div>` : ''}
+    `;
+
+    // 상태별 액션 버튼
+    let footerHtml = `<button class="btn btn-secondary" onclick="closeDetailModal()">닫기</button>`;
+    if (d.status === 'scheduled') {
+        footerHtml += `
+            <button class="btn-action btn-transit" onclick="changeStatus('${d.id}','in_transit','🚚 운송 시작')">🚚 운송 시작</button>
+            <button class="btn-action btn-cancel" onclick="changeStatus('${d.id}','cancelled','⛔ DO 취소')">⛔ 취소</button>`;
+    } else if (d.status === 'in_transit') {
+        footerHtml += `<button class="btn-action btn-delivered" onclick="changeStatus('${d.id}','delivered','✅ 배송 완료')">✅ 배송 완료 처리</button>`;
+    }
+
+    document.getElementById('dm_footer').innerHTML = footerHtml;
+    document.getElementById('detail_modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeDetailModal() {
+    document.getElementById('detail_modal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function statusLabel(s) {
+    return { scheduled:'출고 예정', in_transit:'운송 중', delivered:'배송 완료', cancelled:'취소' }[s] || s;
+}
+
+async function changeStatus(id, newStatus, label) {
+    if (!confirm(`"${label}" 처리하시겠습니까?`)) return;
+    const { error } = await db.from('delivery_orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', id);
+    if (error) { showToast('변경 실패: ' + error.message, 'error'); return; }
+    showToast(`✅ ${label} 완료`, 'success');
+    closeDetailModal();
+    loadData();
+}
+
+// 모달 바깥 클릭 닫기
+document.getElementById('create_modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeCreateDO(); });
+document.getElementById('detail_modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetailModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeCreateDO(); closeDetailModal(); } });
+
+// URL 파라미터로 날짜 필터 자동 적용
+const _urlDate = new URLSearchParams(location.search).get('date');
+if (_urlDate) window._filterDate = _urlDate;
+loadData();
+</script>
+</body>
+</html>
