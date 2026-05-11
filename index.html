@@ -497,27 +497,10 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   </div>
 </div>
 
-<script>
-  /* ─── 상수 (API 키 설정 필요) ──────────────────────────────────────────────────
-   *
-   *  아래 항목들을 귀사 환경에 맞게 교체해주세요.
-   *
-   *  1. OPENWEATHER_API_KEY
-   *     - https://openweathermap.org 에서 무료 계정 생성 후 발급
-   *
-   *  2. LANDING_ENDPOINT / LANDING_API_KEY
-   *     - https://app.landing.ai 에서 모델 학습 후 엔드포인트 발급
-   *     - 모델 학습에 SBB 부품 이미지 데이터 필요
-   *
-   *  3. Firebase 설정 (firebaseConfig)
-   *     - https://console.firebase.google.com 에서 프로젝트 생성 후 발급
-   *     - Firestore Database 활성화 필요
-   *
-   * ─────────────────────────────────────────────────────────────────────────── */
 
   const API_KEY = 'YOUR_OPENWEATHER_API_KEY';
-  const LANDING_ENDPOINT = 'YOUR_LANDINGLENS_ENDPOINT_URL';
-  const LANDING_API_KEY = 'YOUR_LANDINGLENS_API_KEY';
+  const LANDING_ENDPOINT = 'https://predict.app.landing.ai/inference/v1/predict?endpoint_id=b8759335-25e5-4370-9ffb-d21389c7a3d0';
+  const LANDING_API_KEY = 'land_sk_VVJaBvBFy24zHO1QGO5kt6V1yccWurBfiD2Ujncr1lPXSvMLsD';
 
   const cities = [
     { name: 'LA 다운타운', en: 'Los Angeles', id: 'seoul' },
