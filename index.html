@@ -72,23 +72,17 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 .dot-warn { background: #88520e; }
 .dot-err { background: #ba1a1a; }
 .dot-blue { background: #3b82f6; }
-/* 사이드바 nav active */
 .nav-link { display:flex; align-items:center; gap:12px; padding: 10px 12px; border-radius:8px; color:#78716c; font-size:14px; cursor:pointer; transition: all 0.15s; text-decoration:none; }
 .nav-link:hover { background:#e7e5e4; color:#1c1917; }
 .nav-link.active { background:#e7e5e4; color:#3f5a0e; font-weight:600; border-right: 3px solid #3a5c10; border-radius: 8px 0 0 8px; }
-/* 분석 이력 카드 */
 .history-card { border: 1px solid #e7e5e4; border-radius: 12px; overflow:hidden; transition: box-shadow 0.2s; }
 .history-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
-/* 로드보드 상태 뱃지 */
 .lb-badge { font-size:11px; padding:2px 10px; border-radius:20px; font-weight:600; white-space:nowrap; }
 .lb-available { background:#b8f389; color:#265100; }
 .lb-partial { background:#ffdcbe; color:#693c00; }
 .lb-full { background:#ffdad6; color:#93000a; }
-/* 페이지 전환 */
 .page { display: none; }
 .page.active { display: block; }
-
-/* ── 모바일 반응형 ── */
 .mobile-topbar { display: none; }
 .mobile-bottomnav { display: none; }
 
@@ -96,47 +90,25 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   aside { display: none !important; }
   .mobile-topbar { display: flex !important; }
   .mobile-bottomnav { display: flex !important; }
-  /* 상단바 높이만큼 밀어내기 */
   .page { padding: 12px !important; padding-top: 66px !important; display: none !important; }
   .page.active { display: block !important; }
-  /* 지도 높이 */
   .h-80 { height: 200px !important; }
-  /* windy 탭 스크롤 */
   .windy-tabs-row { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 2px; }
-  /* 헤더 패딩 */
   .desktop-header { display: none !important; }
-  /* 그리드 1열 */
   .md-grid-3 { grid-template-columns: 1fr !important; }
   .md-grid-2 { grid-template-columns: 1fr !important; }
   .md-col-span-2 { grid-column: span 1 !important; }
-  /* 본문 하단 탭바 여백 */
   main { padding-bottom: 68px; }
-
-  /* 타이틀 줄바꿈 방지 */
   h2.font-public-sans { font-size: 1.25rem !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
-
-  /* 상태 pill 줄바꿈 방지 - 가로 스크롤 */
   .status-pills { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 4px; }
-
-  /* 헤더 영역 세로로 */
   .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
-
-  /* AI 판별 페이지 헤더 */
   .ai-page-header { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
   .ai-page-header span.text-xs { display: block; margin-top: 2px; }
-
-  /* 분석 카드 4열 → 2열 */
   .ana-summary-grid { grid-template-columns: repeat(2, 1fr) !important; }
-
-  /* 테이블 폰트 작게 */
   .batch-table { font-size: 11px !important; }
   .batch-table th { padding: 6px 8px !important; font-size: 9px !important; }
   .batch-table td { padding: 6px 8px !important; }
-
-  /* 로드보드 테이블 */
   #lb-tbody td { font-size: 11px !important; }
-
-  /* 센서 4열 → 2열 */
   .sensor-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
 </style>
@@ -160,7 +132,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     <span class="material-symbols-outlined" id="mob-icon-dashboard" style="font-size:22px;font-variation-settings:'FILL' 1;">dashboard</span>
     <span style="font-size:10px;font-family:Inter,sans-serif;">대시보드</span>
   </a>
-
   <a onclick="showPage('ai')" class="mob-tab flex flex-col items-center gap-0.5 cursor-pointer" style="margin-top:-20px;">
     <div class="w-12 h-12 rounded-full cta-gradient flex items-center justify-center shadow-lg">
       <span class="material-symbols-outlined text-white" style="font-size:22px;">search</span>
@@ -193,7 +164,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       <span class="material-symbols-outlined text-lg">dashboard</span>
       <span>대시보드</span>
     </a>
-
     <a class="nav-link" onclick="showPage('ai')">
       <span class="material-symbols-outlined text-lg">search</span>
       <span>AI 불량 판별</span>
@@ -251,11 +221,8 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     </div>
   </header>
 
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: 대시보드                                  -->
-  <!-- ══════════════════════════════════════════════ -->
+  <!-- PAGE: 대시보드 -->
   <div id="page-dashboard" class="page active p-6 space-y-6 flex-1 overflow-y-auto pt-14 md:pt-6">
-
     <div class="page-header flex items-start justify-between">
       <div>
         <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">CONTROL TOWER</h2>
@@ -268,7 +235,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- Windy + Weather/Alerts -->
     <div class="grid grid-cols-1 gap-6">
       <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
         <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
@@ -294,13 +260,10 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         </div>
       </div>
     </div>
-
     <p class="text-right text-xs text-stone-300" id="last-updated"></p>
-  </div><!-- /page-dashboard -->
+  </div>
 
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: AI 불량 판별                              -->
-  <!-- ══════════════════════════════════════════════ -->
+  <!-- PAGE: AI 불량 판별 -->
   <div id="page-ai" class="page p-6 space-y-6 flex-1 overflow-y-auto">
     <div class="ai-page-header flex items-center justify-between">
       <div>
@@ -310,7 +273,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       <span class="text-xs text-stone-400 whitespace-nowrap">Model-04-06-2026_1 · 2026-04-06 · 23장</span>
     </div>
 
-    <!-- 모델 성능 요약 -->
     <div class="bg-white rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm overflow-hidden">
       <div class="p-5 border-b border-stone-100 flex items-center gap-3">
         <span class="material-symbols-outlined text-primary">search</span>
@@ -319,7 +281,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
 
       <div class="p-5 space-y-4">
-        <!-- 드롭존 -->
         <div id="batch-drop-zone"
           class="border-2 border-dashed border-stone-200 rounded-xl p-10 text-center cursor-pointer hover:border-primary hover:bg-green-50 transition-all"
           onclick="document.getElementById('batch-file-input').click()"
@@ -331,7 +292,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
           <p class="text-xs text-stone-300 mt-1">여러 장 동시 업로드 가능 · JPG, PNG 지원</p>
           <input type="file" id="batch-file-input" accept="image/*" multiple style="display:none;" onchange="runBatchInference(this.files)">
         </div>
-        <!-- 진행바 -->
         <div id="batch-progress" class="hidden">
           <div class="flex justify-between items-center mb-1">
             <p class="text-xs text-stone-500 font-medium" id="batch-status"></p>
@@ -341,7 +301,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
             <div class="bg-primary h-full rounded-full transition-all duration-300" id="batch-progress-bar" style="width:0%"></div>
           </div>
         </div>
-        <!-- 결과 -->
         <div id="batch-results" class="hidden space-y-4">
           <div class="grid grid-cols-4 gap-3">
             <div class="bg-stone-50 rounded-lg p-3 text-center border border-stone-100">
@@ -378,12 +337,9 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         </div>
       </div>
     </div>
-  </div><!-- /page-ai -->
+  </div>
 
-
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: 센서 현황                                 -->
-  <!-- ══════════════════════════════════════════════ -->
+  <!-- PAGE: 센서 현황 -->
   <div id="page-sensors" class="page p-6 space-y-6 flex-1 overflow-y-auto">
     <div>
       <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">센서 현황</h2>
@@ -405,12 +361,9 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         <p class="text-xs text-amber-600 mt-0.5">온도 31°C / 습도 78% — 배터리 보관 권장 범위 초과. 즉시 확인 요망.</p>
       </div>
     </div>
-  </div><!-- /page-sensors -->
+  </div>
 
-
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: 분석 (검수 이력 + 캘린더)                 -->
-  <!-- ══════════════════════════════════════════════ -->
+  <!-- PAGE: 분석 -->
   <div id="page-analytics" class="page p-6 space-y-6 flex-1 overflow-y-auto">
     <div class="flex items-center justify-between">
       <div>
@@ -427,7 +380,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- 누적 요약 카드 -->
     <div class="ana-summary-grid grid grid-cols-4 gap-4">
       <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
         <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">총 검수 세션</p>
@@ -451,10 +403,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- 캘린더 + 날짜별 세션 -->
     <div class="grid grid-cols-2 gap-6 md-grid-2">
-
-      <!-- 캘린더 -->
       <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
         <div class="flex items-center justify-between mb-4">
           <button onclick="calPrev()" class="text-stone-400 hover:text-stone-700 transition-colors p-1 rounded-lg hover:bg-stone-100">
@@ -465,7 +414,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
             <span class="material-symbols-outlined text-lg">chevron_right</span>
           </button>
         </div>
-        <!-- 요일 헤더 -->
         <div class="grid grid-cols-7 mb-1">
           <div class="text-center text-[10px] font-bold text-red-400 py-1">일</div>
           <div class="text-center text-[10px] font-bold text-stone-400 py-1">월</div>
@@ -475,15 +423,12 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
           <div class="text-center text-[10px] font-bold text-stone-400 py-1">금</div>
           <div class="text-center text-[10px] font-bold text-blue-400 py-1">토</div>
         </div>
-        <!-- 날짜 그리드 -->
         <div class="grid grid-cols-7 gap-y-1" id="cal-grid"></div>
-        <!-- 범례 -->
         <div class="flex items-center gap-4 mt-4 pt-3 border-t border-stone-100">
           <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-primary"></div><span class="text-[10px] text-stone-400">검수 실행</span></div>
         </div>
       </div>
 
-      <!-- 날짜별 세션 패널 -->
       <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
         <div id="cal-panel-empty" class="flex flex-col items-center justify-center h-full py-16 text-center px-6">
           <span class="material-symbols-outlined text-5xl text-stone-200 block mb-3">calendar_today</span>
@@ -501,7 +446,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       </div>
     </div>
 
-    <!-- 세션 상세 -->
     <div id="ana-detail-wrap" class="hidden bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-stone-100 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -525,12 +469,9 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         </table>
       </div>
     </div>
-  </div><!-- /page-analytics -->
+  </div>
 
-
-  <!-- ══════════════════════════════════════════════ -->
-  <!-- PAGE: 설정                                     -->
-  <!-- ══════════════════════════════════════════════ -->
+  <!-- PAGE: 설정 -->
   <div id="page-settings" class="page p-6 flex-1 overflow-y-auto">
     <div class="mb-6">
       <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">설정</h2>
@@ -540,7 +481,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       <span class="material-symbols-outlined text-5xl block mb-3">settings</span>
       <p class="text-sm">설정 페이지 준비 중입니다</p>
     </div>
-  </div><!-- /page-settings -->
+  </div>
 
 </main>
 </div>
@@ -557,10 +498,27 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
 </div>
 
 <script>
-  /* ─── 상수 ────────────────────────────────────────── */
-  const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
-  const LANDING_ENDPOINT = 'https://predict.app.landing.ai/inference/v1/predict?endpoint_id=b8759335-25e5-4370-9ffb-d21389c7a3d0';
-  const LANDING_API_KEY = 'land_sk_VVJaBvBFy24zHO1QGO5kt6V1yccWurBfiD2Ujncr1lPXSvMLsD';
+  /* ─── 상수 (API 키 설정 필요) ──────────────────────────────────────────────────
+   *
+   *  아래 항목들을 귀사 환경에 맞게 교체해주세요.
+   *
+   *  1. OPENWEATHER_API_KEY
+   *     - https://openweathermap.org 에서 무료 계정 생성 후 발급
+   *
+   *  2. LANDING_ENDPOINT / LANDING_API_KEY
+   *     - https://app.landing.ai 에서 모델 학습 후 엔드포인트 발급
+   *     - 모델 학습에 SBB 부품 이미지 데이터 필요
+   *
+   *  3. Firebase 설정 (firebaseConfig)
+   *     - https://console.firebase.google.com 에서 프로젝트 생성 후 발급
+   *     - Firestore Database 활성화 필요
+   *
+   * ─────────────────────────────────────────────────────────────────────────── */
+
+  const API_KEY = 'YOUR_OPENWEATHER_API_KEY';
+  const LANDING_ENDPOINT = 'YOUR_LANDINGLENS_ENDPOINT_URL';
+  const LANDING_API_KEY = 'YOUR_LANDINGLENS_API_KEY';
+
   const cities = [
     { name: 'LA 다운타운', en: 'Los Angeles', id: 'seoul' },
     { name: '롱비치',      en: 'Long Beach',  id: 'busan' },
@@ -614,7 +572,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     try {
       const results = await Promise.all(cities.map(c => fetchCity(c)));
       const allOk = results.every(r => r.cod === 200);
-      if (!allOk) { list.innerHTML = '<p class="text-xs text-amber-500 text-center py-2">API Key 활성화 대기 중</p>'; return; }
+      if (!allOk) { list.innerHTML = '<p class="text-xs text-amber-500 text-center py-2">API Key를 확인해주세요</p>'; return; }
       list.innerHTML = results.map((data, i) => {
         const temp = Math.round(data.main.temp);
         return `<div class="flex items-center justify-between py-2 border-b border-stone-50 last:border-0">
@@ -636,31 +594,41 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     const t = n.toLocaleTimeString('ko-KR');
     return `${d} ${t}`;
   }
-
   function handleBatchDrop(event) {
     const files = event.dataTransfer.files;
     if (files.length > 0) runBatchInference(files);
   }
-
   async function analyzeImage(file) {
     const formData = new FormData(); formData.append('file', file);
     const data = await (await fetch(LANDING_ENDPOINT, { method:'POST', headers:{'apikey':LANDING_API_KEY}, body:formData })).json();
     let hasDamage=false, finalScore=0;
+    const CONFIDENCE_THRESHOLD = 0.36; // LandingLens 모델 기준과 동일하게 설정
     if (data && data.backbonepredictions) {
       const bp = data.backbonepredictions;
-      if (Array.isArray(bp)) { hasDamage=bp.some(p=>(p.labelName||'').toLowerCase()==='damage'); if(bp.length>0) finalScore=bp[0].score||0; }
-      else if (typeof bp==='object') { const v=Object.values(bp); hasDamage=v.some(p=>(p.labelName||'').toLowerCase()==='damage'); if(v.length>0) finalScore=v[0].score||0; }
+      if (Array.isArray(bp)) {
+        const dmg = bp.find(p=>(p.labelName||'').toLowerCase()==='damage');
+        if(dmg) { finalScore=dmg.score||0; hasDamage=finalScore>=CONFIDENCE_THRESHOLD; }
+      } else if (typeof bp==='object') {
+        const v=Object.values(bp);
+        const dmg = v.find(p=>(p.labelName||'').toLowerCase()==='damage');
+        if(dmg) { finalScore=dmg.score||0; hasDamage=finalScore>=CONFIDENCE_THRESHOLD; }
+      }
     }
-    if (data && data.predictions) {
+    if (!hasDamage && data && data.predictions) {
       const preds = data.predictions;
-      if (Array.isArray(preds)&&preds.length>0) { if((preds[0].labelName||'').toLowerCase()==='ng') hasDamage=true; if(!finalScore) finalScore=preds[0].score||0; }
-      else if (typeof preds==='object') { const v=Object.values(preds); if(v.some(p=>(p.labelName||'').toLowerCase()==='ng')) hasDamage=true; if(!finalScore&&v.length>0) finalScore=v[0].score||0; }
+      if (Array.isArray(preds)&&preds.length>0) {
+        const score=preds[0].score||0;
+        if((preds[0].labelName||'').toLowerCase()==='ng'&&score>=CONFIDENCE_THRESHOLD) { hasDamage=true; if(!finalScore) finalScore=score; }
+      } else if (typeof preds==='object') {
+        const v=Object.values(preds);
+        const ng=v.find(p=>(p.labelName||'').toLowerCase()==='ng');
+        if(ng&&(ng.score||0)>=CONFIDENCE_THRESHOLD) { hasDamage=true; if(!finalScore) finalScore=ng.score||0; }
+      }
     }
     return { hasDamage, finalScore };
   }
 
   let batchResults = [];
-  // 이미지 ObjectURL 저장 (썸네일용, 세션 내 유지)
   const batchImageURLs = {};
 
   function openImgModal(src, label) {
@@ -675,7 +643,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
-  // ESC 키로 닫기
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImgModal(); });
 
   async function runBatchInference(files) {
@@ -725,7 +692,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     document.getElementById('batch-pct').textContent = '100%';
     document.getElementById('batch-status').textContent = `✅ 분석 완료! 총 ${fileArray.length}개 검수`;
 
-    // ── 이력 저장 (Firebase Firestore) ──
     const session = {
       id: Date.now(),
       datetime: sessionStart,
@@ -739,7 +705,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   }
 
   function resetInspection() {
-    // ObjectURL 메모리 해제
     Object.values(batchImageURLs).forEach(obj => URL.revokeObjectURL(obj.url));
     Object.keys(batchImageURLs).forEach(k => delete batchImageURLs[k]);
     batchResults = [];
@@ -760,13 +725,12 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     a.click();
   }
 
-  /* ─── 분석 페이지 (캘린더) ───────────────────────── */
+  /* ─── 분석 페이지 ─────────────────────────────────── */
   let currentDetailSession = null;
   let calYear = new Date().getFullYear();
   let calMonth = new Date().getMonth();
   let selectedCalDate = null;
 
-  // ── 공통 스토리지 헬퍼 (Firebase Firestore) ──
   async function getHistory() {
     if (db) {
       try {
@@ -812,31 +776,26 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
       if (!dayMap[d]) dayMap[d] = [];
       dayMap[d].push(s);
     });
-
     const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
     document.getElementById('cal-title').textContent = `${calYear}년 ${months[calMonth]}`;
-
     const firstDay = new Date(calYear, calMonth, 1).getDay();
     const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-
     let cells = '';
     for (let i = 0; i < firstDay; i++) cells += `<div></div>`;
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
       const sessions = dayMap[dateStr] || [];
-      const hasNormal = sessions.length > 0;
       const isToday = dateStr === todayStr;
       const isSelected = dateStr === selectedCalDate;
       const dow = (firstDay + d - 1) % 7;
       const dayColor = dow === 0 ? 'text-red-400' : dow === 6 ? 'text-blue-400' : 'text-stone-700';
-
       cells += `<div class="relative flex flex-col items-center py-1 cursor-pointer rounded-lg transition-all hover:bg-stone-50 ${isSelected ? 'bg-primary-fixed' : ''}"
         onclick="selectCalDate('${dateStr}')">
         <span class="text-xs font-medium ${isSelected ? 'font-bold text-primary' : isToday ? 'font-black text-primary' : dayColor}">${d}</span>
         ${isToday && !isSelected ? '<div class="w-1 h-1 rounded-full bg-primary mt-0.5"></div>' : ''}
-        ${hasNormal && !isToday ? `<div class="mt-0.5"><div class="w-1.5 h-1.5 rounded-full bg-primary mx-auto"></div></div>` : ''}
+        ${sessions.length > 0 && !isToday ? `<div class="mt-0.5"><div class="w-1.5 h-1.5 rounded-full bg-primary mx-auto"></div></div>` : ''}
       </div>`;
     }
     document.getElementById('cal-grid').innerHTML = cells;
@@ -848,22 +807,14 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     if (!silent) renderCalendar();
     const hist = await getHistory();
     const sessions = hist.filter(s => (s.datetime || '').startsWith(dateStr));
-
     const empty   = document.getElementById('cal-panel-empty');
     const content = document.getElementById('cal-panel-content');
-
-    if (!sessions.length) {
-      empty.classList.remove('hidden');
-      content.classList.add('hidden');
-      return;
-    }
+    if (!sessions.length) { empty.classList.remove('hidden'); content.classList.add('hidden'); return; }
     empty.classList.add('hidden');
     content.classList.remove('hidden');
-
     const [y,m,d] = dateStr.split('-');
     document.getElementById('cal-panel-date').textContent = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`;
     document.getElementById('cal-panel-count').textContent = `${sessions.length}세션`;
-
     document.getElementById('cal-panel-sessions').innerHTML = sessions.map((s,i) => {
       const timePart = (s.datetime || '').split(' ').slice(1).join(' ');
       const rateColor = s.rate === 0 ? 'text-primary' : s.rate < 20 ? 'text-secondary' : 'text-error';
@@ -902,7 +853,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     document.getElementById('cal-panel-content').classList.add('hidden');
     renderCalendar();
   }
-
   function calNext() {
     calMonth++;
     if (calMonth > 11) { calMonth = 0; calYear++; }
@@ -919,14 +869,12 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     currentDetailSession = session;
     const num = hist.length - hist.indexOf(session);
     document.getElementById('ana-detail-title').textContent = `세션 #${num} 상세 — ${session.datetime}`;
-
     const rateColor = session.rate === 0 ? '#275300' : session.rate < 20 ? '#88520e' : '#ba1a1a';
     document.getElementById('ana-detail-summary').innerHTML = `
       <div class="p-4 text-center"><p class="text-[9px] uppercase tracking-widest text-stone-400 mb-1">총 검수</p><p class="text-2xl font-black font-public-sans">${session.total}</p></div>
       <div class="p-4 text-center bg-green-50"><p class="text-[9px] uppercase tracking-widest text-green-500 mb-1">✅ 정상</p><p class="text-2xl font-black font-public-sans text-primary">${session.normal}</p></div>
       <div class="p-4 text-center bg-red-50"><p class="text-[9px] uppercase tracking-widest text-red-400 mb-1">⚠️ 데미지</p><p class="text-2xl font-black font-public-sans text-error">${session.damage}</p></div>
       <div class="p-4 text-center"><p class="text-[9px] uppercase tracking-widest text-stone-400 mb-1">불량률</p><p class="text-2xl font-black font-public-sans" style="color:${rateColor}">${session.rate}%</p></div>`;
-
     document.getElementById('ana-detail-tbody').innerHTML = session.items.map((item, i) => `
       <tr>
         <td class="text-stone-400">${i+1}</td>
@@ -952,10 +900,7 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
         const batch = db.batch();
         snap.docs.forEach(d => batch.delete(d.ref));
         await batch.commit();
-      } catch(e) {
-        console.warn('Firestore 삭제 실패:', e);
-        localStorage.removeItem('sbb_history');
-      }
+      } catch(e) { localStorage.removeItem('sbb_history'); }
     } else {
       localStorage.removeItem('sbb_history');
     }
@@ -993,22 +938,26 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
     a.click();
   }
 
-  /* ─── Firebase 초기화 ────────────────────────────── */
+  /* ─── Firebase 초기화 ────────────────────────────────────────────────────────
+   *  아래 firebaseConfig 값을 귀사 Firebase 프로젝트 설정으로 교체해주세요.
+   *  Firebase Console(https://console.firebase.google.com) → 프로젝트 설정 → 앱 추가
+   * ─────────────────────────────────────────────────────────────────────────── */
   const firebaseConfig = {
-    apiKey: "AIzaSyB6rnyG5kULDiImo1UuI2wZ40R4kMDuYE0",
-    authDomain: "sbb-control-tower-33b95.firebaseapp.com",
-    projectId: "sbb-control-tower-33b95",
-    storageBucket: "sbb-control-tower-33b95.firebasestorage.app",
-    messagingSenderId: "667691336675",
-    appId: "1:667691336675:web:acf946e8fe21a589a296d6"
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.firebasestorage.app",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
   };
+
   let db = null;
   function initFirebase() {
     try {
       if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       db = firebase.firestore();
       console.log('✅ Firebase Firestore 연결됨');
-    } catch(e) { console.warn('Firebase 초기화 실패:', e); }
+    } catch(e) { console.warn('Firebase 초기화 실패 - localStorage 모드로 동작합니다:', e); }
   }
 
   /* ─── 초기 실행 ───────────────────────────────────── */
@@ -1016,7 +965,6 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   loadWeather();
   setInterval(loadWeather, 5 * 60 * 1000);
 
-  // PWA Service Worker 등록
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('service-worker.js')
