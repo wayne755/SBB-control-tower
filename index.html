@@ -497,8 +497,25 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
   </div>
 </div>
 
+<script>
+  /* ─── 상수 (API 키 설정 필요) ──────────────────────────────────────────────────
+   *
+   *  아래 항목들을 귀사 환경에 맞게 교체해주세요.
+   *
+   *  1. OPENWEATHER_API_KEY
+   *     - https://openweathermap.org 에서 무료 계정 생성 후 발급
+   *
+   *  2. LANDING_ENDPOINT / LANDING_API_KEY
+   *     - https://app.landing.ai 에서 모델 학습 후 엔드포인트 발급
+   *     - 모델 학습에 SBB 부품 이미지 데이터 필요
+   *
+   *  3. Firebase 설정 (firebaseConfig)
+   *     - https://console.firebase.google.com 에서 프로젝트 생성 후 발급
+   *     - Firestore Database 활성화 필요
+   *
+   * ─────────────────────────────────────────────────────────────────────────── */
 
-  const API_KEY = 'YOUR_OPENWEATHER_API_KEY';
+  const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
   const LANDING_ENDPOINT = 'https://predict.app.landing.ai/inference/v1/predict?endpoint_id=b8759335-25e5-4370-9ffb-d21389c7a3d0';
   const LANDING_API_KEY = 'land_sk_VVJaBvBFy24zHO1QGO5kt6V1yccWurBfiD2Ujncr1lPXSvMLsD';
 
@@ -926,12 +943,12 @@ body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c
    *  Firebase Console(https://console.firebase.google.com) → 프로젝트 설정 → 앱 추가
    * ─────────────────────────────────────────────────────────────────────────── */
   const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.firebasestorage.app",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyB6rnyG5kULDiImo1UuI2wZ40R4kMDuYE0",
+    authDomain: "sbb-control-tower-33b95.firebaseapp.com",
+    projectId: "sbb-control-tower-33b95",
+    storageBucket: "sbb-control-tower-33b95.firebasestorage.app",
+    messagingSenderId: "667691336675",
+    appId: "1:667691336675:web:acf946e8fe21a589a296d6"
   };
 
   let db = null;
