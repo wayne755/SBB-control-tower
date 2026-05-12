@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>SBB Control Tower | 삼성SDI 물류 관제</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SBB Control">
+<meta name="theme-color" content="#275300">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        "surface-container-low": "#f4f4f2",
+        "surface-bright": "#f9f9f7",
+        "on-surface-variant": "#42493b",
+        "outline-variant": "#c2c9b7",
+        "surface-container": "#eeeeec",
+        "surface-container-highest": "#e2e3e1",
+        "surface-container-high": "#e8e8e6",
+        "surface-container-lowest": "#ffffff",
+        "on-surface": "#1a1c1b",
+        "primary": "#275300",
+        "primary-container": "#3b6d11",
+        "on-primary": "#ffffff",
+        "primary-fixed": "#b8f389",
+        "on-primary-fixed-variant": "#265100",
+        "secondary": "#88520e",
+        "secondary-container": "#feb56b",
+        "secondary-fixed": "#ffdcbe",
+        "on-secondary-fixed-variant": "#693c00",
+        "error": "#ba1a1a",
+        "error-container": "#ffdad6",
+        "surface": "#f9f9f7",
+      },
+      fontFamily: { "headline": ["Public Sans"], "body": ["Inter"] }
+    }
+  }
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; background-color: #f9f9f7; color: #1a1c1b; }
+.font-public-sans { font-family: 'Public Sans', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+.cta-gradient { background: linear-gradient(135deg, #275300 0%, #3b6d11 100%); }
+.ai-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.ai-badge.normal { background: #b8f389; color: #265100; }
+.ai-badge.damage { background: #ffdad6; color: #93000a; }
+.ai-badge.loading { background: #ffdcbe; color: #693c00; }
+.batch-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.batch-table th { background: #f4f4f2; padding: 8px 12px; text-align: left; font-weight: 600; color: #42493b; border-bottom: 1px solid #e2e3e1; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+.batch-table td { padding: 8px 12px; border-bottom: 1px solid #eeeeec; vertical-align: middle; }
+.batch-table tr:last-child td { border-bottom: none; }
+.batch-table tr:hover td { background: #f4f4f2; }
+.windy-tab { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #c2c9b7; background: #fff; cursor: pointer; color: #42493b; transition: all 0.2s; }
+.windy-tab.active { background: #275300; color: #fff; border-color: #275300; font-weight: 600; }
+.windy-tab:hover:not(.active) { background: #f4f4f2; }
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+.dot-ok { background: #386a0e; }
+.dot-warn { background: #88520e; }
+.dot-err { background: #ba1a1a; }
+.dot-blue { background: #3b82f6; }
+.nav-link { display:flex; align-items:center; gap:12px; padding: 10px 12px; border-radius:8px; color:#78716c; font-size:14px; cursor:pointer; transition: all 0.15s; text-decoration:none; }
+.nav-link:hover { background:#e7e5e4; color:#1c1917; }
+.nav-link.active { background:#e7e5e4; color:#3f5a0e; font-weight:600; border-right: 3px solid #3a5c10; border-radius: 8px 0 0 8px; }
+.history-card { border: 1px solid #e7e5e4; border-radius: 12px; overflow:hidden; transition: box-shadow 0.2s; }
+.history-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+.lb-badge { font-size:11px; padding:2px 10px; border-radius:20px; font-weight:600; white-space:nowrap; }
+.lb-available { background:#b8f389; color:#265100; }
+.lb-partial { background:#ffdcbe; color:#693c00; }
+.lb-full { background:#ffdad6; color:#93000a; }
+.page { display: none; }
+.page.active { display: block; }
+.mobile-topbar { display: none; }
+.mobile-bottomnav { display: none; }
+
+@media (max-width: 768px) {
+  aside { display: none !important; }
+  .mobile-topbar { display: flex !important; }
+  .mobile-bottomnav { display: flex !important; }
+  .page { padding: 12px !important; padding-top: 66px !important; display: none !important; }
+  .page.active { display: block !important; }
+  .h-80 { height: 200px !important; }
+  .windy-tabs-row { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 2px; }
+  .desktop-header { display: none !important; }
+  .md-grid-3 { grid-template-columns: 1fr !important; }
+  .md-grid-2 { grid-template-columns: 1fr !important; }
+  .md-col-span-2 { grid-column: span 1 !important; }
+  main { padding-bottom: 68px; }
+  h2.font-public-sans { font-size: 1.25rem !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+  .status-pills { overflow-x: auto !important; flex-wrap: nowrap !important; padding-bottom: 4px; }
+  .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+  .ai-page-header { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+  .ai-page-header span.text-xs { display: block; margin-top: 2px; }
+  .ana-summary-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .batch-table { font-size: 11px !important; }
+  .batch-table th { padding: 6px 8px !important; font-size: 9px !important; }
+  .batch-table td { padding: 6px 8px !important; }
+  #lb-tbody td { font-size: 11px !important; }
+  .sensor-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
+</style>
+</head>
+<body class="bg-surface text-on-surface">
+
+<!-- 모바일 상단바 -->
+<header class="mobile-topbar fixed top-0 left-0 right-0 z-50 bg-stone-50 border-b border-stone-200 h-14 px-4 items-center justify-between">
+  <div class="flex items-center">
+    <img src="HPC_logo.jpg" alt="HPC Logo" style="height:40px;object-fit:contain;">
+  </div>
+  <div class="flex items-center gap-1.5">
+    <span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span></span>
+    <span class="text-[10px] font-bold uppercase tracking-widest text-lime-800">LIVE</span>
+  </div>
+</header>
+
+<!-- 모바일 하단 탭바 -->
+<nav class="mobile-bottomnav fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-stone-200 h-16 items-center justify-around px-2">
+  <a onclick="showPage('dashboard')" class="mob-tab flex flex-col items-center gap-0.5 text-lime-800 cursor-pointer py-2 px-3">
+    <span class="material-symbols-outlined" id="mob-icon-dashboard" style="font-size:22px;font-variation-settings:'FILL' 1;">dashboard</span>
+    <span style="font-size:10px;font-family:Inter,sans-serif;">대시보드</span>
+  </a>
+  <a onclick="showPage('ai')" class="mob-tab flex flex-col items-center gap-0.5 cursor-pointer" style="margin-top:-20px;">
+    <div class="w-12 h-12 rounded-full cta-gradient flex items-center justify-center shadow-lg">
+      <span class="material-symbols-outlined text-white" style="font-size:22px;">search</span>
+    </div>
+    <span style="font-size:10px;color:#275300;font-weight:600;font-family:Inter,sans-serif;">AI 판별</span>
+  </a>
+  <a onclick="showPage('analytics')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
+    <span class="material-symbols-outlined" id="mob-icon-analytics" style="font-size:22px;">monitoring</span>
+    <span style="font-size:10px;font-family:Inter,sans-serif;">분석</span>
+  </a>
+  <a onclick="showPage('sensors')" class="mob-tab flex flex-col items-center gap-0.5 text-stone-400 cursor-pointer py-2 px-3">
+    <span class="material-symbols-outlined" id="mob-icon-sensors" style="font-size:22px;">thermostat</span>
+    <span style="font-size:10px;font-family:Inter,sans-serif;">센서</span>
+  </a>
+</nav>
+
+<div class="flex min-h-screen">
+
+<!-- Sidebar -->
+<aside class="flex flex-col h-screen sticky top-0 w-56 bg-stone-100 border-r border-stone-200 z-50 shrink-0">
+  <div class="p-5">
+    <div class="flex items-center gap-3">
+      <div>
+        <img src="HPC_logo.jpg" alt="HPC Logo" style="height:72px;object-fit:contain;">
+      </div>
+    </div>
+  </div>
+  <nav class="flex-1 px-3 py-2 space-y-0.5">
+    <a class="nav-link active" onclick="showPage('dashboard')">
+      <span class="material-symbols-outlined text-lg">dashboard</span>
+      <span>대시보드</span>
+    </a>
+    <a class="nav-link" onclick="showPage('ai')">
+      <span class="material-symbols-outlined text-lg">search</span>
+      <span>AI 불량 판별</span>
+    </a>
+    <a class="nav-link" onclick="showPage('sensors')">
+      <span class="material-symbols-outlined text-lg">thermostat</span>
+      <span>센서 현황</span>
+    </a>
+    <a class="nav-link" onclick="showPage('analytics')">
+      <span class="material-symbols-outlined text-lg">monitoring</span>
+      <span>분석</span>
+    </a>
+    <a class="nav-link" onclick="showPage('settings')">
+      <span class="material-symbols-outlined text-lg">settings</span>
+      <span>설정</span>
+    </a>
+  </nav>
+  <div class="px-4 py-5 space-y-3">
+    <button onclick="showPage('ai')" class="w-full cta-gradient text-white py-2.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow hover:opacity-90 transition-opacity font-public-sans">
+      <span class="material-symbols-outlined text-lg">add_circle</span>새 검수 시작
+    </button>
+    <div class="pt-3 border-t border-stone-200 space-y-1">
+      <a class="flex items-center gap-2 px-3 py-1.5 text-stone-400 hover:text-stone-700 text-xs transition-colors rounded-lg hover:bg-stone-200" href="https://app.landing.ai/" target="_blank">
+        <span class="material-symbols-outlined text-sm">open_in_new</span>LandingLens
+      </a>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+  <!-- Top Nav (데스크탑) -->
+  <header class="desktop-header flex justify-between items-center px-8 h-14 sticky top-0 z-40 bg-stone-50 border-b border-stone-200">
+    <div class="flex items-center gap-3">
+      <span class="flex h-2 w-2 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+      </span>
+      <span class="text-xs font-bold uppercase tracking-widest text-lime-800">LIVE</span>
+      <span class="text-stone-300 mx-1">|</span>
+      <span class="text-xs text-stone-400" id="last-updated-top">업데이트 중...</span>
+    </div>
+    <div class="flex items-center gap-4 text-stone-400">
+      <button class="hover:text-lime-800 transition-colors" onclick="loadWeather()">
+        <span class="material-symbols-outlined">refresh</span>
+      </button>
+      <button class="hover:text-lime-800 transition-colors">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <div class="flex items-center gap-2 pl-3 border-l border-stone-200">
+        <div class="w-7 h-7 rounded-full cta-gradient flex items-center justify-center text-white text-xs font-bold">L</div>
+        <span class="text-xs font-medium text-stone-600">LEE SEONGEUN</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGE: 대시보드 -->
+  <div id="page-dashboard" class="page active p-6 space-y-6 flex-1 overflow-y-auto pt-14 md:pt-6">
+    <div class="page-header flex items-start justify-between">
+      <div>
+        <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">CONTROL TOWER</h2>
+      </div>
+      <div class="status-pills flex flex-wrap gap-2 justify-end">
+        <span class="text-[11px] px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-semibold whitespace-nowrap">OpenWeather 연결됨</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-semibold cursor-pointer whitespace-nowrap" onclick="window.open('https://app.landing.ai/','_blank')">LandingLens ↗</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-500 font-semibold cursor-pointer whitespace-nowrap" onclick="window.open('https://www.trulos.com','_blank')">Trulos ↗</span>
+        <span class="text-[11px] px-3 py-1 rounded-full bg-stone-200 text-stone-400 font-semibold whitespace-nowrap">BLE 센서 대기중</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6">
+      <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
+          <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">운송 루트 날씨 현황</h3>
+          <div class="windy-tabs-row flex gap-2">
+            <button class="windy-tab active" onclick="changeWindyView('route', this)">전체 루트</button>
+            <button class="windy-tab" onclick="changeWindyView('indiana', this)">인디애나</button>
+            <button class="windy-tab" onclick="changeWindyView('utah', this)">유타</button>
+            <button class="windy-tab" onclick="changeWindyView('colorado', this)">콜로라도</button>
+            <button class="windy-tab" onclick="changeWindyView('california', this)">캘리포니아</button>
+          </div>
+        </div>
+        <div class="rounded-xl overflow-hidden border border-stone-100" style="height:680px;">
+          <iframe id="windy-iframe" width="100%" height="100%"
+            src="https://embed.windy.com/embed2.html?lat=38&lon=-104&detailLat=38&detailLon=-104&width=650&height=450&zoom=5&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=%C2%B0C&radarRange=-1"
+            frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div class="flex gap-5 mt-3">
+          <div class="flex items-center gap-1.5"><div class="dot dot-err"></div><span class="text-xs text-stone-400">인디애나폴리스</span></div>
+          <div class="flex items-center gap-1.5"><div class="dot dot-warn"></div><span class="text-xs text-stone-400">솔트레이크시티</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></div><span class="text-xs text-stone-400">덴버</span></div>
+          <div class="flex items-center gap-1.5"><div class="dot dot-ok"></div><span class="text-xs text-stone-400">LA</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="text-right text-xs text-stone-300" id="last-updated"></p>
+  </div>
+
+  <!-- PAGE: AI 불량 판별 -->
+  <div id="page-ai" class="page p-6 space-y-6 flex-1 overflow-y-auto">
+    <div class="ai-page-header flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">AI 불량 판별</h2>
+        <p class="text-sm text-stone-400 mt-0.5">LandingLens 연동 · SBB 부품 이미지 검수</p>
+      </div>
+      <span class="text-xs text-stone-400 whitespace-nowrap">Model-04-06-2026_1 · 2026-04-06 · 23장</span>
+    </div>
+
+    <div class="bg-white rounded-xl border border-stone-100 border-t-4 border-t-primary shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-stone-100 flex items-center gap-3">
+        <span class="material-symbols-outlined text-primary">search</span>
+        <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">AI 불량 판별 시스템</h3>
+        <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold">LandingLens 연동됨</span>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <div id="batch-drop-zone"
+          class="border-2 border-dashed border-stone-200 rounded-xl p-10 text-center cursor-pointer hover:border-primary hover:bg-green-50 transition-all"
+          onclick="document.getElementById('batch-file-input').click()"
+          ondragover="event.preventDefault(); this.classList.add('border-primary','bg-green-50');"
+          ondragleave="this.classList.remove('border-primary','bg-green-50');"
+          ondrop="event.preventDefault(); this.classList.remove('border-primary','bg-green-50'); handleBatchDrop(event);">
+          <span class="material-symbols-outlined text-5xl text-stone-200 block mb-3">photo_camera</span>
+          <p class="text-sm font-semibold text-stone-500">SBB 부품 사진을 클릭하거나 드래그하세요</p>
+          <p class="text-xs text-stone-300 mt-1">여러 장 동시 업로드 가능 · JPG, PNG 지원</p>
+          <input type="file" id="batch-file-input" accept="image/*" multiple style="display:none;" onchange="runBatchInference(this.files)">
+        </div>
+        <div id="batch-progress" class="hidden">
+          <div class="flex justify-between items-center mb-1">
+            <p class="text-xs text-stone-500 font-medium" id="batch-status"></p>
+            <p class="text-xs text-stone-400" id="batch-pct">0%</p>
+          </div>
+          <div class="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
+            <div class="bg-primary h-full rounded-full transition-all duration-300" id="batch-progress-bar" style="width:0%"></div>
+          </div>
+        </div>
+        <div id="batch-results" class="hidden space-y-4">
+          <div class="grid grid-cols-4 gap-3">
+            <div class="bg-stone-50 rounded-lg p-3 text-center border border-stone-100">
+              <p class="text-[10px] uppercase tracking-widest text-stone-400 mb-1">총 검수</p>
+              <p class="text-2xl font-black font-public-sans" id="stat-total">0</p>
+            </div>
+            <div class="bg-green-50 rounded-lg p-3 text-center border border-green-100">
+              <p class="text-[10px] uppercase tracking-widest text-green-600 mb-1">✅ 정상</p>
+              <p class="text-2xl font-black font-public-sans text-primary" id="stat-normal">0</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-3 text-center border border-red-100">
+              <p class="text-[10px] uppercase tracking-widest text-red-500 mb-1">⚠️ 데미지</p>
+              <p class="text-2xl font-black font-public-sans text-error" id="stat-damage">0</p>
+            </div>
+            <div class="bg-amber-50 rounded-lg p-3 text-center border border-amber-100">
+              <p class="text-[10px] uppercase tracking-widest text-amber-600 mb-1">불량률</p>
+              <p class="text-2xl font-black font-public-sans text-secondary" id="stat-rate">0%</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto rounded-lg border border-stone-100">
+            <table class="batch-table">
+              <thead><tr><th>미리보기</th><th>#</th><th>파일명</th><th>판별 결과</th><th>신뢰도</th><th>검수 날짜 / 시간</th></tr></thead>
+              <tbody id="batch-table-body"></tbody>
+            </table>
+          </div>
+          <div class="flex gap-3">
+            <button onclick="exportCSV()" class="text-xs font-semibold text-primary flex items-center gap-1 hover:underline">
+              <span class="material-symbols-outlined text-sm">download</span> CSV 다운로드
+            </button>
+            <button onclick="resetInspection()" class="text-xs font-semibold text-stone-400 flex items-center gap-1 hover:underline hover:text-stone-600">
+              <span class="material-symbols-outlined text-sm">refresh</span> 새 검수
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: 센서 현황 -->
+  <div id="page-sensors" class="page p-6 space-y-6 flex-1 overflow-y-auto">
+    <div>
+      <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">센서 현황</h2>
+      <p class="text-sm text-stone-400 mt-0.5">BLE 온습도 센서 · 게이트별 실시간 모니터링</p>
+    </div>
+    <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-stone-100"><h3 class="text-sm font-bold uppercase tracking-wider font-public-sans">BLE 온습도 센서</h3></div>
+      <div class="sensor-grid grid grid-cols-4 gap-4 p-5">
+        <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 1</p><p class="text-3xl font-black font-public-sans">23°C</p><p class="text-sm text-stone-400 mt-1">습도 45%</p></div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-amber-500 mb-2">게이트 2 ⚠️</p><p class="text-3xl font-black font-public-sans text-amber-600">31°C</p><p class="text-sm text-amber-500 mt-1">습도 78%</p></div>
+        <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 3</p><p class="text-3xl font-black font-public-sans">22°C</p><p class="text-sm text-stone-400 mt-1">습도 42%</p></div>
+        <div class="bg-stone-50 rounded-xl p-5 text-center"><p class="text-[10px] uppercase tracking-widest text-stone-400 mb-2">게이트 4</p><p class="text-3xl font-black font-public-sans">24°C</p><p class="text-sm text-stone-400 mt-1">습도 50%</p></div>
+      </div>
+    </div>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
+      <span class="material-symbols-outlined text-amber-500">warning</span>
+      <div>
+        <p class="text-sm font-bold text-amber-700">게이트 2 온습도 경고</p>
+        <p class="text-xs text-amber-600 mt-0.5">온도 31°C / 습도 78% — 배터리 보관 권장 범위 초과. 즉시 확인 요망.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: 분석 -->
+  <div id="page-analytics" class="page p-6 space-y-6 flex-1 overflow-y-auto">
+    <div class="flex items-center justify-between">
+      <div>
+        <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">검수 분석</h2>
+        <p class="text-sm text-stone-400 mt-0.5">AI 불량 판별 세션 이력 · 누적 통계</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="exportAllCSV()" class="flex items-center gap-1.5 text-xs text-stone-500 hover:text-primary transition-colors border border-stone-200 rounded-lg px-3 py-1.5 hover:border-primary">
+          <span class="material-symbols-outlined text-sm">download</span> 전체 내보내기
+        </button>
+        <button onclick="clearHistory()" class="flex items-center gap-1.5 text-xs text-stone-400 hover:text-error transition-colors border border-stone-200 rounded-lg px-3 py-1.5 hover:border-red-200">
+          <span class="material-symbols-outlined text-sm">delete_outline</span> 이력 초기화
+        </button>
+      </div>
+    </div>
+
+    <div class="ana-summary-grid grid grid-cols-4 gap-4">
+      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">총 검수 세션</p>
+        <p class="text-3xl font-black font-public-sans" id="ana-sessions">0</p>
+        <p class="text-xs text-stone-400 mt-1">누적 실행 횟수</p>
+      </div>
+      <div class="bg-white p-5 rounded-xl border border-stone-100 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">총 검수 이미지</p>
+        <p class="text-3xl font-black font-public-sans" id="ana-total">0</p>
+        <p class="text-xs text-stone-400 mt-1">누적 판별 건수</p>
+      </div>
+      <div class="bg-green-50 p-5 rounded-xl border border-green-100 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-green-600 mb-2">✅ 누적 정상</p>
+        <p class="text-3xl font-black font-public-sans text-primary" id="ana-normal">0</p>
+        <p class="text-xs text-primary mt-1 font-medium" id="ana-normal-pct">—</p>
+      </div>
+      <div class="bg-red-50 p-5 rounded-xl border border-red-100 shadow-sm">
+        <p class="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-2">⚠️ 누적 데미지</p>
+        <p class="text-3xl font-black font-public-sans text-error" id="ana-damage">0</p>
+        <p class="text-xs text-error mt-1 font-medium" id="ana-damage-pct">—</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6 md-grid-2">
+      <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <button onclick="calPrev()" class="text-stone-400 hover:text-stone-700 transition-colors p-1 rounded-lg hover:bg-stone-100">
+            <span class="material-symbols-outlined text-lg">chevron_left</span>
+          </button>
+          <h3 class="text-sm font-bold font-public-sans" id="cal-title"></h3>
+          <button onclick="calNext()" class="text-stone-400 hover:text-stone-700 transition-colors p-1 rounded-lg hover:bg-stone-100">
+            <span class="material-symbols-outlined text-lg">chevron_right</span>
+          </button>
+        </div>
+        <div class="grid grid-cols-7 mb-1">
+          <div class="text-center text-[10px] font-bold text-red-400 py-1">일</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">월</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">화</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">수</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">목</div>
+          <div class="text-center text-[10px] font-bold text-stone-400 py-1">금</div>
+          <div class="text-center text-[10px] font-bold text-blue-400 py-1">토</div>
+        </div>
+        <div class="grid grid-cols-7 gap-y-1" id="cal-grid"></div>
+        <div class="flex items-center gap-4 mt-4 pt-3 border-t border-stone-100">
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-primary"></div><span class="text-[10px] text-stone-400">검수 실행</span></div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+        <div id="cal-panel-empty" class="flex flex-col items-center justify-center h-full py-16 text-center px-6">
+          <span class="material-symbols-outlined text-5xl text-stone-200 block mb-3">calendar_today</span>
+          <p class="text-sm font-bold text-stone-400">날짜를 선택해주세요</p>
+          <p class="text-xs text-stone-300 mt-1">선택 날짜에 진행된 모든 검수 세션을 볼 수 있어요</p>
+        </div>
+        <div id="cal-panel-content" class="hidden h-full flex flex-col">
+          <div class="p-5 border-b border-stone-100 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary text-lg">event</span>
+            <h3 class="text-sm font-bold font-public-sans" id="cal-panel-date"></h3>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-bold" id="cal-panel-count"></span>
+          </div>
+          <div id="cal-panel-sessions" class="divide-y divide-stone-50 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ana-detail-wrap" class="hidden bg-white rounded-xl border border-stone-100 shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-stone-100 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-stone-400">list_alt</span>
+          <h3 class="text-sm font-bold uppercase tracking-wider font-public-sans" id="ana-detail-title">세션 상세</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportSessionCSV()" class="flex items-center gap-1 text-xs text-primary hover:underline">
+            <span class="material-symbols-outlined text-sm">download</span> CSV
+          </button>
+          <button onclick="closeDetail()" class="text-stone-400 hover:text-stone-700 ml-2">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="grid grid-cols-4 divide-x divide-stone-100 border-b border-stone-100" id="ana-detail-summary"></div>
+      <div class="overflow-x-auto">
+        <table class="batch-table">
+          <thead><tr><th>#</th><th>파일명</th><th>판별 결과</th><th>신뢰도</th><th>검수 날짜 / 시간</th></tr></thead>
+          <tbody id="ana-detail-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: 설정 -->
+  <div id="page-settings" class="page p-6 flex-1 overflow-y-auto">
+    <div class="mb-6">
+      <h2 class="text-2xl font-black font-public-sans tracking-tight text-lime-950">설정</h2>
+      <p class="text-sm text-stone-400 mt-0.5">API 연동 및 시스템 설정</p>
+    </div>
+    <div class="bg-white rounded-xl border border-stone-100 shadow-sm p-8 text-center text-stone-300">
+      <span class="material-symbols-outlined text-5xl block mb-3">settings</span>
+      <p class="text-sm">설정 페이지 준비 중입니다</p>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- 이미지 확대 모달 -->
+<div id="img-modal" class="fixed inset-0 z-[999] hidden items-center justify-center bg-black/70 backdrop-blur-sm" onclick="closeImgModal()">
+  <div class="relative max-w-3xl w-full mx-4" onclick="event.stopPropagation()">
+    <button onclick="closeImgModal()" class="absolute -top-10 right-0 text-white/70 hover:text-white flex items-center gap-1 text-sm">
+      <span class="material-symbols-outlined">close</span> 닫기
+    </button>
+    <img id="img-modal-src" src="" alt="" class="w-full rounded-xl shadow-2xl object-contain max-h-[80vh]">
+    <p id="img-modal-label" class="text-white/80 text-xs text-center mt-3"></p>
+  </div>
+</div>
+
+<script>
+  /* ─── 상수 (API 키 설정 필요) ──────────────────────────────────────────────────
+   *
+   *  아래 항목들을 귀사 환경에 맞게 교체해주세요.
+   *
+   *  1. OPENWEATHER_API_KEY
+   *     - https://openweathermap.org 에서 무료 계정 생성 후 발급
+   *
+   *  2. LANDING_ENDPOINT / LANDING_API_KEY
+   *     - https://app.landing.ai 에서 모델 학습 후 엔드포인트 발급
+   *     - 모델 학습에 SBB 부품 이미지 데이터 필요
+   *
+   *  3. Firebase 설정 (firebaseConfig)
+   *     - https://console.firebase.google.com 에서 프로젝트 생성 후 발급
+   *     - Firestore Database 활성화 필요
+   *
+   * ─────────────────────────────────────────────────────────────────────────── */
+
+  const API_KEY = '4ae44c33d2d34a0cbae84e490b8c2d32';
+  const LANDING_ENDPOINT = 'https://predict.app.landing.ai/inference/v1/predict?endpoint_id=b8759335-25e5-4370-9ffb-d21389c7a3d0';
+  const LANDING_API_KEY = 'land_sk_VVJaBvBFy24zHO1QGO5kt6V1yccWurBfiD2Ujncr1lPXSvMLsD';
+
+  const cities = [
+    { name: 'LA 다운타운', en: 'Los Angeles', id: 'seoul' },
+    { name: '롱비치',      en: 'Long Beach',  id: 'busan' },
+    { name: '어바인',      en: 'Irvine',      id: null },
+    { name: '샌디에이고',  en: 'San Diego',   id: null },
+  ];
+  const windyViews = {
+    route:      { lat: 38,     lon: -104,    zoom: 5 },
+    indiana:    { lat: 39.77,  lon: -86.16,  zoom: 7 },
+    utah:       { lat: 40.76,  lon: -111.89, zoom: 7 },
+    colorado:   { lat: 39.74,  lon: -104.98, zoom: 7 },
+    california: { lat: 34.05,  lon: -118.24, zoom: 7 },
+  };
+
+  /* ─── 페이지 전환 ─────────────────────────────────── */
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+    const pg = document.getElementById('page-' + name);
+    if (pg) pg.classList.add('active');
+    const links = document.querySelectorAll('.nav-link');
+    const map = { dashboard:0, ai:1, sensors:2, analytics:3, settings:4 };
+    if (links[map[name]]) links[map[name]].classList.add('active');
+    if (name === 'analytics') renderAnalytics();
+    document.querySelectorAll('.mob-tab').forEach(t => {
+      t.querySelectorAll('span.material-symbols-outlined').forEach(ic => { ic.style.color = '#a8a29e'; });
+      t.querySelectorAll('span.text-\\[10px\\]').forEach(txt => txt.style.color = '#a8a29e');
+    });
+    const mobIconMap = { dashboard:'mob-icon-dashboard', analytics:'mob-icon-analytics', sensors:'mob-icon-sensors' };
+    if (mobIconMap[name]) {
+      const ic = document.getElementById(mobIconMap[name]);
+      if (ic) ic.style.color = '#275300';
+    }
+  }
+
+  /* ─── 날씨 ────────────────────────────────────────── */
+  function changeWindyView(view, el) {
+    const v = windyViews[view];
+    document.getElementById('windy-iframe').src = `https://embed.windy.com/embed2.html?lat=${v.lat}&lon=${v.lon}&detailLat=${v.lat}&detailLon=${v.lon}&width=650&height=450&zoom=${v.zoom}&level=surface&overlay=wind&product=ecmwf&menu=&message=&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=%C2%B0C&radarRange=-1`;
+    document.querySelectorAll('.windy-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+  async function fetchCity(city) {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city.en}&appid=${API_KEY}&units=metric&lang=kr`);
+    return res.json();
+  }
+  async function loadWeather() {
+    const list = document.getElementById('weather-list');
+    if (!list) return;
+    list.innerHTML = '<p class="text-xs text-stone-400 text-center py-2">불러오는 중...</p>';
+    try {
+      const results = await Promise.all(cities.map(c => fetchCity(c)));
+      const allOk = results.every(r => r.cod === 200);
+      if (!allOk) { list.innerHTML = '<p class="text-xs text-amber-500 text-center py-2">API Key를 확인해주세요</p>'; return; }
+      list.innerHTML = results.map((data, i) => {
+        const temp = Math.round(data.main.temp);
+        return `<div class="flex items-center justify-between py-2 border-b border-stone-50 last:border-0">
+          <div><p class="text-sm font-semibold">${cities[i].name}</p><p class="text-[11px] text-stone-400">${data.weather[0].description} · 습도 ${data.main.humidity}%</p></div>
+          <span class="text-lg font-black font-public-sans">${temp}°C</span></div>`;
+      }).join('');
+      const t = `마지막 업데이트: ${new Date().toLocaleTimeString('ko-KR')}`;
+      const lu = document.getElementById('last-updated');
+      const lut = document.getElementById('last-updated-top');
+      if (lu) lu.textContent = t;
+      if (lut) lut.textContent = t;
+    } catch(e) { if (list) list.innerHTML = '<p class="text-xs text-red-400 text-center py-2">네트워크 오류</p>'; }
+  }
+
+  /* ─── AI 검수 ─────────────────────────────────────── */
+  function nowDatetime() {
+    const n = new Date();
+    const d = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+    const t = n.toLocaleTimeString('ko-KR');
+    return `${d} ${t}`;
+  }
+  function handleBatchDrop(event) {
+    const files = event.dataTransfer.files;
+    if (files.length > 0) runBatchInference(files);
+  }
+  async function analyzeImage(file) {
+    const formData = new FormData(); formData.append('file', file);
+    const data = await (await fetch(LANDING_ENDPOINT, { method:'POST', headers:{'apikey':LANDING_API_KEY}, body:formData })).json();
+    let hasDamage=false, finalScore=0;
+    const CONFIDENCE_THRESHOLD = 0.36;
+    if (data && data.backbonepredictions) {
+      const bp = data.backbonepredictions;
+      if (Array.isArray(bp)) {
+        const dmg = bp.find(p=>(p.labelName||'').toLowerCase()==='damage');
+        if(dmg) { finalScore=dmg.score||0; hasDamage=finalScore>=CONFIDENCE_THRESHOLD; }
+      } else if (typeof bp==='object') {
+        const v=Object.values(bp);
+        const dmg = v.find(p=>(p.labelName||'').toLowerCase()==='damage');
+        if(dmg) { finalScore=dmg.score||0; hasDamage=finalScore>=CONFIDENCE_THRESHOLD; }
+      }
+    }
+    if (!hasDamage && data && data.predictions) {
+      const preds = data.predictions;
+      if (Array.isArray(preds)&&preds.length>0) {
+        const score=preds[0].score||0;
+        if((preds[0].labelName||'').toLowerCase()==='ng'&&score>=CONFIDENCE_THRESHOLD) { hasDamage=true; if(!finalScore) finalScore=score; }
+      } else if (typeof preds==='object') {
+        const v=Object.values(preds);
+        const ng=v.find(p=>(p.labelName||'').toLowerCase()==='ng');
+        if(ng&&(ng.score||0)>=CONFIDENCE_THRESHOLD) { hasDamage=true; if(!finalScore) finalScore=ng.score||0; }
+      }
+    }
+    return { hasDamage, finalScore };
+  }
+
+  let batchResults = [];
+  const batchImageURLs = {};
+
+  function openImgModal(src, label) {
+    const modal = document.getElementById('img-modal');
+    document.getElementById('img-modal-src').src = src;
+    document.getElementById('img-modal-label').textContent = label;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  function closeImgModal() {
+    const modal = document.getElementById('img-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeImgModal(); });
+
+  async function runBatchInference(files) {
+    const fileArray = Array.from(files); if (!fileArray.length) return;
+    batchResults = [];
+    document.getElementById('batch-table-body').innerHTML = '';
+    document.getElementById('batch-results').classList.add('hidden');
+    document.getElementById('batch-progress').classList.remove('hidden');
+    let normalCount = 0, damageCount = 0;
+    const sessionStart = nowDatetime();
+
+    for (let i = 0; i < fileArray.length; i++) {
+      const file = fileArray[i];
+      const pct = Math.round((i / fileArray.length) * 100);
+      document.getElementById('batch-progress-bar').style.width = pct + '%';
+      document.getElementById('batch-pct').textContent = pct + '%';
+      document.getElementById('batch-status').textContent = `분석 중... ${i+1} / ${fileArray.length}  (${file.name})`;
+      const datetime = nowDatetime();
+      let result = { hasDamage: false, finalScore: 0 };
+      try { result = await analyzeImage(file); } catch(e) {}
+      if (result.hasDamage) damageCount++; else normalCount++;
+      const imgURL = URL.createObjectURL(file);
+      batchImageURLs[i+1] = { url: imgURL, name: file.name };
+      batchResults.push({ index: i+1, filename: file.name, hasDamage: result.hasDamage, score: result.finalScore, datetime });
+      const tr = document.createElement('tr');
+      const borderColor = result.hasDamage ? 'border-red-300' : 'border-green-300';
+      tr.innerHTML = `
+        <td style="width:64px;">
+          <img src="${imgURL}" alt="${file.name}"
+            class="w-14 h-14 object-cover rounded-lg border-2 ${borderColor} cursor-pointer hover:scale-105 transition-transform shadow-sm"
+            onclick="openImgModal('${imgURL}', '${file.name.replace(/'/g,"\\'")} · ${result.hasDamage?'⚠️ 데미지':'✅ 정상'} · ${result.finalScore?(result.finalScore*100).toFixed(1)+'%':'-'}')"
+          >
+        </td>
+        <td class="text-stone-400">${i+1}</td>
+        <td class="text-xs text-stone-500 max-w-xs truncate">${file.name}</td>
+        <td><span class="ai-badge ${result.hasDamage?'damage':'normal'}">${result.hasDamage?'⚠️ 데미지':'✅ 정상'}</span></td>
+        <td class="font-medium">${result.finalScore?(result.finalScore*100).toFixed(1)+'%':'-'}</td>
+        <td class="text-stone-400 text-xs whitespace-nowrap">${datetime}</td>`;
+      document.getElementById('batch-table-body').appendChild(tr);
+      document.getElementById('stat-total').textContent = i+1;
+      document.getElementById('stat-normal').textContent = normalCount;
+      document.getElementById('stat-damage').textContent = damageCount;
+      document.getElementById('stat-rate').textContent = Math.round((damageCount/(i+1))*100) + '%';
+      document.getElementById('batch-results').classList.remove('hidden');
+    }
+    document.getElementById('batch-progress-bar').style.width = '100%';
+    document.getElementById('batch-pct').textContent = '100%';
+    document.getElementById('batch-status').textContent = `✅ 분석 완료! 총 ${fileArray.length}개 검수`;
+
+    const session = {
+      id: Date.now(),
+      datetime: sessionStart,
+      total: fileArray.length,
+      normal: normalCount,
+      damage: damageCount,
+      rate: Math.round((damageCount / fileArray.length) * 100),
+      items: batchResults.map(r => ({ filename: r.filename, hasDamage: r.hasDamage, score: r.score, datetime: r.datetime }))
+    };
+    await saveSession(session);
+  }
+
+  function resetInspection() {
+    Object.values(batchImageURLs).forEach(obj => URL.revokeObjectURL(obj.url));
+    Object.keys(batchImageURLs).forEach(k => delete batchImageURLs[k]);
+    batchResults = [];
+    document.getElementById('batch-table-body').innerHTML = '';
+    document.getElementById('batch-results').classList.add('hidden');
+    document.getElementById('batch-progress').classList.add('hidden');
+    document.getElementById('batch-progress-bar').style.width = '0%';
+    document.getElementById('batch-file-input').value = '';
+  }
+
+  function exportCSV() {
+    const date = new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.','');
+    let csv = '번호,파일명,판별결과,신뢰도,검수날짜시간\n';
+    batchResults.forEach(r => { csv += `${r.index},"${r.filename}",${r.hasDamage?'데미지':'정상'},${r.score?(r.score*100).toFixed(1)+'%':'-'},"${r.datetime}"\n`; });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
+    a.download = `SBB검수결과_${date}.csv`;
+    a.click();
+  }
+
+  /* ─── 분석 페이지 ─────────────────────────────────── */
+  let currentDetailSession = null;
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+  let selectedCalDate = null;
+
+  async function getHistory() {
+    if (db) {
+      try {
+        const snap = await db.collection('sbb_sessions').orderBy('id', 'desc').get();
+        return snap.docs.map(d => d.data());
+      } catch(e) { console.warn('Firestore 읽기 실패:', e); }
+    }
+    return JSON.parse(localStorage.getItem('sbb_history') || '[]');
+  }
+
+  async function saveSession(session) {
+    if (db) {
+      try {
+        await db.collection('sbb_sessions').doc(String(session.id)).set(session);
+        return;
+      } catch(e) { console.warn('Firestore 저장 실패:', e); }
+    }
+    const hist = JSON.parse(localStorage.getItem('sbb_history') || '[]');
+    hist.unshift(session);
+    localStorage.setItem('sbb_history', JSON.stringify(hist));
+  }
+
+  async function renderAnalytics() {
+    const hist = await getHistory();
+    const total  = hist.reduce((s,h) => s+h.total, 0);
+    const normal = hist.reduce((s,h) => s+h.normal, 0);
+    const damage = hist.reduce((s,h) => s+h.damage, 0);
+    document.getElementById('ana-sessions').textContent = hist.length;
+    document.getElementById('ana-total').textContent = total;
+    document.getElementById('ana-normal').textContent = normal;
+    document.getElementById('ana-damage').textContent = damage;
+    document.getElementById('ana-normal-pct').textContent = total ? `전체의 ${Math.round(normal/total*100)}%` : '—';
+    document.getElementById('ana-damage-pct').textContent = total ? `전체의 ${Math.round(damage/total*100)}%` : '—';
+    renderCalendar(hist);
+  }
+
+  async function renderCalendar(histArg) {
+    const hist = histArg || await getHistory();
+    const dayMap = {};
+    hist.forEach(s => {
+      const d = (s.datetime || '').split(' ')[0];
+      if (!d) return;
+      if (!dayMap[d]) dayMap[d] = [];
+      dayMap[d].push(s);
+    });
+    const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+    document.getElementById('cal-title').textContent = `${calYear}년 ${months[calMonth]}`;
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    let cells = '';
+    for (let i = 0; i < firstDay; i++) cells += `<div></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const sessions = dayMap[dateStr] || [];
+      const isToday = dateStr === todayStr;
+      const isSelected = dateStr === selectedCalDate;
+      const dow = (firstDay + d - 1) % 7;
+      const dayColor = dow === 0 ? 'text-red-400' : dow === 6 ? 'text-blue-400' : 'text-stone-700';
+      cells += `<div class="relative flex flex-col items-center py-1 cursor-pointer rounded-lg transition-all hover:bg-stone-50 ${isSelected ? 'bg-primary-fixed' : ''}"
+        onclick="selectCalDate('${dateStr}')">
+        <span class="text-xs font-medium ${isSelected ? 'font-bold text-primary' : isToday ? 'font-black text-primary' : dayColor}">${d}</span>
+        ${isToday && !isSelected ? '<div class="w-1 h-1 rounded-full bg-primary mt-0.5"></div>' : ''}
+        ${sessions.length > 0 && !isToday ? `<div class="mt-0.5"><div class="w-1.5 h-1.5 rounded-full bg-primary mx-auto"></div></div>` : ''}
+      </div>`;
+    }
+    document.getElementById('cal-grid').innerHTML = cells;
+    if (selectedCalDate) selectCalDate(selectedCalDate, true);
+  }
+
+  async function selectCalDate(dateStr, silent) {
+    selectedCalDate = dateStr;
+    if (!silent) renderCalendar();
+    const hist = await getHistory();
+    const sessions = hist.filter(s => (s.datetime || '').startsWith(dateStr));
+    const empty   = document.getElementById('cal-panel-empty');
+    const content = document.getElementById('cal-panel-content');
+    if (!sessions.length) { empty.classList.remove('hidden'); content.classList.add('hidden'); return; }
+    empty.classList.add('hidden');
+    content.classList.remove('hidden');
+    const [y,m,d] = dateStr.split('-');
+    document.getElementById('cal-panel-date').textContent = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일`;
+    document.getElementById('cal-panel-count').textContent = `${sessions.length}세션`;
+    document.getElementById('cal-panel-sessions').innerHTML = sessions.map((s,i) => {
+      const timePart = (s.datetime || '').split(' ').slice(1).join(' ');
+      const rateColor = s.rate === 0 ? 'text-primary' : s.rate < 20 ? 'text-secondary' : 'text-error';
+      const pct = s.total ? Math.round(s.normal/s.total*100) : 0;
+      return `<div class="p-4 hover:bg-stone-50 cursor-pointer transition-colors" onclick="openDetail(${s.id})">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black text-stone-500 font-public-sans">세션 ${i+1}</span>
+            <span class="text-[10px] text-stone-300">${timePart}</span>
+          </div>
+          <span class="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5">
+            상세 <span class="material-symbols-outlined text-sm">chevron_right</span>
+          </span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 text-center mb-2">
+          <div class="bg-stone-50 rounded-lg p-2"><p class="text-[9px] text-stone-400 mb-0.5">검수</p><p class="text-base font-black font-public-sans">${s.total}</p></div>
+          <div class="bg-green-50 rounded-lg p-2"><p class="text-[9px] text-green-500 mb-0.5">정상</p><p class="text-base font-black font-public-sans text-primary">${s.normal}</p></div>
+          <div class="bg-red-50 rounded-lg p-2"><p class="text-[9px] text-red-400 mb-0.5">데미지</p><p class="text-base font-black font-public-sans text-error">${s.damage}</p></div>
+        </div>
+        <div class="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
+          <div class="h-full bg-primary rounded-full" style="width:${pct}%"></div>
+        </div>
+        <div class="flex justify-between mt-1">
+          <span class="text-[10px] text-stone-400">정상률 ${pct}%</span>
+          <span class="text-[10px] font-bold ${rateColor}">불량 ${s.rate}%</span>
+        </div>
+      </div>`;
+    }).join('<div class="border-t border-stone-50"></div>');
+  }
+
+  function calPrev() {
+    calMonth--;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    selectedCalDate = null;
+    document.getElementById('cal-panel-empty').classList.remove('hidden');
+    document.getElementById('cal-panel-content').classList.add('hidden');
+    renderCalendar();
+  }
+  function calNext() {
+    calMonth++;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    selectedCalDate = null;
+    document.getElementById('cal-panel-empty').classList.remove('hidden');
+    document.getElementById('cal-panel-content').classList.add('hidden');
+    renderCalendar();
+  }
+
+  async function openDetail(id) {
+    const hist = await getHistory();
+    const session = hist.find(h => h.id === id);
+    if (!session) return;
+    currentDetailSession = session;
+    const num = hist.length - hist.indexOf(session);
+    document.getElementById('ana-detail-title').textContent = `세션 #${num} 상세 — ${session.datetime}`;
+    const rateColor = session.rate === 0 ? '#275300' : session.rate < 20 ? '#88520e' : '#ba1a1a';
+    document.getElementById('ana-detail-summary').innerHTML = `
+      <div class="p-4 text-center"><p class="text-[9px] uppercase tracking-widest text-stone-400 mb-1">총 검수</p><p class="text-2xl font-black font-public-sans">${session.total}</p></div>
+      <div class="p-4 text-center bg-green-50"><p class="text-[9px] uppercase tracking-widest text-green-500 mb-1">✅ 정상</p><p class="text-2xl font-black font-public-sans text-primary">${session.normal}</p></div>
+      <div class="p-4 text-center bg-red-50"><p class="text-[9px] uppercase tracking-widest text-red-400 mb-1">⚠️ 데미지</p><p class="text-2xl font-black font-public-sans text-error">${session.damage}</p></div>
+      <div class="p-4 text-center"><p class="text-[9px] uppercase tracking-widest text-stone-400 mb-1">불량률</p><p class="text-2xl font-black font-public-sans" style="color:${rateColor}">${session.rate}%</p></div>`;
+    document.getElementById('ana-detail-tbody').innerHTML = session.items.map((item, i) => `
+      <tr>
+        <td class="text-stone-400">${i+1}</td>
+        <td class="text-xs text-stone-600 max-w-xs truncate font-medium">${item.filename}</td>
+        <td><span class="ai-badge ${item.hasDamage?'damage':'normal'}">${item.hasDamage?'⚠️ 데미지':'✅ 정상'}</span></td>
+        <td class="font-medium">${item.score?(item.score*100).toFixed(1)+'%':'-'}</td>
+        <td class="text-stone-400 text-xs whitespace-nowrap">${item.datetime}</td>
+      </tr>`).join('');
+    document.getElementById('ana-detail-wrap').classList.remove('hidden');
+    document.getElementById('ana-detail-wrap').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function closeDetail() {
+    document.getElementById('ana-detail-wrap').classList.add('hidden');
+    currentDetailSession = null;
+  }
+
+  async function clearHistory() {
+    if (!confirm('모든 검수 이력을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+    if (db) {
+      try {
+        const snap = await db.collection('sbb_sessions').get();
+        const batch = db.batch();
+        snap.docs.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+      } catch(e) { localStorage.removeItem('sbb_history'); }
+    } else {
+      localStorage.removeItem('sbb_history');
+    }
+    selectedCalDate = null;
+    closeDetail();
+    renderAnalytics();
+  }
+
+  async function exportAllCSV() {
+    const hist = await getHistory();
+    if (!hist.length) { alert('내보낼 이력이 없습니다'); return; }
+    let csv = '세션#,세션날짜시간,파일명,판별결과,신뢰도,검수날짜시간\n';
+    hist.forEach((s, si) => {
+      s.items.forEach(item => {
+        csv += `${hist.length-si},"${s.datetime}","${item.filename}",${item.hasDamage?'데미지':'정상'},${item.score?(item.score*100).toFixed(1)+'%':'-'},"${item.datetime}"\n`;
+      });
+    });
+    const date = new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.','');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
+    a.download = `SBB_전체검수이력_${date}.csv`;
+    a.click();
+  }
+
+  function exportSessionCSV() {
+    if (!currentDetailSession) return;
+    const s = currentDetailSession;
+    let csv = '파일명,판별결과,신뢰도,검수날짜시간\n';
+    s.items.forEach(item => {
+      csv += `"${item.filename}",${item.hasDamage?'데미지':'정상'},${item.score?(item.score*100).toFixed(1)+'%':'-'},"${item.datetime}"\n`;
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'}));
+    a.download = `SBB_세션검수_${s.datetime.replace(/[: ]/g,'-')}.csv`;
+    a.click();
+  }
+
+  /* ─── Firebase 초기화 ────────────────────────────────────────────────────────
+   *  아래 firebaseConfig 값을 귀사 Firebase 프로젝트 설정으로 교체해주세요.
+   *  Firebase Console(https://console.firebase.google.com) → 프로젝트 설정 → 앱 추가
+   * ─────────────────────────────────────────────────────────────────────────── */
+  const firebaseConfig = {
+    apiKey: "AIzaSyB6rnyG5kULDiImo1UuI2wZ40R4kMDuYE0",
+    authDomain: "sbb-control-tower-33b95.firebaseapp.com",
+    projectId: "sbb-control-tower-33b95",
+    storageBucket: "sbb-control-tower-33b95.firebasestorage.app",
+    messagingSenderId: "667691336675",
+    appId: "1:667691336675:web:acf946e8fe21a589a296d6"
+  };
+
+  let db = null;
+  function initFirebase() {
+    try {
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      console.log('✅ Firebase Firestore 연결됨');
+    } catch(e) { console.warn('Firebase 초기화 실패 - localStorage 모드로 동작합니다:', e); }
+  }
+
+  /* ─── 초기 실행 ───────────────────────────────────── */
+  initFirebase();
+  loadWeather();
+  setInterval(loadWeather, 5 * 60 * 1000);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('SW 등록 완료'))
+        .catch(err => console.log('SW 등록 실패:', err));
+    });
+  }
+</script>
+</body>
+</html>
